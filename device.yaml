@@ -928,51 +928,53 @@ Gpio2Control: # Reg 0x93
 
 Gpio20SignalStatus: # Reg 0x94
   type: register
-  address: 0x94
+  address: 0x94 # Hex address for REG94H
   size_bits: 8
-  access: RW
+  access: RW # The register itself can be R/W
   description: "GPIO[2:0] signal status (input read) and output level control (output write). (Datasheet pg 45)"
   fields:
-    gpio2_input_status:
+    # Bit 7: Reserved
+    gpio2_input_status: # Datasheet Bit 6
       {
         base: bool,
         start: 6,
         access: RO,
         description: "GPIO2 input status (Read Only)",
       }
-    gpio1_input_status:
+    gpio1_input_status: # Datasheet Bit 5
       {
         base: bool,
         start: 5,
         access: RO,
         description: "GPIO1 input status (Read Only)",
       }
-    gpio0_input_status:
+    gpio0_input_status: # Datasheet Bit 4
       {
         base: bool,
         start: 4,
         access: RO,
         description: "GPIO0 input status (Read Only)",
       }
-    gpio2_output_level_setting:
+    # Bit 3: Reserved
+    gpio2_output_level: # Datasheet Bit 2, Renamed from gpio2_output_level_setting
       {
         base: bool,
         start: 2,
-        access: WO,
+        access: RW, # Correctly RW based on datasheet
         description: "GPIO2 output level (0:Low, 1:Float/High)",
       }
-    gpio1_output_level_setting:
+    gpio1_output_level: # Datasheet Bit 1, Renamed from gpio1_output_level_setting
       {
         base: bool,
         start: 1,
-        access: WO,
+        access: RW, # Correctly RW based on datasheet
         description: "GPIO1 output level (0:Low, 1:Float/High)",
       }
-    gpio0_output_level_setting:
+    gpio0_output_level: # Datasheet Bit 0, Renamed from gpio0_output_level_setting
       {
         base: bool,
         start: 0,
-        access: WO,
+        access: RW, # Correctly RW based on datasheet
         description: "GPIO0 output level (0:Low, 1:Float/High)",
       }
 
@@ -1006,37 +1008,39 @@ Gpio43FunctionControl: # Reg 0x95
 
 Gpio43SignalStatus: # Reg 0x96
   type: register
-  address: 0x96
+  address: 0x96 # Hex address for REG96H
   size_bits: 8
-  access: RW
+  access: RW # The register itself can be R/W
   description: "GPIO[4:3] signal status (input read) and output level control (output write). (Datasheet pg 45)"
   fields:
-    gpio4_input_status:
+    # Bits 7-6: Reserved
+    gpio4_input_status: # Datasheet Bit 5
       {
         base: bool,
         start: 5,
         access: RO,
         description: "GPIO4 input status (Read Only)",
       }
-    gpio3_input_status:
+    gpio3_input_status: # Datasheet Bit 4
       {
         base: bool,
         start: 4,
         access: RO,
         description: "GPIO3 input status (Read Only)",
       }
-    gpio4_output_level_setting:
+    # Bits 3-2: Reserved
+    gpio4_output_level: # Datasheet Bit 1, Renamed from gpio4_output_level_setting
       {
         base: bool,
         start: 1,
-        access: WO,
+        access: RW, # Correctly RW based on datasheet
         description: "GPIO4 output level (0:Low, 1:Float/High)",
       }
-    gpio3_output_level_setting:
+    gpio3_output_level: # Datasheet Bit 0, Renamed from gpio3_output_level_setting
       {
         base: bool,
         start: 0,
-        access: WO,
+        access: RW, # Correctly RW based on datasheet
         description: "GPIO3 output level (0:Low, 1:Float/High)",
       }
 
