@@ -435,25 +435,25 @@ ChargeControl1: # Reg 0x33
         base: bool,
         start: 0,
         description: "Charging function enable (0:Disable, 1:Enable)",
-      } # Bit 7
-    charge_target_voltage_setting: # Bits 6-5
+      } # HW Bit 7
+    charge_target_voltage_setting: # HW Bits 6-5
       {
         base: uint,
-        start: 1,
-        end: 3,
+        start: 1, # Covers HW bit 6
+        end: 3, # Exclusive end, so covers HW bit 5. Total 2 bits.
         description: "Target voltage (00:4.1V,01:4.15V,10:4.2V,11:4.36V)",
       }
-    end_charge_current_select: # Bit 4
+    end_charge_current_select: # HW Bit 4
       {
         base: bool,
         start: 3,
         description: "End charge current (0: 10% of charge current, 1: 15%)",
-      }
-    charge_current_setting: # Bits 3-0
+      } # start:3 covers HW Bit 4
+    charge_current_setting: # HW Bits 3-0
       {
         base: uint,
-        start: 4,
-        end: 8,
+        start: 4, # Covers HW bit 3
+        end: 8, # Exclusive end, so covers HW bit 0. Total 4 bits.
         description: "Charge current (0000:100mA .. 1111:1320mA)",
       }
 
