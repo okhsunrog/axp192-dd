@@ -2,21 +2,15 @@
 
 use super::*;
 use crate::{
-    AxpError, DcId, GpioMode, /* Other enums from lib.rs */ GpioPin, LdoId, PekBootTime,
-    PekLongPressTime, PekShutdownDuration,
+    AxpError, DcId, GpioMode, GpioPin, LdoId, PekBootTime, PekLongPressTime, PekShutdownDuration,
 };
-
-// trace!, info! etc. are globally available from `crate::fmt`
 
 device_driver::create_device!(device_name: Device, manifest: "device.yaml");
 
-// --- I2C Bus Interface (AxpInterface) ---
 pub struct AxpInterface<I2CBus> {
-    // Fields were missing here
     i2c_bus: I2CBus,
     device_address: u8,
 }
-
 impl<I2CBus> AxpInterface<I2CBus> {
     pub fn new(i2c_bus: I2CBus, device_address: u8) -> Self {
         Self {
@@ -27,10 +21,9 @@ impl<I2CBus> AxpInterface<I2CBus> {
 }
 
 #[only_sync]
-impl<I2CBus, E> device_driver::RegisterInterface for AxpInterface<I2CBus>
+impl<I2CBus, E: core::fmt::Debug> device_driver::RegisterInterface for AxpInterface<I2CBus>
 where
     I2CBus: embedded_hal::i2c::I2c<Error = E>,
-    E: core::fmt::Debug,
 {
     type AddressType = u8;
     type Error = AxpError<E>;
@@ -61,11 +54,11 @@ where
             .map_err(AxpError::I2c)
     }
 }
+
 #[only_async]
-impl<I2CBus, E> device_driver::AsyncRegisterInterface for AxpInterface<I2CBus>
+impl<I2CBus, E: core::fmt::Debug> device_driver::AsyncRegisterInterface for AxpInterface<I2CBus>
 where
     I2CBus: embedded_hal_async::i2c::I2c<Error = E>,
-    E: core::fmt::Debug,
 {
     type AddressType = u8;
     type Error = AxpError<E>;
@@ -143,17 +136,20 @@ where
         enable: bool,
     ) -> Result<(), AxpError<I2CBusErr>> {
         let mut op = self.ll.dcdc_13_ldo_23_control();
-        if ASYNC {
+        #[cfg(feature = "async")]
+        {
             op.modify_async(|r| match dc {
                 DcId::Dcdc1 => r.set_dcdc_1_enable(enable),
                 DcId::Dcdc3 => r.set_dcdc_3_enable(enable),
             })
-            .await?; // Apply ? after await
-        } else {
+            .await?
+        }
+        #[cfg(feature = "blocking")]
+        {
             op.modify(|r| match dc {
                 DcId::Dcdc1 => r.set_dcdc_1_enable(enable),
                 DcId::Dcdc3 => r.set_dcdc_3_enable(enable),
-            })?; // Apply ? directly
+            })?
         }
         Ok(())
     }
@@ -171,17 +167,23 @@ where
         match dc {
             DcId::Dcdc1 => {
                 let mut op = self.ll.dcdc_1_voltage();
-                if ASYNC {
+                #[cfg(feature = "async")]
+                {
                     op.modify_async(|r| r.set_setting(setting)).await?
-                } else {
+                }
+                #[cfg(feature = "blocking")]
+                {
                     op.modify(|r| r.set_setting(setting))?
                 }
             }
             DcId::Dcdc3 => {
                 let mut op = self.ll.dcdc_3_voltage();
-                if ASYNC {
+                #[cfg(feature = "async")]
+                {
                     op.modify_async(|r| r.set_setting(setting)).await?
-                } else {
+                }
+                #[cfg(feature = "blocking")]
+                {
                     op.modify(|r| r.set_setting(setting))?
                 }
             }
@@ -189,35 +191,23 @@ where
         Ok(())
     }
 
-    // ... (Apply the same `if ASYNC { op.method_async(...).await? } else { op.method_sync(...)? }`
-    //      pattern for all other methods that return Result<(), E> like set_output_enable_ldo,
-    //      set_ldo_voltage, set_charge_current_ma, set_gpio_mode, set_pek_settings) ...
-
-    // For methods returning Result<T, E> (like reads):
     #[bisync]
     pub async fn is_charging(&mut self) -> Result<bool, AxpError<I2CBusErr>> {
-        trace!("Checking charging status...");
-        let power_status_fieldset = if ASYNC {
-            self.ll.power_status().read_async().await
-        } else {
-            self.ll.power_status().read()
-        }?; // Note: ? is outside the if/else
-        Ok(power_status_fieldset.battery_current_direction())
+        #[cfg(feature = "async")]
+        let fieldset = self.ll.power_status().read_async().await?;
+        #[cfg(feature = "blocking")]
+        let fieldset = self.ll.power_status().read()?;
+        Ok(fieldset.battery_current_direction())
     }
 
     #[bisync]
     pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        trace!("Reading battery voltage...");
-        let adc_fieldset = if ASYNC {
-            self.ll.battery_voltage_adc().read_async().await
-        } else {
-            self.ll.battery_voltage_adc().read()
-        }?;
-        let raw_adc = adc_fieldset.raw();
-        Ok((raw_adc >> 4) as f32 * 1.1)
+        #[cfg(feature = "async")]
+        let fieldset = self.ll.battery_voltage_adc().read_async().await?;
+        #[cfg(feature = "blocking")]
+        let fieldset = self.ll.battery_voltage_adc().read()?;
+        Ok((fieldset.raw() >> 4) as f32 * 1.1)
     }
-
-    // --- Re-implement other setters with the corrected bisync pattern ---
 
     #[bisync]
     pub async fn set_output_enable_ldo(
@@ -226,17 +216,20 @@ where
         enable: bool,
     ) -> Result<(), AxpError<I2CBusErr>> {
         let mut op = self.ll.dcdc_13_ldo_23_control();
-        if ASYNC {
+        #[cfg(feature = "async")]
+        {
             op.modify_async(|r| match ldo {
                 LdoId::Ldo2 => r.set_ldo_2_enable(enable),
                 LdoId::Ldo3 => r.set_ldo_3_enable(enable),
             })
-            .await?;
-        } else {
+            .await?
+        }
+        #[cfg(feature = "blocking")]
+        {
             op.modify(|r| match ldo {
                 LdoId::Ldo2 => r.set_ldo_2_enable(enable),
                 LdoId::Ldo3 => r.set_ldo_3_enable(enable),
-            })?;
+            })?
         }
         Ok(())
     }
@@ -252,17 +245,20 @@ where
         }
         let setting = ((voltage_mv - 1800) / 100) as u8 & 0x0F;
         let mut op = self.ll.ldo_23_voltage();
-        if ASYNC {
+        #[cfg(feature = "async")]
+        {
             op.modify_async(|r| match ldo {
                 LdoId::Ldo2 => r.set_ldo_2_setting(setting),
                 LdoId::Ldo3 => r.set_ldo_3_setting(setting),
             })
-            .await?;
-        } else {
+            .await?
+        }
+        #[cfg(feature = "blocking")]
+        {
             op.modify(|r| match ldo {
                 LdoId::Ldo2 => r.set_ldo_2_setting(setting),
                 LdoId::Ldo3 => r.set_ldo_3_setting(setting),
-            })?;
+            })?
         }
         Ok(())
     }
@@ -284,35 +280,34 @@ where
             _ => return Err(AxpError::InvalidCurrent(current_ma)),
         };
         let mut op = self.ll.charge_control_1();
-        if ASYNC {
+        #[cfg(feature = "async")]
+        {
             op.modify_async(|r| r.set_charge_current_setting(current_bits))
-                .await?;
-        } else {
-            op.modify(|r| r.set_charge_current_setting(current_bits))?;
+                .await?
+        }
+        #[cfg(feature = "blocking")]
+        {
+            op.modify(|r| r.set_charge_current_setting(current_bits))?
         }
         Ok(())
     }
 
     #[bisync]
     pub async fn get_acin_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let adc_fieldset = if ASYNC {
-            self.ll.acin_voltage_adc().read_async().await
-        } else {
-            self.ll.acin_voltage_adc().read()
-        }?;
-        let raw = adc_fieldset.raw();
-        Ok((raw >> 4) as f32 * 1.7)
+        #[cfg(feature = "async")]
+        let fieldset = self.ll.acin_voltage_adc().read_async().await?;
+        #[cfg(feature = "blocking")]
+        let fieldset = self.ll.acin_voltage_adc().read()?;
+        Ok((fieldset.raw() >> 4) as f32 * 1.7)
     }
 
     #[bisync]
     pub async fn get_internal_temperature_c(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let temp_fieldset = if ASYNC {
-            self.ll.internal_temperature_adc().read_async().await
-        } else {
-            self.ll.internal_temperature_adc().read()
-        }?;
-        let raw = temp_fieldset.raw();
-        Ok(((raw >> 4) as f32 * 0.1) - 144.7)
+        #[cfg(feature = "async")]
+        let fieldset = self.ll.internal_temperature_adc().read_async().await?;
+        #[cfg(feature = "blocking")]
+        let fieldset = self.ll.internal_temperature_adc().read()?;
+        Ok(((fieldset.raw() >> 4) as f32 * 0.1) - 144.7)
     }
 
     #[bisync]
@@ -325,25 +320,34 @@ where
         match pin {
             GpioPin::Gpio0 => {
                 let mut op = self.ll.gpio_0_control();
-                if ASYNC {
+                #[cfg(feature = "async")]
+                {
                     op.modify_async(|r| r.set_mode(mode_val)).await?
-                } else {
+                }
+                #[cfg(feature = "blocking")]
+                {
                     op.modify(|r| r.set_mode(mode_val))?
                 }
             }
             GpioPin::Gpio1 => {
                 let mut op = self.ll.gpio_1_control();
-                if ASYNC {
+                #[cfg(feature = "async")]
+                {
                     op.modify_async(|r| r.set_mode(mode_val)).await?
-                } else {
+                }
+                #[cfg(feature = "blocking")]
+                {
                     op.modify(|r| r.set_mode(mode_val))?
                 }
             }
             GpioPin::Gpio2 => {
                 let mut op = self.ll.gpio_2_control();
-                if ASYNC {
+                #[cfg(feature = "async")]
+                {
                     op.modify_async(|r| r.set_mode(mode_val)).await?
-                } else {
+                }
+                #[cfg(feature = "blocking")]
+                {
                     op.modify(|r| r.set_mode(mode_val))?
                 }
             }
@@ -358,19 +362,22 @@ where
         level_high: bool,
     ) -> Result<(), AxpError<I2CBusErr>> {
         let mut op = self.ll.gpio_20_signal_status();
-        if ASYNC {
+        #[cfg(feature = "async")]
+        {
             op.modify_async(|r| match pin {
                 GpioPin::Gpio0 => r.set_gpio_0_out_level(level_high),
                 GpioPin::Gpio1 => r.set_gpio_1_out_level(level_high),
                 GpioPin::Gpio2 => r.set_gpio_2_out_level(level_high),
             })
-            .await?;
-        } else {
+            .await?
+        }
+        #[cfg(feature = "blocking")]
+        {
             op.modify(|r| match pin {
                 GpioPin::Gpio0 => r.set_gpio_0_out_level(level_high),
                 GpioPin::Gpio1 => r.set_gpio_1_out_level(level_high),
                 GpioPin::Gpio2 => r.set_gpio_2_out_level(level_high),
-            })?;
+            })?
         }
         Ok(())
     }
@@ -386,7 +393,8 @@ where
     ) -> Result<(), AxpError<I2CBusErr>> {
         let mut op = self.ll.pek_settings();
         let pwrok_delay_val_for_reg = if pwrok_signal_delay_64ms { 1 } else { 0 };
-        if ASYNC {
+        #[cfg(feature = "async")]
+        {
             op.write_async(|w| {
                 w.set_boot_time_setting(boot_time as u8);
                 w.set_long_press_time_setting(long_press as u8);
@@ -394,15 +402,17 @@ where
                 w.set_pwrok_signal_delay(pwrok_delay_val_for_reg);
                 w.set_shutdown_duration_setting(shutdown_duration as u8);
             })
-            .await?;
-        } else {
+            .await?
+        }
+        #[cfg(feature = "blocking")]
+        {
             op.write(|w| {
                 w.set_boot_time_setting(boot_time as u8);
                 w.set_long_press_time_setting(long_press as u8);
                 w.set_auto_shutdown_by_pwrok_en(auto_shutdown_by_pwrok_en);
                 w.set_pwrok_signal_delay(pwrok_delay_val_for_reg);
                 w.set_shutdown_duration_setting(shutdown_duration as u8);
-            })?;
+            })?
         }
         Ok(())
     }
