@@ -1,8 +1,9 @@
 // src/lib.rs
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 
+// This mod MUST go first, so that the others see its macros.
 #[macro_use]
-mod fmt; // For info!, debug! etc.
+pub(crate) mod fmt; // Changed to pub(crate) as per usbpd example
 
 use thiserror::Error;
 
@@ -106,38 +107,28 @@ pub enum PekShutdownDuration {
 }
 
 // --- bisync Modules ---
-
-/// Asynchronous version of the AXP192 driver.
 #[cfg(feature = "async")]
-#[path = "."] // Indicates that submodules declared here look for files in `src/`
+#[path = "."]
 pub mod asynchronous {
     #[doc(hidden)]
     pub use bisync::asynchronous::*;
-
-    // This will look for `src/driver_core.rs` because of `#[path = "."]` on the parent `asynchronous` module.
-    mod driver_core;
+    mod driver_core; // Will find src/driver_core.rs
     pub use driver_core::*;
 }
-// Optional: Re-export the main driver struct for convenience if desired
 #[cfg(feature = "async")]
-pub use asynchronous::Axp192 as Axp192Async;
+pub use asynchronous::Axp192 as Axp192Async; // Assuming Axp192 is pub in driver_core
 
-/// Blocking (synchronous) version of the AXP192 driver.
 #[cfg(feature = "blocking")]
-#[path = "."] // Indicates that submodules declared here look for files in `src/`
+#[path = "."]
 pub mod blocking {
     #[doc(hidden)]
     pub use bisync::synchronous::*;
-
-    // This will also look for `src/driver_core.rs`.
-    // `bisync` handles the fact that the same file is compiled under two different `super` contexts.
-    #[allow(clippy::duplicate_mod)] // Allow the same module name if clippy complains
-    mod driver_core;
+    #[allow(clippy::duplicate_mod)]
+    mod driver_core; // Will find src/driver_core.rs
     pub use driver_core::*;
 }
-// Optional: Re-export the main driver struct for convenience
 #[cfg(feature = "blocking")]
-pub use blocking::Axp192 as Axp192Blocking;
+pub use blocking::Axp192 as Axp192Blocking; // Assuming Axp192 is pub in driver_core
 
 #[cfg(test)]
 mod tests {

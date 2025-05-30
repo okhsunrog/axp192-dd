@@ -1,22 +1,20 @@
 // src/driver_core.rs
-// no_std attribute is in lib.rs
+// no_std attribute is primarily for lib.rs. If this file also needs it:
+#![cfg_attr(not(any(test, feature = "std")), no_std)]
 
-use super::*; // Pulls in bisync::asynchronous::* or ::synchronous::* items
+use super::*; // This is KEY for bisync. Pulls in bisync::asynchronous::* or ::synchronous::*
 use crate::{
-    AxpError, ChargeTargetVoltage, DcId, GpioMode, GpioPin, LdoId, PekBootTime, PekLongPressTime,
-    PekShutdownDuration,
+    AxpError, GpioMode, /* ... other common enums from lib.rs if needed directly here ... */
+    GpioPin,
 };
 
-// Use crate-level logging macros (defined via #[macro_use] mod fmt; in lib.rs)
-// No need for `use log::info;` if using `crate::info!` from fmt.rs
-use crate::{debug, info, trace, warn};
+// Logging macros (info!, debug!, etc.) are now globally available from `crate::fmt`
+// No explicit `use log::info;` or `use crate::info;` needed if `#[macro_use]` is on `mod fmt`.
 
-// Corrected import for Register trait used as a bound
-use device_driver::Register; // For R: Register bound, if needed by SYNC interface.
-// For the async interface the compiler error points to, it's not used in the signature.
+use device_driver::Register; // For the R: Register bound
 
-// Generate Axp192LowLevel from YAML
-// Ensure "Axp192LowLevel" is used consistently as the device_name.
+// Generate Axp192LowLevel. This struct will be defined in *this* module's scope.
+// Make sure your YAML path is correct relative to the crate root.
 device_driver::create_device!(device_name: Axp192LowLevel, manifest: "src/axp192_registers.yaml");
 
 // --- I2C Bus Interface ---
@@ -34,24 +32,24 @@ impl<I2CBus> AxpInterface<I2CBus> {
     }
 }
 
-// Sync impl - using the signature style from device_driver 1.0.x RegisterInterface
+// Sync impl
 #[only_sync]
 impl<I2CBus, E> device_driver::RegisterInterface for AxpInterface<I2CBus>
+// Corrected trait path
 where
     I2CBus: embedded_hal::i2c::I2c<Error = E>,
     E: core::fmt::Debug,
 {
-    type AddressType = u8; // Matches device_driver 1.0.x RegisterInterface
+    type AddressType = u8;
     type Error = AxpError<E>;
 
     fn read_register<R: Register<AddressType = Self::AddressType>>(
-        // Corrected generic bound
         &mut self,
         _offset: Option<u8>,
         out: &mut R::Word,
     ) -> Result<(), Self::Error>
     where
-        R::Word: AsMut<[u8]> + Default, // Added Default bound, often needed
+        R::Word: AsMut<[u8]> + Default,
     {
         self.i2c_bus
             .write_read(self.device_address, &[R::ADDRESS], out.as_mut())
@@ -59,7 +57,6 @@ where
     }
 
     fn write_register<R: Register<AddressType = Self::AddressType>>(
-        // Corrected generic bound
         &mut self,
         _offset: Option<u8>,
         value: &R::Word,
@@ -77,22 +74,23 @@ where
     }
 }
 
-// Async impl - using the signature from the compiler error for device_driver 1.0.4 AsyncRegisterInterface
+// Async impl
 #[only_async]
 impl<I2CBus, E> device_driver::AsyncRegisterInterface for AxpInterface<I2CBus>
+// Corrected trait path
 where
     I2CBus: embedded_hal_async::i2c::I2c<Error = E>,
     E: core::fmt::Debug,
 {
-    type AddressType = u8; // As per compiler error for this trait
+    type AddressType = u8; // Matches the trait definition
     type Error = AxpError<E>;
 
+    // Use the signature expected by device_driver v1.0.4 AsyncRegisterInterface
     async fn read_register(
-        // Signature from compiler error
         &mut self,
         address: Self::AddressType,
-        _size_bits: u32, // This param is part of the trait, must be present
-        data: &mut [u8], // Raw byte slice
+        _size_bits: u32,
+        data: &mut [u8],
     ) -> Result<(), Self::Error> {
         self.i2c_bus
             .write_read(self.device_address, &[address], data)
@@ -101,16 +99,19 @@ where
     }
 
     async fn write_register(
-        // Signature from compiler error
         &mut self,
         address: Self::AddressType,
-        _size_bits: u32, // This param is part of the trait
-        data: &[u8],     // Raw byte slice
+        _size_bits: u32,
+        data: &[u8],
     ) -> Result<(), Self::Error> {
-        let mut buffer = [0u8; 1 + 2]; // Max 2 bytes for AXP192 registers + address byte
-        // This needs to be dynamic or large enough if data len varies.
-        // For fixed size write, it's simpler.
-        if data.len() > 2 { /* error or panic, AXP192 registers are small */ }
+        let mut buffer = [0u8; 1 + 2]; // Max 2 data bytes for AXP192 + address byte
+        if data.len() > buffer.len() - 1 {
+            // This case should ideally not happen if device-driver passes correct length
+            // based on register size_bits. For safety, or return an error.
+            return Err(AxpError::NotImplemented(
+                "Write data too large for fixed buffer",
+            ));
+        }
         buffer[0] = address;
         buffer[1..1 + data.len()].copy_from_slice(data);
         self.i2c_bus
@@ -122,7 +123,7 @@ where
 
 // --- High-Level Driver ---
 pub struct Axp192<I2CImpl> {
-    ll: Axp192LowLevel<I2CImpl>, // This should now be found due to create_device! above
+    ll: Axp192LowLevel<I2CImpl>, // Axp192LowLevel is defined in this module by create_device!
 }
 
 #[only_sync]
@@ -130,7 +131,7 @@ impl<I2CBus, E> Axp192<AxpInterface<I2CBus>>
 where
     I2CBus: embedded_hal::i2c::I2c<Error = E>,
     E: core::fmt::Debug,
-    AxpInterface<I2CBus>: device_driver::RegisterInterface<Error = AxpError<E>, AddressType = u8>, // AddressType
+    AxpInterface<I2CBus>: device_driver::RegisterInterface<Error = AxpError<E>, AddressType = u8>,
 {
     pub fn new(i2c: I2CBus) -> Self {
         Self {
@@ -145,7 +146,7 @@ where
     I2CBus: embedded_hal_async::i2c::I2c<Error = E>,
     E: core::fmt::Debug,
     AxpInterface<I2CBus>:
-        device_driver::AsyncRegisterInterface<Error = AxpError<E>, AddressType = u8>, // AddressType
+        device_driver::AsyncRegisterInterface<Error = AxpError<E>, AddressType = u8>,
 {
     pub fn new(i2c: I2CBus) -> Self {
         Self {
@@ -157,27 +158,16 @@ where
 impl<I2CImpl, I2CBusErr> Axp192<I2CImpl>
 where
     I2CImpl: device_driver::RegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>
-        + // AddressType
-        device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>, // AddressType
+        + device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>,
     I2CBusErr: core::fmt::Debug,
 {
     #[bisync]
-    pub async fn get_chip_id_test(&mut self) -> Result<u8, AxpError<I2CBusErr>> {
-        // The generated Axp192LowLevel uses the Register/AsyncRegisterInterface traits.
-        // If AsyncRegisterInterface takes (address, size, data), then the generated
-        // .read().await and .write().await calls from Axp192LowLevel will provide these.
-        let reg_value = self.ll.power_status().read().await?; // This calls the appropriate trait method
-        Ok(reg_value.into_bytes()[0])
-    }
-
-    // Minimal methods to test further
-    #[bisync]
     pub async fn is_charging(&mut self) -> Result<bool, AxpError<I2CBusErr>> {
-        Ok(self
-            .ll
-            .power_status()
-            .read()
-            .await?
-            .battery_current_direction())
+        // Use the global logging macros
+        trace!("Checking charging status...");
+        // The .read().await? will call the appropriate sync/async method on Axp192LowLevel
+        // which in turn calls the correct trait method on AxpInterface.
+        let power_status_reg = self.ll.power_status().read().await?;
+        Ok(power_status_reg.battery_current_direction())
     }
 }
