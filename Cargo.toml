@@ -11,8 +11,7 @@ readme = "README.md"
 documentation = "https://docs.rs/mipidsi"
 
 [dependencies]
-# bisync = "0.3.0"
-bisync = { path = "../bisync/bisync" }
+bisync = "0.3.0"
 defmt = { version = "0.3", optional = true }
 log = { version = "0.4", optional = true }
 device-driver = { version = "1.0.4", default-features = false, features = ["yaml"] }
@@ -28,3 +27,8 @@ async = [] # Users can enable this feature
 blocking = [] # Users can enable this feature
 log = ["dep:log"]
 defmt = ["dep:defmt", "device-driver/defmt-03"]
+
+[patch.crates-io]
+bisync = { git = "https://github.com/okhsunrog/bisync.git", branch = "feature/optional-async-suffix" }
+bisync_macros = { git = "https://github.com/okhsunrog/bisync.git", branch = "feature/optional-async-suffix" }
+

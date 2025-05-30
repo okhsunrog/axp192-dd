@@ -43,6 +43,7 @@ dependencies = [
 [[package]]
 name = "bisync"
 version = "0.3.0"
+source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix#f1e678d99f711466d41b554824373df3251f1593"
 dependencies = [
  "bisync_macros",
 ]
@@ -50,8 +51,12 @@ dependencies = [
 [[package]]
 name = "bisync_macros"
 version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d21f40d350a700f6aa107e45fb26448cf489d34794b2ba4522181dc9f1173af6"
+source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix#f1e678d99f711466d41b554824373df3251f1593"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "bitflags"
