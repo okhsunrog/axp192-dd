@@ -31,7 +31,7 @@ name = "axp192-dd"
 version = "0.1.0"
 dependencies = [
  "bisync",
- "defmt 0.3.100",
+ "defmt 1.0.1",
  "device-driver",
  "embedded-hal",
  "embedded-hal-async",
