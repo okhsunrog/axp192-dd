@@ -11,7 +11,6 @@ PowerStatus:
   address: 0x00
   size_bits: 8
   access: RO
-  reset_value: 0x00
   description: |
     Input power status register.
     Indicates the presence and usability of ACIN and VBUS, along with other power-related statuses.
@@ -55,7 +54,6 @@ ChargeStatus:
   address: 0x01
   size_bits: 8
   access: RO
-  reset_value: 0x00
   description: |
     Power mode and charging status register.
     Indicates over-temperature, charging status, battery presence, and other charging-related statuses.
@@ -91,7 +89,7 @@ Ldo23Voltage:
   address: 0x28
   size_bits: 8
   access: RW
-  reset_value: 0x00
+  reset_value: 0xCF
   description: |
     LDO2 and LDO3 output voltage configurations (1.8-3.3V, 100mV/step).
     Refer to AXP192 datasheet page 36 for details.
@@ -112,7 +110,7 @@ ChargeControl1:
   address: 0x33
   size_bits: 8
   access: RW
-  reset_value: 0xC0
+  reset_value: 0xC8
   description: |
     Charging control: enable, target voltage, end current, charge current.
     Refer to AXP192 datasheet page 37 for details.
@@ -147,7 +145,7 @@ PekSettings:
   address: 0x36
   size_bits: 8
   access: RW
-  reset_value: 0x00
+  reset_value: 0x5D
   description: |
     PEK button parameters: boot time, long press, auto-shutdown, PWROK delay, shutdown duration.
     Refer to AXP192 datasheet page 38 for details.
