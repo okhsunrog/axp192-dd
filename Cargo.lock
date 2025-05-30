@@ -43,8 +43,6 @@ dependencies = [
 [[package]]
 name = "bisync"
 version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5020822f6d6f23196ccaf55e228db36f9de1cf788052b37992e17cbc96ec41a7"
 dependencies = [
  "bisync_macros",
 ]

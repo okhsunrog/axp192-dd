@@ -11,7 +11,8 @@ readme = "README.md"
 documentation = "https://docs.rs/mipidsi"
 
 [dependencies]
-bisync = "0.3.0"
+# bisync = "0.3.0"
+bisync = { path = "../bisync/bisync" }
 defmt = { version = "0.3", optional = true }
 log = { version = "0.4", optional = true }
 device-driver = { version = "1.0.4", default-features = false, features = ["yaml"] }
