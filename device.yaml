@@ -1,4 +1,3 @@
-# src/axp192_registers.yaml
 config:
   register_address_type: u8
   command_address_type: u8 # Not used much by AXP192, but good to define
