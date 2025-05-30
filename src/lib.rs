@@ -7,6 +7,7 @@ pub(crate) mod fmt; // Keep this first for macros
 use thiserror::Error;
 
 // --- Public Error Type ---
+// ... (AxpError and its impls remain the same) ...
 #[derive(Debug, Error)]
 pub enum AxpError<I2cErr> {
     #[error("I2C error")]
@@ -38,7 +39,7 @@ impl<I2cErr> defmt::Format for AxpError<I2cErr> {
 }
 
 // --- Public Helper Enums ---
-// These are used by the high-level Axp192 API in driver_core.rs
+// ... (Enums like DcId, LdoId, etc., remain the same) ...
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum DcId {
@@ -108,13 +109,14 @@ pub enum PekShutdownDuration {
 
 // --- bisync Modules (apa102-spi-rs style) ---
 #[cfg(feature = "async")]
-#[path = "."] // Submodules defined herein look for files in `src/`
+#[path = "."]
 pub mod asynchronous {
     #[doc(hidden)]
     pub use bisync::asynchronous::*;
-    // This declares `driver_core` as a module whose source is `src/driver_core.rs`
+    // Alias the required device-driver interface trait for the async context
+    pub use device_driver::AsyncRegisterInterface as CurrentAxpDriverInterface;
     mod driver_core;
-    pub use driver_core::*; // Re-export Axp192, AxpInterface from driver_core
+    pub use driver_core::*;
 }
 #[cfg(feature = "async")]
 pub use asynchronous::Axp192 as Axp192Async;
@@ -124,7 +126,9 @@ pub use asynchronous::Axp192 as Axp192Async;
 pub mod blocking {
     #[doc(hidden)]
     pub use bisync::synchronous::*;
-    #[allow(clippy::duplicate_mod)] // We know driver_core is "duplicated"
+    // Alias the required device-driver interface trait for the blocking context
+    pub use device_driver::RegisterInterface as CurrentAxpDriverInterface;
+    #[allow(clippy::duplicate_mod)]
     mod driver_core;
     pub use driver_core::*;
 }
