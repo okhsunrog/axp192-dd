@@ -1,144 +1,148 @@
 // src/lib.rs
-#![cfg_attr(not(test), no_std)] // No_std for the library itself
-#![cfg_attr(not(feature = "std"), no_std)] // Allow std for tests or specific features
+#![cfg_attr(not(any(test, feature = "std")), no_std)]
 
-// Common error type and helper enums can live at the crate root
-// or be moved into driver_core.rs and re-exported. Let's define them here for now.
+#[macro_use]
+mod fmt; // For info!, debug! etc.
 
-use thiserror::Error; // Assuming "std" feature for thiserror for now for simplicity.
-// If strictly no-alloc, error definition will be simpler.
+use thiserror::Error;
 
+// --- Public Error Type ---
 #[derive(Debug, Error)]
 pub enum AxpError<I2cErr> {
-    #[error("I2C communication error: {0:?}")]
+    #[error("I2C error")]
     I2c(I2cErr),
-    #[error("Invalid voltage value: {0}mV")]
+    #[error("Invalid voltage")]
     InvalidVoltage(u16),
-    #[error("Invalid current value: {0}mA")]
+    #[error("Invalid current")]
     InvalidCurrent(u16),
-    #[error("Invalid parameter for GPIO {pin:?}: mode {mode:?}")]
+    #[error("Invalid GPIO param")]
     InvalidGpioParameter { pin: GpioPin, mode: GpioMode },
-    #[error("Feature not available for specified GPIO")]
+    #[error("GPIO unavailable")]
     GpioFeatureUnavailable,
-    #[error("Functionality not yet implemented: {0}")]
+    #[error("Not implemented")]
     NotImplemented(&'static str),
 }
 
-// Helper Enums (can also be in driver_core.rs and re-exported)
+#[cfg(feature = "defmt")]
+impl<I2cErr> defmt::Format for AxpError<I2cErr> {
+    fn format(&self, f: defmt::Formatter) {
+        match self {
+            AxpError::I2c(_) => defmt::write!(f, "E:I2C"),
+            AxpError::InvalidVoltage(v) => defmt::write!(f, "E:V({}mV)", v),
+            AxpError::InvalidCurrent(c) => defmt::write!(f, "E:I({}mA)", c),
+            AxpError::InvalidGpioParameter { .. } => defmt::write!(f, "E:GPIOParam"),
+            AxpError::GpioFeatureUnavailable => defmt::write!(f, "E:GPIOFeat"),
+            AxpError::NotImplemented(s) => defmt::write!(f, "E:NoImpl({=str})", s),
+        }
+    }
+}
+
+// --- Public Helper Enums ---
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum DcId {
     Dcdc1,
     Dcdc3,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum LdoId {
     Ldo2,
     Ldo3,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum GpioPin {
     Gpio0,
     Gpio1,
     Gpio2,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum GpioMode {
-    NmosOpenDrainOutput = 0b000,
-    UniversalInput = 0b001,
-    PwmOutput = 0b010,
-    LowNoiseLdo = 0b010, // For GPIO0
-    AdcInput = 0b100,
-    LowOutput = 0b101,
-    Floating = 0b110,
+    NmosOpenDrainOutput = 0,
+    UniversalInput = 1,
+    SpecialOutput010 = 2,
+    AdcInput = 4,
+    LowOutput = 5,
+    Floating = 6,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum ChargeTargetVoltage {
-    V4_10 = 0b00,
-    V4_15 = 0b01,
-    V4_20 = 0b10,
-    V4_36 = 0b11,
+    V4_10 = 0,
+    V4_15 = 1,
+    V4_20 = 2,
+    V4_36 = 3,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum PekBootTime {
-    S128ms = 0b00,
-    S512ms = 0b01,
-    S1 = 0b10,
-    S2 = 0b11,
+    S128ms = 0,
+    S512ms = 1,
+    S1 = 2,
+    S2 = 3,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum PekLongPressTime {
-    Ms1000 = 0b00,
-    Ms1500 = 0b01,
-    Ms2000 = 0b10,
-    Ms2500 = 0b11,
+    Ms1000 = 0,
+    Ms1500 = 1,
+    Ms2000 = 2,
+    Ms2500 = 3,
 }
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum PekShutdownDuration {
-    S4 = 0b00,
-    S6 = 0b01,
-    S8 = 0b10,
-    S10 = 0b11,
+    S4 = 0,
+    S6 = 1,
+    S8 = 2,
+    S10 = 3,
 }
 
-// --- bisync module structure ---
+// --- bisync Modules ---
 
-// This defines the `asynchronous` module.
-// Code using this path will use async/await.
-#[path = "driver_core.rs"]
+/// Asynchronous version of the AXP192 driver.
+#[cfg(feature = "async")]
+#[path = "."] // Indicates that submodules declared here look for files in `src/`
 pub mod asynchronous {
-    use bisync::asynchronous::*; // Pulls in async-specific bisync items
-    // Re-export items from the inner module.
-    // The `mod driver_core;` declaration makes items from driver_core.rs available under `driver_core::`.
-    // `pub use driver_core::*;` makes them directly available under `asynchronous::`.
+    #[doc(hidden)]
+    pub use bisync::asynchronous::*;
+
+    // This will look for `src/driver_core.rs` because of `#[path = "."]` on the parent `asynchronous` module.
     mod driver_core;
     pub use driver_core::*;
 }
+// Optional: Re-export the main driver struct for convenience if desired
+#[cfg(feature = "async")]
+pub use asynchronous::Axp192 as Axp192Async;
 
-// This defines the `blocking` module.
-// Code using this path will have async/await stripped.
-#[path = "driver_core.rs"]
+/// Blocking (synchronous) version of the AXP192 driver.
+#[cfg(feature = "blocking")]
+#[path = "."] // Indicates that submodules declared here look for files in `src/`
 pub mod blocking {
-    use bisync::synchronous::*; // Pulls in sync-specific bisync items
+    #[doc(hidden)]
+    pub use bisync::synchronous::*;
+
+    // This will also look for `src/driver_core.rs`.
+    // `bisync` handles the fact that the same file is compiled under two different `super` contexts.
+    #[allow(clippy::duplicate_mod)] // Allow the same module name if clippy complains
     mod driver_core;
     pub use driver_core::*;
 }
-
-// Remove the placeholder function
-// pub fn add(left: u64, right: u64) -> u64 {
-//     left + right
-// }
+// Optional: Re-export the main driver struct for convenience
+#[cfg(feature = "blocking")]
+pub use blocking::Axp192 as Axp192Blocking;
 
 #[cfg(test)]
 mod tests {
-    // Tests will need to choose sync or async path.
-    // Example for async test (needs a runtime like tokio::test):
-    // #[tokio::test]
-    // async fn async_it_works() {
-    //     // use crate::asynchronous::Axp192;
-    //     // ... setup mock async I2C ...
-    //     // let mut pmu = Axp192::new(mock_i2c);
-    //     // assert!(pmu.get_battery_voltage_mv().await.is_ok());
-    // }
-
-    // Example for blocking test:
     #[test]
-    fn blocking_it_works() {
-        // use crate::blocking::Axp192;
-        // ... setup mock blocking I2C ...
-        // let mut pmu = Axp192::new(mock_i2c);
-        // assert!(pmu.get_battery_voltage_mv().is_ok());
-        assert_eq!(2 + 2, 4); // Placeholder
+    fn it_works_placeholder() {
+        assert_eq!(2 + 2, 4);
     }
 }

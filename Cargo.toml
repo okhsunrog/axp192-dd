@@ -12,16 +12,18 @@ documentation = "https://docs.rs/mipidsi"
 
 [dependencies]
 bisync = "0.3.0"
+defmt = { version = "0.3", optional = true }
+log = { version = "0.4", optional = true }
 device-driver = { version = "1.0.4", default-features = false, features = ["yaml"] }
 embedded-hal = "1.0.0"
 embedded-hal-async = "1.0.0"
-log = "0.4.27"
 num_enum = "0.7.3"
-thiserror = "2.0.12"
+thiserror = { version = "2.0.12", default-features = false }
 
 [features]
 default = [] # Decide if you want a default (e.g., "async")
 std = ["thiserror/std"] # For thiserror, if needed.
 async = [] # Users can enable this feature
 blocking = [] # Users can enable this feature
-# defmt = ["dep:defmt", "device-driver/defmt-03"] # If you add defmt support later
+log = ["dep:log"]
+defmt = ["dep:defmt", "device-driver/defmt-03"]
