@@ -1,0 +1,20 @@
+[package]
+name = "axp192-dd"
+version = "0.1.0"
+edition = "2024"
+description = "A driver for the AXP192 power management IC (uses device-driver crate)"
+authors = ["Danila Gornushko <me@okhsunrog.dev>"]
+license = "MIT"
+repository = "https://github.com/okhsunrog/axp192-dd"
+keywords = ["embedded-hal-driver", "async", "no-alloc", "no-std", "embedded"]
+readme = "README.md"
+documentation = "https://docs.rs/mipidsi"
+
+[dependencies]
+bisync = "0.3.0"
+device-driver = "1.0.4"
+embedded-hal = "1.0.0"
+embedded-hal-async = "1.0.0"
+num_enum = "0.7.3"
+thiserror = "2.0.12"
+

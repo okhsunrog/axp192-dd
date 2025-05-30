@@ -1,0 +1,954 @@
+# src/axp192_registers.yaml
+config:
+  register_address_type: u8
+  command_address_type: u8 # Not used much by AXP192, but good to define
+  buffer_address_type: u8 # Not used much by AXP192
+  default_byte_order: BE # For multi-byte registers like ADCs
+  default_bit_order: MSB0 # Bit 0 is the most significant bit
+  # defmt_feature: "defmt" # Uncomment if using defmt
+
+# --- Power Control Registers (0x00 - 0x3D) ---
+PowerStatus: # Reg 0x00
+  type: register
+  address: 0x00
+  size_bits: 8
+  access: RO
+  description: "Input power status."
+  fields:
+    acin_present:
+      { base: bool, start: 0, description: "ACIN presence (1: exist)" }
+    acin_usable:
+      { base: bool, start: 1, description: "ACIN usable (1: usable)" }
+    vbus_present:
+      { base: bool, start: 2, description: "VBUS presence (1: exist)" }
+    vbus_usable:
+      { base: bool, start: 3, description: "VBUS usable (1: usable)" }
+    vbus_path_select_status:
+      {
+        base: bool,
+        start: 4,
+        description: "VBUS path select status (0: not used, 1: used)",
+      }
+    battery_current_direction:
+      {
+        base: bool,
+        start: 5,
+        description: "Battery current (0: Discharge, 1: Charge)",
+      }
+    boot_source_acin_vbus:
+      {
+        base: bool,
+        start: 6,
+        description: "Boot source (0: Battery, 1: ACIN/VBUS)",
+      }
+    acin_vbus_short_to_gnd:
+      {
+        base: bool,
+        start: 7,
+        description: "ACIN/VBUS short to ground (0: No, 1: Yes)",
+      }
+
+ChargeStatus: # Reg 0x01
+  type: register
+  address: 0x01
+  size_bits: 8
+  access: RO
+  description: "Charging and battery status."
+  fields:
+    # Bit 7: Reserved
+    battery_charging_indication:
+      { base: bool, start: 1, description: "Battery is charging (1: Yes)" }
+    battery_present_or_temp_ok:
+      {
+        base: bool,
+        start: 2,
+        description: "Battery present/activated or temperature qualified",
+      }
+    # Bits 4-0: Reserved
+
+OtgVbusStatus: # Reg 0x04
+  type: register
+  address: 0x04
+  size_bits: 8
+  access: RO
+  description: "OTG VBUS status."
+  fields:
+    # Consult datasheet for bit meanings if OTG functionality is used.
+    otg_vbus_valid: { base: bool, start: 0 } # Example bit
+    session_ab_valid: { base: bool, start: 2 } # Example bit
+
+DataBuffer0:
+  {
+    type: register,
+    address: 0x06,
+    size_bits: 8,
+    access: RW,
+    description: "Data Buffer 0",
+  }
+DataBuffer1:
+  {
+    type: register,
+    address: 0x07,
+    size_bits: 8,
+    access: RW,
+    description: "Data Buffer 1",
+  }
+DataBuffer2:
+  {
+    type: register,
+    address: 0x08,
+    size_bits: 8,
+    access: RW,
+    description: "Data Buffer 2",
+  }
+DataBuffer3:
+  {
+    type: register,
+    address: 0x09,
+    size_bits: 8,
+    access: RW,
+    description: "Data Buffer 3",
+  }
+DataBuffer4:
+  {
+    type: register,
+    address: 0x0A,
+    size_bits: 8,
+    access: RW,
+    description: "Data Buffer 4",
+  }
+DataBuffer5:
+  {
+    type: register,
+    address: 0x0B,
+    size_bits: 8,
+    access: RW,
+    description: "Data Buffer 5",
+  }
+
+ExtenDcdc2Control: # Reg 0x10
+  type: register
+  address: 0x10
+  size_bits: 8
+  access: RW
+  description: "EXTEN and DC-DC2 enable control."
+  fields:
+    # Bit 7: Reserved
+    exten_enable: {
+        base: bool,
+        start: 1,
+        description: "EXTEN output enable switch",
+      } # Bit 6
+    # Bit 5: Reserved
+    dcdc2_enable: {
+        base: bool,
+        start: 3,
+        description: "DC-DC2 output enable switch",
+      } # Bit 4
+    # Bits 3-0: Reserved
+
+Dcdc13Ldo23Control: # Reg 0x12
+  type: register
+  address: 0x12
+  size_bits: 8
+  access: RW
+  description: "Power output control for DCDC1/3, LDO2/3. Note: DCDC2/EXTEN control also here."
+  fields:
+    # This register is a bit overloaded, some bits overlap with 0x10
+    exten_enable_alt: {
+        base: bool,
+        start: 1,
+        description: "EXTEN enable (alternative bit, prefer 0x10)",
+      } # Bit 6
+    dcdc2_enable_alt: {
+        base: bool,
+        start: 3,
+        description: "DCDC2 enable (alternative bit, prefer 0x10)",
+      } # Bit 4
+    ldo3_enable: { base: bool, start: 4, description: "LDO3 output enable" } # Bit 3
+    ldo2_enable: { base: bool, start: 5, description: "LDO2 output enable" } # Bit 2
+    dcdc3_enable: { base: bool, start: 6, description: "DC-DC3 output enable" } # Bit 1
+    dcdc1_enable: { base: bool, start: 7, description: "DC-DC1 output enable" } # Bit 0
+
+Dcdc2Voltage: # Reg 0x23
+  type: register
+  address: 0x23
+  size_bits: 8
+  access: RW
+  description: "DC-DC2 output voltage setting (0.7-2.275V or 0.7-3.5V, 25mV/step - check datasheet for your variant)."
+  fields:
+    # Bit 7: Reserved (or DCDC2 high voltage range select on some variants)
+    setting:
+      {
+        base: uint,
+        start: 1,
+        end: 8,
+        description: "Voltage setting bits (0-6 or 0-5 for 64 steps)",
+      }
+
+Dcdc2Slope:
+  {
+    type: register,
+    address: 0x25,
+    size_bits: 8,
+    access: RW,
+    description: "DC-DC2 VRC slope control.",
+  }
+
+Dcdc1Voltage: # Reg 0x26
+  type: register
+  address: 0x26
+  size_bits: 8
+  access: RW
+  description: "DC-DC1 output voltage setting (0.7-3.5V, 25mV/step)."
+  fields:
+    setting:
+      {
+        base: uint,
+        start: 1,
+        end: 8,
+        description: "Voltage setting bits (0-6)",
+      }
+
+Dcdc3Voltage: # Reg 0x27
+  type: register
+  address: 0x27
+  size_bits: 8
+  access: RW
+  description: "DC-DC3 output voltage setting (0.7-3.5V, 25mV/step)."
+  fields:
+    setting:
+      {
+        base: uint,
+        start: 1,
+        end: 8,
+        description: "Voltage setting bits (0-6)",
+      }
+
+Ldo23Voltage: # Reg 0x28
+  type: register
+  address: 0x28
+  size_bits: 8
+  access: RW
+  description: "LDO2/LDO3 output voltage settings (1.8-3.3V, 100mV/step)."
+  fields:
+    ldo2_setting:
+      {
+        base: uint,
+        start: 0,
+        end: 4,
+        description: "LDO2 voltage setting (bits 7-4)",
+      }
+    ldo3_setting:
+      {
+        base: uint,
+        start: 4,
+        end: 8,
+        description: "LDO3 voltage setting (bits 3-0)",
+      }
+
+VbusIpsoutChannel: # Reg 0x30
+  type: register
+  address: 0x30
+  size_bits: 8
+  access: RW
+  description: "VBUS-IPSOUT path control and VBUS current limit."
+  fields:
+    vbus_ipsout_path_select_override: { base: bool, start: 0 } # Bit 7: (0: N_VBUSEN pin, 1: Path selected regardless of N_VBUSEN)
+    # Bit 6: VBUS current limit control (0: Limit Off (900mA), 1: Limit On (500mA))
+    vbus_current_limit:
+      {
+        base: bool,
+        start: 1,
+        description: "VBUS current limit (0: 900mA, 1: 500mA)",
+      }
+    # Bits 5-0: Vhold voltage setting for VBUS (when VBUS not present)
+    vhold_voltage_setting: { base: uint, start: 2, end: 8 }
+
+ShutdownVoltage: # Reg 0x31
+  type: register
+  address: 0x31
+  size_bits: 8
+  access: RW
+  description: "Voff shutdown voltage and Pek function control."
+  fields:
+    voff_shutdown_voltage: { base: uint, start: 0, end: 3 } # Bits 7-5
+    pek_function_select: { base: uint, start: 3, end: 5 } # Bits 4-3 (Power on function select)
+    # Bits 2-0: Reserved
+
+ShutdownBatteryChgledControl: # Reg 0x32
+  type: register
+  address: 0x32
+  size_bits: 8
+  access: RW
+  description: "Shutdown behavior, CHGLED control."
+  fields:
+    shutdown_timing:
+      {
+        base: uint,
+        start: 0,
+        end: 2,
+        description: "Shutdown timing options (bits 7-6)",
+      }
+    shutdown_enable: {
+        base: bool,
+        start: 2,
+        description: "Shutdown function enable (1: enable)",
+      } # Bit 5
+    chgled_control_mode:
+      {
+        base: uint,
+        start: 4,
+        end: 6,
+        description: "CHGLED pin control mode (bits 3-2)",
+      }
+    # Bits 1-0: Reserved
+
+ChargeControl1: # Reg 0x33
+  type: register
+  address: 0x33
+  size_bits: 8
+  access: RW
+  description: "Charging control 1: target voltage, current, end current."
+  fields:
+    charge_enable: { base: bool, start: 0 } # Bit 7
+    charge_target_voltage: {
+        base: uint,
+        start: 1,
+        end: 3,
+        description: "Target voltage (bits 6-5)",
+      } # 00:4.1V,01:4.15V,10:4.2V,11:4.36V
+    end_charge_current_setting: { base: bool, start: 3 } # Bit 4 (0: 10% of charge current, 1: 15%)
+    charge_current_setting:
+      { base: uint, start: 4, end: 8, description: "Charge current (bits 3-0)" }
+
+ChargeControl2: # Reg 0x34
+  type: register
+  address: 0x34
+  size_bits: 8
+  access: RW
+  description: "Charging control 2: pre-charge time, constant current timeout."
+  fields:
+    # Bits 7-0: various timeout and threshold settings for charging
+    constant_current_timeout: { base: uint, start: 0, end: 2 } # Bits 7-6
+    # ... (consult datasheet for full breakdown)
+
+BatteryChargeControl: # Reg 0x35
+  type: register
+  address: 0x35
+  size_bits: 8
+  access: RW
+  description: "Backup battery charging control and other battery features."
+  fields:
+    backup_battery_charge_enable: { base: bool, start: 0 } # Bit 7
+    # Bits 6-5: Backup battery target voltage
+    # Bits 4: Reserved
+    # Bits 3-2: Backup battery charge current
+    # Bits 1-0: Reserved
+
+PekSettings: # Reg 0x36 (same as Pek in previous YAML, repeated for completeness)
+  type: register
+  address: 0x36
+  size_bits: 8
+  access: RW
+  description: "PEK button settings: boot/shutdown times, power on/off behavior."
+  fields:
+    boot_time_setting: { base: uint, start: 0, end: 2 } # Bits 7-6
+    long_press_time_setting: { base: uint, start: 2, end: 4 } # Bits 5-4
+    auto_shutdown_by_pwrok_en: { base: bool, start: 4 } # Bit 3 (0: PWROK not used for shutdown, 1: Auto shutdown by PWROK)
+    pwrok_signal_delay: {
+        base: uint,
+        start: 5,
+        end: 6,
+        description: "PWROK signal delay (0:32ms, 1:64ms, this field is 1 bit in many datasheets, check yours)",
+      } # Bit 2 (or 2-1)
+    shutdown_duration_setting: { base: uint, start: 6, end: 8 } # Bits 1-0 (Power off long press time)
+
+DcdcFrequency:
+  {
+    type: register,
+    address: 0x37,
+    size_bits: 8,
+    access: RW,
+    description: "DCDC working frequency setting.",
+  }
+BatteryChargeLowTemp:
+  {
+    type: register,
+    address: 0x38,
+    size_bits: 8,
+    access: RW,
+    description: "Battery charge low temperature threshold.",
+  }
+BatteryChargeHighTemp:
+  {
+    type: register,
+    address: 0x39,
+    size_bits: 8,
+    access: RW,
+    description: "Battery charge high temperature threshold.",
+  }
+ApsLowPower1:
+  {
+    type: register,
+    address: 0x3A,
+    size_bits: 8,
+    access: RW,
+    description: "APS low power level 1 setting.",
+  }
+ApsLowPower2:
+  {
+    type: register,
+    address: 0x3B,
+    size_bits: 8,
+    access: RW,
+    description: "APS low power level 2 setting.",
+  }
+BatteryDischargeLowTemp:
+  {
+    type: register,
+    address: 0x3C,
+    size_bits: 8,
+    access: RW,
+    description: "Battery discharge low temperature threshold.",
+  }
+BatteryDischargeHighTemp:
+  {
+    type: register,
+    address: 0x3D,
+    size_bits: 8,
+    access: RW,
+    description: "Battery discharge high temperature threshold.",
+  }
+
+# --- ADC and System Control (0x80 - 0x8F) ---
+DcdcMode:
+  {
+    type: register,
+    address: 0x80,
+    size_bits: 8,
+    access: RW,
+    description: "DCDC working mode control (Auto/PWM).",
+  }
+
+AdcEnable1: # Reg 0x82 (repeated for structure, same as before)
+  type: register
+  address: 0x82
+  size_bits: 8
+  access: RW
+  description: "ADC enable control 1."
+  fields:
+    battery_voltage_adc_enable: { base: bool, start: 0 }
+    battery_current_adc_enable: { base: bool, start: 1 }
+    acin_voltage_adc_enable: { base: bool, start: 2 }
+    acin_current_adc_enable: { base: bool, start: 3 }
+    vbus_voltage_adc_enable: { base: bool, start: 4 }
+    vbus_current_adc_enable: { base: bool, start: 5 }
+    aps_voltage_adc_enable: { base: bool, start: 6 }
+    ts_pin_adc_enable: { base: bool, start: 7 }
+
+AdcEnable2: # Reg 0x83
+  type: register
+  address: 0x83
+  size_bits: 8
+  access: RW
+  description: "ADC enable control 2 (GPIO ADCs, internal temp)."
+  fields:
+    gpio0_adc_enable: { base: bool, start: 0 } # Bit 7
+    gpio1_adc_enable: { base: bool, start: 1 } # Bit 6
+    gpio2_adc_enable: { base: bool, start: 2 } # Bit 5
+    gpio3_adc_enable: { base: bool, start: 3 } # Bit 4
+    # Bits 3-0: Reserved (or other functions like internal temp ADC enable)
+
+AdcRateTsPin:
+  {
+    type: register,
+    address: 0x84,
+    size_bits: 8,
+    access: RW,
+    description: "ADC sample rate, TS pin control.",
+  }
+Gpio30InputRange:
+  {
+    type: register,
+    address: 0x85,
+    size_bits: 8,
+    access: RW,
+    description: "GPIO0-3 ADC input range.",
+  }
+Gpio0AdcIrqRising:
+  {
+    type: register,
+    address: 0x86,
+    size_bits: 8,
+    access: RW,
+    description: "GPIO0 ADC IRQ rising edge threshold.",
+  }
+Gpio0AdcIrqFalling:
+  {
+    type: register,
+    address: 0x87,
+    size_bits: 8,
+    access: RW,
+    description: "GPIO0 ADC IRQ falling edge threshold.",
+  }
+TimerControl:
+  {
+    type: register,
+    address: 0x8A,
+    size_bits: 8,
+    access: RW,
+    description: "Timer control.",
+  }
+VbusMonitor:
+  {
+    type: register,
+    address: 0x8B,
+    size_bits: 8,
+    access: RW,
+    description: "VBUS monitor, sağlıklı aralık ayarı.",
+  }
+TempShutdownControl:
+  {
+    type: register,
+    address: 0x8F,
+    size_bits: 8,
+    access: RW,
+    description: "Over temperature shutdown control.",
+  }
+
+# --- GPIO Control Registers (0x90 - 0x9E) ---
+Gpio0Control: # Reg 0x90 (repeated for structure)
+  type: register
+  address: 0x90
+  size_bits: 8
+  access: RW
+  fields:
+    mode:
+      {
+        base: uint,
+        start: 5,
+        end: 8,
+        description: "GPIO0 func: 000 NMOS-OD, 001 Input, 010 LDO(LDOIO0), 100 ADC, 101 Low, 11x Float",
+      }
+
+Gpio0Ldoio0Voltage: # Reg 0x91
+  type: register
+  address: 0x91
+  size_bits: 8
+  access: RW
+  description: "GPIO0 LDO (LDOIO0) output voltage setting."
+  fields:
+    # Bits 7-4: LDOIO0 voltage setting (1.8-3.3V or 1.8-5.0V, check datasheet)
+    voltage_setting: { base: uint, start: 0, end: 4 }
+    # Bits 3-0: Reserved
+
+Gpio1Control: # Reg 0x92 (repeated for structure)
+  type: register
+  address: 0x92
+  size_bits: 8
+  access: RW
+  fields:
+    mode:
+      {
+        base: uint,
+        start: 5,
+        end: 8,
+        description: "GPIO1 func: 000 NMOS-OD, 001 Input, 010 PWM1, 100 ADC, 101 Low (CHGLED), 11x Float",
+      }
+
+Gpio2Control: # Reg 0x93 (repeated for structure)
+  type: register
+  address: 0x93
+  size_bits: 8
+  access: RW
+  fields:
+    mode:
+      {
+        base: uint,
+        start: 5,
+        end: 8,
+        description: "GPIO2 func: 000 NMOS-OD, 001 Input, 010 PWM2, 100 ADC, 101 Low, 11x Float",
+      }
+
+Gpio20SignalStatus: # Reg 0x94 (repeated for structure)
+  type: register
+  address: 0x94
+  size_bits: 8
+  access: RW # R: input status, W: output level
+  fields:
+    # Bits 7-3 for input status reading of GPIO0-2
+    # Bits 2-0 for output level control of GPIO0-2 (MSB0: bit7=GPIO0_level)
+    gpio2_out_level: { base: bool, start: 5 } # Bit 2
+    gpio1_out_level: { base: bool, start: 6 } # Bit 1
+    gpio0_out_level: { base: bool, start: 7 } # Bit 0
+
+Gpio43FunctionControl: # Reg 0x95
+  type: register
+  address: 0x95
+  size_bits: 8
+  access: RW
+  description: "GPIO3/4 function control."
+  fields:
+    enable_gpio34_control: { base: bool, start: 0 } # Bit 7: Must be 1 to enable GPIO3/4 control
+    # Bits 6-4: Reserved
+    gpio4_mode:
+      {
+        base: uint,
+        start: 3,
+        end: 5,
+        description: "GPIO4 func (bits 3-2): 00 Ext CHG, 01 NMOS-OD, 10 Input",
+      }
+    gpio3_mode:
+      {
+        base: uint,
+        start: 5,
+        end: 7,
+        description: "GPIO3 func (bits 1-0): 00 Ext CHG, 01 NMOS-OD, 10 Input, 11 ADC",
+      }
+    # Bit 0 of register (our start:7) is also part of GPIO3 mode sometimes. Check datasheet.
+
+Gpio43SignalStatus: # Reg 0x96
+  type: register
+  address: 0x96
+  size_bits: 8
+  access: RW # R: input status, W: output level
+  description: "GPIO3/4 output level control and input status."
+  fields:
+    # Similar to 0x94, but for GPIO3/4
+    gpio4_out_level: { base: bool, start: 6 } # Bit 1
+    gpio3_out_level: { base: bool, start: 7 } # Bit 0
+
+Gpio20PulldownControl:
+  {
+    type: register,
+    address: 0x97,
+    size_bits: 8,
+    access: RW,
+    description: "GPIO0-2 pulldown resistor control.",
+  }
+Pwm1Frequency:
+  {
+    type: register,
+    address: 0x98,
+    size_bits: 8,
+    access: RW,
+    description: "PWM1 frequency setting.",
+  }
+Pwm1DutyCycle1:
+  {
+    type: register,
+    address: 0x99,
+    size_bits: 8,
+    access: RW,
+    description: "PWM1 duty cycle MSBs.",
+  }
+Pwm1DutyCycle2: {
+    type: register,
+    address: 0x9A,
+    size_bits: 8,
+    access: RW,
+    description: "PWM1 duty cycle LSBs.",
+  } # LSBs often in lower bits of this reg
+Pwm2Frequency:
+  {
+    type: register,
+    address: 0x9B,
+    size_bits: 8,
+    access: RW,
+    description: "PWM2 frequency setting.",
+  }
+Pwm2DutyCycle1:
+  {
+    type: register,
+    address: 0x9C,
+    size_bits: 8,
+    access: RW,
+    description: "PWM2 duty cycle MSBs.",
+  }
+Pwm2DutyCycle2:
+  {
+    type: register,
+    address: 0x9D,
+    size_bits: 8,
+    access: RW,
+    description: "PWM2 duty cycle LSBs.",
+  }
+NRstoGpio5Control:
+  {
+    type: register,
+    address: 0x9E,
+    size_bits: 8,
+    access: RW,
+    description: "N_RSTO (Reset Out) / GPIO5 control.",
+  }
+
+# --- Interrupt Control Registers (0x40 - 0x4D) ---
+# These are typically 8 bits each, where each bit enables/disables an IRQ source.
+# Define fields based on datasheet IRQ map. Example:
+EnableControl1: # Reg 0x40
+  type: register
+  address: 0x40
+  size_bits: 8
+  access: RW
+  description: "Interrupt Enable Control 1."
+  fields:
+    acin_over_voltage_irq_en: { base: bool, start: 0 } # Bit 7
+    acin_connect_irq_en: { base: bool, start: 1 } # Bit 6
+    acin_disconnect_irq_en: { base: bool, start: 2 } # Bit 5
+    vbus_over_voltage_irq_en: { base: bool, start: 3 } # Bit 4
+    vbus_connect_irq_en: { base: bool, start: 4 } # Bit 3
+    vbus_disconnect_irq_en: { base: bool, start: 5 } # Bit 2
+    vbus_low_voltage_irq_en: { base: bool, start: 6 } # Bit 1
+    # Bit 0: Reserved or other IRQ
+
+EnableControl2:
+  {
+    type: register,
+    address: 0x41,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Enable Control 2.",
+  }
+EnableControl3:
+  {
+    type: register,
+    address: 0x42,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Enable Control 3.",
+  }
+EnableControl4:
+  {
+    type: register,
+    address: 0x43,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Enable Control 4.",
+  }
+EnableControl5:
+  {
+    type: register,
+    address: 0x4A,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Enable Control 5.",
+  }
+
+IrqStatus1: {
+    type: register,
+    address: 0x44,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Status 1 (Write 1 to clear).",
+  } # Fields mirror EnableControl1
+IrqStatus2:
+  {
+    type: register,
+    address: 0x45,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Status 2.",
+  }
+IrqStatus3:
+  {
+    type: register,
+    address: 0x46,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Status 3.",
+  }
+IrqStatus4:
+  {
+    type: register,
+    address: 0x47,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Status 4.",
+  }
+IrqStatus5:
+  {
+    type: register,
+    address: 0x4D,
+    size_bits: 8,
+    access: RW,
+    description: "Interrupt Status 5.",
+  }
+
+# --- ADC Data Registers (0x56 - 0x7E, multi-byte, BE) ---
+AcinVoltageAdc:
+  {
+    type: register,
+    address: 0x56,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+AcinCurrentAdc:
+  {
+    type: register,
+    address: 0x58,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+VbusVoltageAdc:
+  {
+    type: register,
+    address: 0x5A,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+VbusCurrentAdc:
+  {
+    type: register,
+    address: 0x5C,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+InternalTemperatureAdc: {
+    type: register,
+    address: 0x5E,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  } # Repeated for structure
+TsInputAdc: {
+    type: register,
+    address: 0x62,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  } # TS Pin ADC
+Gpio0VoltageAdc:
+  {
+    type: register,
+    address: 0x64,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+Gpio1VoltageAdc:
+  {
+    type: register,
+    address: 0x66,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+Gpio2VoltageAdc:
+  {
+    type: register,
+    address: 0x68,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+Gpio3VoltageAdc:
+  {
+    type: register,
+    address: 0x6A,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  }
+
+BatteryPowerAdc: # Reg 0x70 (3 bytes: MSB, MID, LSB)
+  type: register
+  address: 0x70
+  size_bits: 24 # Actually 23 bits of data
+  access: RO
+  byte_order: BE
+  description: "Battery power ADC raw value (23-bit result)."
+  fields:
+    raw: { base: uint, start: 0, end: 24 } # Use top 23 bits
+
+BatteryVoltageAdc: {
+    type: register,
+    address: 0x78,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  } # Repeated
+ChargeCurrentAdc: {
+    type: register,
+    address: 0x7A,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  } # Repeated
+DischargeCurrentAdc: {
+    type: register,
+    address: 0x7C,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  } # Repeated
+ApsVoltageAdc: {
+    type: register,
+    address: 0x7E,
+    size_bits: 16,
+    access: RO,
+    byte_order: BE,
+    fields: { raw: { base: uint, start: 0, end: 16 } },
+  } # APS low power voltage
+
+# --- Coulomb Counter Registers (0xB0 - 0xB8) ---
+ChargeCoulombCounter: # Reg 0xB0 (4 bytes)
+  type: register
+  address: 0xB0
+  size_bits: 32
+  access: RO
+  byte_order: BE
+  description: "Charge coulomb counter value."
+  fields:
+    raw: { base: uint, start: 0, end: 32 }
+
+DischargeCoulombCounter: # Reg 0xB4 (4 bytes)
+  type: register
+  address: 0xB4
+  size_bits: 32
+  access: RO
+  byte_order: BE
+  description: "Discharge coulomb counter value."
+  fields:
+    raw: { base: uint, start: 0, end: 32 }
+
+CoulombCounterControl: # Reg 0xB8
+  type: register
+  address: 0xB8
+  size_bits: 8
+  access: RW
+  description: "Coulomb counter control."
+  fields:
+    enable: {
+        base: bool,
+        start: 0,
+        description: "Enable coulomb counter (1: enable)",
+      } # Bit 7
+    suspend: {
+        base: bool,
+        start: 1,
+        description: "Suspend coulomb counter (1: suspend)",
+      } # Bit 6
+    clear: {
+        base: bool,
+        start: 2,
+        description: "Clear coulomb counter (1: clear, self-clearing)",
+      } # Bit 5
+    # Bits 4-0: Reserved
