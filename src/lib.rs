@@ -1,9 +1,8 @@
 // src/lib.rs
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 
-// This mod MUST go first, so that the others see its macros.
 #[macro_use]
-pub(crate) mod fmt; // Changed to pub(crate) as per usbpd example
+pub(crate) mod fmt; // Keep this first for macros
 
 use thiserror::Error;
 
@@ -12,15 +11,15 @@ use thiserror::Error;
 pub enum AxpError<I2cErr> {
     #[error("I2C error")]
     I2c(I2cErr),
-    #[error("Invalid voltage")]
+    #[error("Invalid voltage: {0}mV")]
     InvalidVoltage(u16),
-    #[error("Invalid current")]
+    #[error("Invalid current: {0}mA")]
     InvalidCurrent(u16),
-    #[error("Invalid GPIO param")]
+    #[error("Invalid GPIO param for pin {pin:?} mode {mode:?}")]
     InvalidGpioParameter { pin: GpioPin, mode: GpioMode },
     #[error("GPIO unavailable")]
     GpioFeatureUnavailable,
-    #[error("Not implemented")]
+    #[error("Not implemented: {0}")]
     NotImplemented(&'static str),
 }
 
@@ -39,6 +38,7 @@ impl<I2cErr> defmt::Format for AxpError<I2cErr> {
 }
 
 // --- Public Helper Enums ---
+// These are used by the high-level Axp192 API in driver_core.rs
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum DcId {
@@ -106,34 +106,27 @@ pub enum PekShutdownDuration {
     S10 = 3,
 }
 
-// --- bisync Modules ---
+// --- bisync Modules (apa102-spi-rs style) ---
 #[cfg(feature = "async")]
-#[path = "."]
+#[path = "."] // Submodules defined herein look for files in `src/`
 pub mod asynchronous {
     #[doc(hidden)]
     pub use bisync::asynchronous::*;
-    mod driver_core; // Will find src/driver_core.rs
-    pub use driver_core::*;
+    // This declares `driver_core` as a module whose source is `src/driver_core.rs`
+    mod driver_core;
+    pub use driver_core::*; // Re-export Axp192, AxpInterface from driver_core
 }
 #[cfg(feature = "async")]
-pub use asynchronous::Axp192 as Axp192Async; // Assuming Axp192 is pub in driver_core
+pub use asynchronous::Axp192 as Axp192Async;
 
 #[cfg(feature = "blocking")]
 #[path = "."]
 pub mod blocking {
     #[doc(hidden)]
     pub use bisync::synchronous::*;
-    #[allow(clippy::duplicate_mod)]
-    mod driver_core; // Will find src/driver_core.rs
+    #[allow(clippy::duplicate_mod)] // We know driver_core is "duplicated"
+    mod driver_core;
     pub use driver_core::*;
 }
 #[cfg(feature = "blocking")]
-pub use blocking::Axp192 as Axp192Blocking; // Assuming Axp192 is pub in driver_core
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works_placeholder() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub use blocking::Axp192 as Axp192Blocking;
