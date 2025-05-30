@@ -860,15 +860,30 @@ Gpio0Control:
       base: uint
       start: 0
       end: 3
-      conversion:
+      try_conversion:
         name: Gpio0Mode
-        NmosOd: 0b000
-        Input: 0b001
-        Ldo: 0b010
-        Adc: 0b100
-        Low: 0b101
-        Float: 0b110
-      description: "GPIO0 function: 000 NMOS-OD, 001 Input, 010 LDO(LDOIO0), 100 ADC, 101 Low, 11x Float"
+        NmosOd:
+          value: 0
+          description: NMOS Open-Drain output
+        Input:
+          value: 1
+          description: General input
+        Ldo:
+          value: 2
+          description: LDO output (LDOIO0)
+        Adc:
+          value: 4
+          description: ADC input
+        Low:
+          value: 5
+          description: Low output
+        Float:
+          value: 6
+          description: Floating state
+        Invalid:
+          value: catch_all
+          description: Invalid or reserved value
+      description: GPIO0 function configuration
 
 Gpio0Ldoio0Voltage:
   type: register
@@ -900,15 +915,30 @@ Gpio1Control:
       base: uint
       start: 0
       end: 3
-      conversion:
+      try_conversion:
         name: Gpio1Mode
-        NmosOd: 0b000
-        Input: 0b001
-        Pwm1: 0b010
-        Adc: 0b100
-        Low: 0b101
-        Float: 0b110
-      description: "GPIO1 function: 000 NMOS-OD, 001 Input, 010 PWM1, 100 ADC, 101 Low (CHGLED), 11x Float"
+        NmosOd:
+          value: 0
+          description: NMOS Open-Drain output
+        Input:
+          value: 1
+          description: General input
+        Pwm1:
+          value: 2
+          description: PWM1 output
+        Adc:
+          value: 4
+          description: ADC input
+        Low:
+          value: 5
+          description: Low output (CHGLED)
+        Float:
+          value: 6
+          description: Floating state
+        Invalid:
+          value: catch_all
+          description: Invalid or reserved value
+      description: GPIO1 function configuration
 
 Gpio2Control:
   type: register
@@ -924,15 +954,30 @@ Gpio2Control:
       base: uint
       start: 0
       end: 3
-      conversion:
+      try_conversion:
         name: Gpio2Mode
-        NmosOd: 0b000
-        Input: 0b001
-        Pwm2: 0b010
-        Adc: 0b100
-        Low: 0b101
-        Float: 0b110
-      description: "GPIO2 function: 000 NMOS-OD, 001 Input, 010 PWM2, 100 ADC, 101 Low, 11x Float"
+        NmosOd:
+          value: 0
+          description: NMOS Open-Drain output
+        Input:
+          value: 1
+          description: General input
+        Pwm2:
+          value: 2
+          description: PWM2 output
+        Adc:
+          value: 4
+          description: ADC input
+        Low:
+          value: 5
+          description: Low output
+        Float:
+          value: 6
+          description: Floating state
+        Invalid:
+          value: catch_all
+          description: Invalid or reserved value
+      description: GPIO2 function configuration
 
 Gpio20SignalStatus:
   type: register
@@ -964,34 +1009,51 @@ Gpio43FunctionControl:
   access: RW
   description: |
     GPIO3/4 function control.
-    Configures GPIO3/4 as external charge, NMOS-OD, input, or ADC.
+    Configures GPIO3 and GPIO4 as external charge, NMOS-OD, input, or ADC (GPIO3 only).
     Refer to AXP192 datasheet page 42 for details.
   fields:
     enable_gpio34_control:
       base: bool
       start: 7
       description: "Enable GPIO3/4 control (1: enable)"
+    gpio4_mode:
+      base: uint
+      start: 3
+      end: 5
+      try_conversion:
+        name: Gpio4Mode
+        ExtChg:
+          value: 0
+          description: External charge control
+        NmosOd:
+          value: 1
+          description: NMOS Open-Drain output
+        Input:
+          value: 2
+          description: General input
+        Invalid:
+          value: catch_all
+          description: Invalid or reserved value
+      description: GPIO4 function configuration
     gpio3_mode:
       base: uint
       start: 1
       end: 3
       conversion:
         name: Gpio3Mode
-        ExtChg: 0b00
-        NmosOd: 0b01
-        Input: 0b10
-        Adc: 0b11
-      description: "GPIO3 function: 00 Ext CHG, 01 NMOS-OD, 10 Input, 11 ADC"
-    gpio4_mode:
-      base: uint
-      start: 3
-      end: 5
-      conversion:
-        name: Gpio4Mode
-        ExtChg: 0b00
-        NmosOd: 0b01
-        Input: 0b10
-      description: "GPIO4 function: 00 Ext CHG, 01 NMOS-OD, 10 Input"
+        ExtChg:
+          value: 0
+          description: External charge control
+        NmosOd:
+          value: 1
+          description: NMOS Open-Drain output
+        Input:
+          value: 2
+          description: General input
+        Adc:
+          value: 3
+          description: ADC input
+      description: GPIO3 function configuration
 
 Gpio43SignalStatus:
   type: register
