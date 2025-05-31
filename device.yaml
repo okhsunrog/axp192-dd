@@ -346,7 +346,7 @@ VbusIpsoutPathManagement: # REG30H
       description: "VHOLD voltage setting when vhold_limit_enabled is true."
       conversion:
         name: VholdVoltageValue
-        V4_0: { value: 0b000, description: "4.0V" }
+        V4_0: { value: 0b000, description: "4.0V" } # Default
         V4_1: { value: 0b001, description: "4.1V" }
         V4_2: { value: 0b010, description: "4.2V" }
         V4_3: { value: 0b011, description: "4.3V" }
@@ -366,7 +366,7 @@ VbusIpsoutPathManagement: # REG30H
       description: "VBUS current limit selection when vbus_current_limit_enabled is true."
       conversion:
         name: VbusCurrentLimitValue
-        Ma500: { value: 0, description: "500mA limit."}
+        Ma500: { value: 0, description: "500mA limit."} # Default
         Ma100: { value: 1, description: "100mA limit."}
 
 ShutdownVoltageSetting: # REG31H
@@ -393,7 +393,7 @@ ShutdownVoltageSetting: # REG31H
         V2_6: { value: 0b000, description: "2.6V" }
         V2_7: { value: 0b001, description: "2.7V" }
         V2_8: { value: 0b010, description: "2.8V" }
-        V2_9: { value: 0b011, description: "2.9V" }
+        V2_9: { value: 0b011, description: "2.9V" } # Default
         V3_0: { value: 0b100, description: "3.0V" }
         V3_1: { value: 0b101, description: "3.1V" }
         V3_2: { value: 0b110, description: "3.2V" }
@@ -423,7 +423,7 @@ ShutdownBatChgLedControl: # REG32H
       description: "CHGLED pin function when chgled_control_source is ByRegister."
       conversion:
         name: ChgLedFunctionSetting
-        HighZ:     { value: 0b00, description: "High Impedance." }
+        HighZ:     { value: 0b00, description: "High Impedance." } # Default
         Blink1Hz:  { value: 0b01, description: "1Hz blink (25% duty)." }
         Blink4Hz:  { value: 0b10, description: "4Hz blink (25% duty)." }
         OutputLow: { value: 0b11, description: "Output Low." }
@@ -434,7 +434,7 @@ ShutdownBatChgLedControl: # REG32H
       description: "CHGLED pin control source."
       conversion:
         name: ChgLedControlSourceSelect
-        ByChargeLogic:     { value: 0, description: "Controlled by charging function." }
+        ByChargeLogic:     { value: 0, description: "Controlled by charging function." } # Default
         ByRegisterSetting: { value: 1, description: "Controlled by this register's chgled_function field." }
     # Bit 2 is reserved.
     n_oe_shutdown_delay:
@@ -446,7 +446,7 @@ ShutdownBatChgLedControl: # REG32H
         name: NoeShutdownDelayValue
         Ms500: { value: 0b00, description: "0.5S delay." }
         S1:    { value: 0b01, description: "1S delay." }
-        S2:    { value: 0b10, description: "2S delay." }
+        S2:    { value: 0b10, description: "2S delay." } # Default
         S3:    { value: 0b11, description: "3S delay." }
 
 ChargeControl1: # REG33H
@@ -471,7 +471,7 @@ ChargeControl1: # REG33H
         name: ChargeTargetVoltageValue
         V4_10: { value: 0b00, description: "4.10V" }
         V4_15: { value: 0b01, description: "4.15V" }
-        V4_20: { value: 0b10, description: "4.20V" }
+        V4_20: { value: 0b10, description: "4.20V" } # Default
         V4_36: { value: 0b11, description: "4.36V" }
     end_current_threshold:
       base: uint
@@ -480,7 +480,7 @@ ChargeControl1: # REG33H
       description: "Charge termination current threshold."
       conversion:
         name: ChargeEndCurrentThresholdValue
-        Percent10: { value: 0, description: "Terminate at <10% of set current." }
+        Percent10: { value: 0, description: "Terminate at <10% of set current." } # Default
         Percent15: { value: 1, description: "Terminate at <15% of set current." }
     charge_current:
       base: uint
@@ -497,7 +497,7 @@ ChargeControl1: # REG33H
         MA550:  { value: 0b0101, description: "550mA" }
         MA630:  { value: 0b0110, description: "630mA" }
         MA700:  { value: 0b0111, description: "700mA" }
-        MA780:  { value: 0b1000, description: "780mA" }
+        MA780:  { value: 0b1000, description: "780mA" } # Default
         MA880:  { value: 0b1001, description: "880mA" }
         MA960:  { value: 0b1010, description: "960mA" }
         MA1000: { value: 0b1011, description: "1000mA" }
@@ -505,3 +505,56 @@ ChargeControl1: # REG33H
         MA1160: { value: 0b1101, description: "1160mA" }
         MA1240: { value: 0b1110, description: "1240mA" }
         MA1320: { value: 0b1111, description: "1320mA" }
+
+ChargeControl2: # REG34H
+  type: register
+  address: 0x34
+  size_bits: 8
+  access: RW
+  reset_value: 0x41 # Default: Precharge 40min, ExtPathCurrent 300mA, ExtPathCharge OFF, CC Timeout 8Hrs.
+  description: |
+    Controls secondary charging parameters including pre-charge timeout,
+    external path charge current and enable state, and constant current mode timeout.
+  fields:
+    precharge_timeout:
+      base: uint
+      start: 6
+      end: 8 # 2 bits (6, 7)
+      description: "Pre-charge phase timeout duration."
+      conversion:
+        name: PrechargeTimeoutValue
+        Min30: { value: 0b00, description: "30 minutes timeout." }
+        Min40: { value: 0b01, description: "40 minutes timeout." } # Default
+        Min50: { value: 0b10, description: "50 minutes timeout." }
+        Min60: { value: 0b11, description: "60 minutes timeout." }
+    external_path_charge_current:
+      base: uint
+      start: 3
+      end: 6 # 3 bits (3, 4, 5)
+      description: "External path charging current setting (300mA to 1000mA, 100mA/step)."
+      conversion:
+        name: ExternalPathChargeCurrentValue
+        MA300:  { value: 0b000, description: "300mA" } # Default
+        MA400:  { value: 0b001, description: "400mA" }
+        MA500:  { value: 0b010, description: "500mA" }
+        MA600:  { value: 0b011, description: "600mA" }
+        MA700:  { value: 0b100, description: "700mA" }
+        MA800:  { value: 0b101, description: "800mA" }
+        MA900:  { value: 0b110, description: "900mA" }
+        MA1000: { value: 0b111, description: "1000mA" }
+    external_path_charge_enable:
+      base: bool
+      start: 2
+      description: "External path charging enable (true: enabled, false: disabled)." # Default: false
+    constant_current_timeout:
+      base: uint
+      start: 0
+      end: 2 # 2 bits (0, 1)
+      description: "Constant Current (CC) charging mode timeout duration."
+      conversion:
+        name: ConstantCurrentTimeoutValue
+        Hours7: { value: 0b00, description: "7 hours timeout." }
+        Hours8: { value: 0b01, description: "8 hours timeout." } # Default
+        Hours9: { value: 0b10, description: "9 hours timeout." }
+        Hours10: { value: 0b11, description: "10 hours timeout." }
+
