@@ -130,6 +130,18 @@ impl<I> Device<I> {
         callback(150 + 0 * 0, "gpio_3_and_4_signal_status_and_control", reg.into());
         let reg = self.gpio_0_to_2_pulldown_control().read()?;
         callback(151 + 0 * 0, "gpio_0_to_2_pulldown_control", reg.into());
+        let reg = self.pwm_1_frequency_setting().read()?;
+        callback(152 + 0 * 0, "pwm_1_frequency_setting", reg.into());
+        let reg = self.pwm_1_duty_cycle_setting_y_1().read()?;
+        callback(153 + 0 * 0, "pwm_1_duty_cycle_setting_y_1", reg.into());
+        let reg = self.pwm_1_duty_cycle_setting_y_2().read()?;
+        callback(154 + 0 * 0, "pwm_1_duty_cycle_setting_y_2", reg.into());
+        let reg = self.pwm_2_frequency_setting().read()?;
+        callback(155 + 0 * 0, "pwm_2_frequency_setting", reg.into());
+        let reg = self.pwm_2_duty_cycle_setting_y_1().read()?;
+        callback(156 + 0 * 0, "pwm_2_duty_cycle_setting_y_1", reg.into());
+        let reg = self.pwm_2_duty_cycle_setting_y_2().read()?;
+        callback(157 + 0 * 0, "pwm_2_duty_cycle_setting_y_2", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -248,6 +260,18 @@ impl<I> Device<I> {
         callback(150 + 0 * 0, "gpio_3_and_4_signal_status_and_control", reg.into());
         let reg = self.gpio_0_to_2_pulldown_control().read_async().await?;
         callback(151 + 0 * 0, "gpio_0_to_2_pulldown_control", reg.into());
+        let reg = self.pwm_1_frequency_setting().read_async().await?;
+        callback(152 + 0 * 0, "pwm_1_frequency_setting", reg.into());
+        let reg = self.pwm_1_duty_cycle_setting_y_1().read_async().await?;
+        callback(153 + 0 * 0, "pwm_1_duty_cycle_setting_y_1", reg.into());
+        let reg = self.pwm_1_duty_cycle_setting_y_2().read_async().await?;
+        callback(154 + 0 * 0, "pwm_1_duty_cycle_setting_y_2", reg.into());
+        let reg = self.pwm_2_frequency_setting().read_async().await?;
+        callback(155 + 0 * 0, "pwm_2_frequency_setting", reg.into());
+        let reg = self.pwm_2_duty_cycle_setting_y_1().read_async().await?;
+        callback(156 + 0 * 0, "pwm_2_duty_cycle_setting_y_1", reg.into());
+        let reg = self.pwm_2_duty_cycle_setting_y_2().read_async().await?;
+        callback(157 + 0 * 0, "pwm_2_duty_cycle_setting_y_2", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1284,6 +1308,128 @@ impl<I> Device<I> {
             field_sets::Gpio0To2PulldownControl,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::Gpio0To2PulldownControl::new)
+    }
+    ///Sets the 'X' parameter for PWM1 output frequency calculation.
+    ///Formula: F_pwm1 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG99H).
+    pub fn pwm_1_frequency_setting(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Pwm1FrequencySetting,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 152;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Pwm1FrequencySetting,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Pwm1FrequencySetting::new)
+    }
+    ///Sets the 'Y1' parameter for PWM1 duty cycle and frequency calculations.
+    ///Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
+    ///Y1 should not be set to 0.
+    pub fn pwm_1_duty_cycle_setting_y_1(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Pwm1DutyCycleSettingY1,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 153;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Pwm1DutyCycleSettingY1,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Pwm1DutyCycleSettingY1::new)
+    }
+    ///Sets the 'Y2' parameter (numerator) for PWM1 duty cycle calculation (Duty = Y2/Y1).
+    ///Only upper 5 bits (bits 7-3) are used for Y2.
+    pub fn pwm_1_duty_cycle_setting_y_2(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Pwm1DutyCycleSettingY2,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 154;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Pwm1DutyCycleSettingY2,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Pwm1DutyCycleSettingY2::new)
+    }
+    ///Sets the 'X' parameter for PWM2 output frequency calculation.
+    ///Formula: F_pwm2 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG9CH).
+    pub fn pwm_2_frequency_setting(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Pwm1FrequencySetting,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 155;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Pwm1FrequencySetting,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Pwm1FrequencySetting::new)
+    }
+    ///Sets the 'Y1' parameter for PWM2 duty cycle and frequency calculations.
+    ///Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
+    ///Y1 should not be set to 0.
+    pub fn pwm_2_duty_cycle_setting_y_1(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Pwm1DutyCycleSettingY1,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 156;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Pwm1DutyCycleSettingY1,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Pwm1DutyCycleSettingY1::new)
+    }
+    ///Sets the 'Y2' parameter (numerator) for PWM2 duty cycle calculation (Duty = Y2/Y1).
+    ///Only upper 5 bits (bits 7-3) are used for Y2.
+    pub fn pwm_2_duty_cycle_setting_y_2(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Pwm1DutyCycleSettingY2,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 157;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Pwm1DutyCycleSettingY2,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Pwm1DutyCycleSettingY2::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -9395,6 +9541,400 @@ pub mod field_sets {
             self
         }
     }
+    ///Sets the 'X' parameter for PWM1 output frequency calculation.
+    ///Formula: F_pwm1 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG99H).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Pwm1FrequencySetting {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Pwm1FrequencySetting {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Pwm1FrequencySetting {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `parameter_x` field of the register.
+        ///
+        ///Parameter X for PWM1 frequency calculation (0-255).
+        pub fn parameter_x(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 8)
+            };
+            raw
+        }
+        ///Write the `parameter_x` field of the register.
+        ///
+        ///Parameter X for PWM1 frequency calculation (0-255).
+        pub fn set_parameter_x(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 8, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Pwm1FrequencySetting {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Pwm1FrequencySetting> for [u8; 1] {
+        fn from(val: Pwm1FrequencySetting) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Pwm1FrequencySetting {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Pwm1FrequencySetting");
+            {
+                d.field("parameter_x", &self.parameter_x());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Pwm1FrequencySetting {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Pwm1FrequencySetting { ");
+            defmt::write!(f, "parameter_x: {=u8}, ", &self.parameter_x());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Pwm1FrequencySetting {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Pwm1FrequencySetting {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Pwm1FrequencySetting {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Pwm1FrequencySetting {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Pwm1FrequencySetting {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Pwm1FrequencySetting {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Pwm1FrequencySetting {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Sets the 'Y1' parameter for PWM1 duty cycle and frequency calculations.
+    ///Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
+    ///Y1 should not be set to 0.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Pwm1DutyCycleSettingY1 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Pwm1DutyCycleSettingY1 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Pwm1DutyCycleSettingY1 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [22] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `parameter_y_1` field of the register.
+        ///
+        ///Parameter Y1 for PWM1 calculations (1-255). Do not set to 0.
+        pub fn parameter_y_1(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 8)
+            };
+            raw
+        }
+        ///Write the `parameter_y_1` field of the register.
+        ///
+        ///Parameter Y1 for PWM1 calculations (1-255). Do not set to 0.
+        pub fn set_parameter_y_1(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 8, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Pwm1DutyCycleSettingY1 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Pwm1DutyCycleSettingY1> for [u8; 1] {
+        fn from(val: Pwm1DutyCycleSettingY1) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Pwm1DutyCycleSettingY1 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Pwm1DutyCycleSettingY1");
+            {
+                d.field("parameter_y_1", &self.parameter_y_1());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Pwm1DutyCycleSettingY1 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Pwm1DutyCycleSettingY1 { ");
+            defmt::write!(f, "parameter_y_1: {=u8}, ", &self.parameter_y_1());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Pwm1DutyCycleSettingY1 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Pwm1DutyCycleSettingY1 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Pwm1DutyCycleSettingY1 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Pwm1DutyCycleSettingY1 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Pwm1DutyCycleSettingY1 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Pwm1DutyCycleSettingY1 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Pwm1DutyCycleSettingY1 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Sets the 'Y2' parameter (numerator) for PWM1 duty cycle calculation (Duty = Y2/Y1).
+    ///Only upper 5 bits (bits 7-3) are used for Y2.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Pwm1DutyCycleSettingY2 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Pwm1DutyCycleSettingY2 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Pwm1DutyCycleSettingY2 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [11] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `parameter_y_2` field of the register.
+        ///
+        ///Parameter Y2 for PWM1 duty cycle calculation (0-31).
+        pub fn parameter_y_2(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 8)
+            };
+            raw
+        }
+        ///Write the `parameter_y_2` field of the register.
+        ///
+        ///Parameter Y2 for PWM1 duty cycle calculation (0-31).
+        pub fn set_parameter_y_2(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 8, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Pwm1DutyCycleSettingY2 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Pwm1DutyCycleSettingY2> for [u8; 1] {
+        fn from(val: Pwm1DutyCycleSettingY2) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Pwm1DutyCycleSettingY2 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Pwm1DutyCycleSettingY2");
+            {
+                d.field("parameter_y_2", &self.parameter_y_2());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Pwm1DutyCycleSettingY2 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Pwm1DutyCycleSettingY2 { ");
+            defmt::write!(f, "parameter_y_2: {=u8}, ", &self.parameter_y_2());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Pwm1DutyCycleSettingY2 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Pwm1DutyCycleSettingY2 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Pwm1DutyCycleSettingY2 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Pwm1DutyCycleSettingY2 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Pwm1DutyCycleSettingY2 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Pwm1DutyCycleSettingY2 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Pwm1DutyCycleSettingY2 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -9522,6 +10062,16 @@ pub mod field_sets {
         Gpio3And4SignalStatusAndControl(Gpio3And4SignalStatusAndControl),
         ///Controls internal pull-down resistors for GPIO0, GPIO1, and GPIO2 when they are configured as inputs.
         Gpio0To2PulldownControl(Gpio0To2PulldownControl),
+        ///Sets the 'X' parameter for PWM1 output frequency calculation.
+        ///Formula: F_pwm1 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG99H).
+        Pwm1FrequencySetting(Pwm1FrequencySetting),
+        ///Sets the 'Y1' parameter for PWM1 duty cycle and frequency calculations.
+        ///Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
+        ///Y1 should not be set to 0.
+        Pwm1DutyCycleSettingY1(Pwm1DutyCycleSettingY1),
+        ///Sets the 'Y2' parameter (numerator) for PWM1 duty cycle calculation (Duty = Y2/Y1).
+        ///Only upper 5 bits (bits 7-3) are used for Y2.
+        Pwm1DutyCycleSettingY2(Pwm1DutyCycleSettingY2),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -9578,6 +10128,9 @@ pub mod field_sets {
                     core::fmt::Debug::fmt(val, f)
                 }
                 Self::Gpio0To2PulldownControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::Pwm1FrequencySetting(val) => core::fmt::Debug::fmt(val, f),
+                Self::Pwm1DutyCycleSettingY1(val) => core::fmt::Debug::fmt(val, f),
+                Self::Pwm1DutyCycleSettingY2(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -9638,6 +10191,9 @@ pub mod field_sets {
                     defmt::Format::format(val, f)
                 }
                 Self::Gpio0To2PulldownControl(val) => defmt::Format::format(val, f),
+                Self::Pwm1FrequencySetting(val) => defmt::Format::format(val, f),
+                Self::Pwm1DutyCycleSettingY1(val) => defmt::Format::format(val, f),
+                Self::Pwm1DutyCycleSettingY2(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -9849,6 +10405,21 @@ pub mod field_sets {
     impl From<Gpio0To2PulldownControl> for FieldSetValue {
         fn from(val: Gpio0To2PulldownControl) -> Self {
             Self::Gpio0To2PulldownControl(val)
+        }
+    }
+    impl From<Pwm1FrequencySetting> for FieldSetValue {
+        fn from(val: Pwm1FrequencySetting) -> Self {
+            Self::Pwm1FrequencySetting(val)
+        }
+    }
+    impl From<Pwm1DutyCycleSettingY1> for FieldSetValue {
+        fn from(val: Pwm1DutyCycleSettingY1) -> Self {
+            Self::Pwm1DutyCycleSettingY1(val)
+        }
+    }
+    impl From<Pwm1DutyCycleSettingY2> for FieldSetValue {
+        fn from(val: Pwm1DutyCycleSettingY2) -> Self {
+            Self::Pwm1DutyCycleSettingY2(val)
         }
     }
 }

@@ -1292,3 +1292,83 @@ Gpio0To2PulldownControl: # REG97H
       start: 0
       description: "GPIO0 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO0 is an input."
 
+Pwm1FrequencySetting: # REG98H
+  type: register
+  address: 0x98
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default value for parameter X
+  description: |
+    Sets the 'X' parameter for PWM1 output frequency calculation.
+    Formula: F_pwm1 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG99H).
+  fields:
+    parameter_x:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Parameter X for PWM1 frequency calculation (0-255)."
+
+Pwm1DutyCycleSettingY1: # REG99H
+  type: register
+  address: 0x99
+  size_bits: 8
+  access: RW
+  reset_value: 0x16 # Default value for parameter Y1
+  description: |
+    Sets the 'Y1' parameter for PWM1 duty cycle and frequency calculations.
+    Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
+    Y1 should not be set to 0.
+  fields:
+    parameter_y1:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Parameter Y1 for PWM1 calculations (1-255). Do not set to 0."
+
+Pwm1DutyCycleSettingY2: # REG9AH
+  type: register
+  address: 0x9A
+  size_bits: 8
+  access: RW
+  reset_value: 0x0B # Default for parameter Y2 (upper 5 bits = 00001B)
+  description: |
+    Sets the 'Y2' parameter (numerator) for PWM1 duty cycle calculation (Duty = Y2/Y1).
+    Only upper 5 bits (bits 7-3) are used for Y2.
+  fields:
+    parameter_y2: # Bits 7-3 of the register are Y2
+      base: uint
+      start: 3
+      end: 8 # 5 bits
+      description: "Parameter Y2 for PWM1 duty cycle calculation (0-31)."
+    # Bits 2-0 are reserved.
+
+Pwm2FrequencySetting: # REG9BH
+  type: ref
+  target: Pwm1FrequencySetting
+  description: |
+    Sets the 'X' parameter for PWM2 output frequency calculation.
+    Formula: F_pwm2 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG9CH).
+  override:
+    type: register # This is the type of the target being overridden
+    address: 0x9B
+
+Pwm2DutyCycleSettingY1: # REG9CH
+  type: ref
+  target: Pwm1DutyCycleSettingY1
+  description: |
+    Sets the 'Y1' parameter for PWM2 duty cycle and frequency calculations.
+    Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
+    Y1 should not be set to 0.
+  override:
+    type: register
+    address: 0x9C
+
+Pwm2DutyCycleSettingY2: # REG9DH
+  type: ref
+  target: Pwm1DutyCycleSettingY2
+  description: |
+    Sets the 'Y2' parameter (numerator) for PWM2 duty cycle calculation (Duty = Y2/Y1).
+    Only upper 5 bits (bits 7-3) are used for Y2.
+  override:
+    type: register
+    address: 0x9D
