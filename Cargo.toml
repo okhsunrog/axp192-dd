@@ -21,7 +21,7 @@ num_enum = "0.7.3"
 thiserror = { version = "2.0.12", default-features = false }
 
 [features]
-default = []
+default = ["async"]
 std = ["thiserror/std"]
 async = []
 blocking = []
