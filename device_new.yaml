@@ -102,3 +102,59 @@ OtgVbusStatus: # REG04H (Corrected from 02H based on summary table)
       base: bool
       start: 0
       description: "VBUS Session End status (true: Session has ended, false: Session is ongoing or not started)."
+
+DataBuffer0: # REG06H
+  type: register
+  address: 0x06
+  size_bits: 8
+  access: RW
+  reset_value: 0xF0
+  description: |
+    General purpose data buffer for system data storage.
+    Note: Retained as long as any AXP192 power source is present (not affected by host on/off).
+  fields:
+    value:
+      base: uint
+      start: 0
+      end: 8
+      description: "8-bit data value."
+
+DataBuffer1: # REG07H
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x07
+    reset_value: 0x0F
+
+DataBuffer2: # REG08H
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x08
+    reset_value: 0x00
+
+DataBuffer3: # REG09H
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x09
+    reset_value: 0xFF
+
+DataBuffer4: # REG0AH
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x0A
+    reset_value: 0x00
+
+DataBuffer5: # REG0BH
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x0B
+    reset_value: 0x00
