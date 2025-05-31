@@ -96,6 +96,14 @@ impl<I> Device<I> {
         callback(61 + 0 * 0, "battery_discharge_high_temp_threshold", reg.into());
         let reg = self.dc_dc_operating_mode().read()?;
         callback(128 + 0 * 0, "dc_dc_operating_mode", reg.into());
+        let reg = self.adc_enable_1().read()?;
+        callback(130 + 0 * 0, "adc_enable_1", reg.into());
+        let reg = self.adc_enable_2().read()?;
+        callback(131 + 0 * 0, "adc_enable_2", reg.into());
+        let reg = self.adc_sample_rate_ts_pin_control().read()?;
+        callback(132 + 0 * 0, "adc_sample_rate_ts_pin_control", reg.into());
+        let reg = self.gpio_adc_input_range_setting().read()?;
+        callback(133 + 0 * 0, "gpio_adc_input_range_setting", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -180,6 +188,14 @@ impl<I> Device<I> {
         callback(61 + 0 * 0, "battery_discharge_high_temp_threshold", reg.into());
         let reg = self.dc_dc_operating_mode().read_async().await?;
         callback(128 + 0 * 0, "dc_dc_operating_mode", reg.into());
+        let reg = self.adc_enable_1().read_async().await?;
+        callback(130 + 0 * 0, "adc_enable_1", reg.into());
+        let reg = self.adc_enable_2().read_async().await?;
+        callback(131 + 0 * 0, "adc_enable_2", reg.into());
+        let reg = self.adc_sample_rate_ts_pin_control().read_async().await?;
+        callback(132 + 0 * 0, "adc_sample_rate_ts_pin_control", reg.into());
+        let reg = self.gpio_adc_input_range_setting().read_async().await?;
+        callback(133 + 0 * 0, "gpio_adc_input_range_setting", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -857,6 +873,90 @@ impl<I> Device<I> {
             field_sets::DcDcOperatingMode,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::DcDcOperatingMode::new)
+    }
+    ///Controls the enable state for various ADC channels (Set 1).
+    pub fn adc_enable_1(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::AdcEnable1,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 130;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::AdcEnable1,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::AdcEnable1::new)
+    }
+    ///Controls the enable state for internal temperature ADC and GPIO ADCs (Set 2).
+    pub fn adc_enable_2(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::AdcEnable2,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 131;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::AdcEnable2,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::AdcEnable2::new)
+    }
+    ///Configures ADC sample rate and TS (Temperature Sense) pin functionality, current, and output mode.
+    pub fn adc_sample_rate_ts_pin_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::AdcSampleRateTsPinControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 132;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::AdcSampleRateTsPinControl,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::AdcSampleRateTsPinControl::new,
+        )
+    }
+    ///Sets the ADC input voltage range for GPIO0, GPIO1, GPIO2, and GPIO3.
+    pub fn gpio_adc_input_range_setting(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::GpioAdcInputRangeSetting,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 133;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::GpioAdcInputRangeSetting,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::GpioAdcInputRangeSetting::new,
+        )
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -5649,6 +5749,1077 @@ pub mod field_sets {
             self
         }
     }
+    ///Controls the enable state for various ADC channels (Set 1).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct AdcEnable1 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for AdcEnable1 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl AdcEnable1 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [131] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `battery_voltage_adc_enable` field of the register.
+        ///
+        ///Battery voltage ADC (true: enabled, false: disabled).
+        pub fn battery_voltage_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `battery_current_adc_enable` field of the register.
+        ///
+        ///Battery charge/discharge current ADC (true: enabled, false: disabled).
+        pub fn battery_current_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `acin_voltage_adc_enable` field of the register.
+        ///
+        ///ACIN voltage ADC (true: enabled, false: disabled).
+        pub fn acin_voltage_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `acin_current_adc_enable` field of the register.
+        ///
+        ///ACIN current ADC (true: enabled, false: disabled).
+        pub fn acin_current_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_voltage_adc_enable` field of the register.
+        ///
+        ///VBUS voltage ADC (true: enabled, false: disabled).
+        pub fn vbus_voltage_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_current_adc_enable` field of the register.
+        ///
+        ///VBUS current ADC (true: enabled, false: disabled).
+        pub fn vbus_current_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `aps_voltage_adc_enable` field of the register.
+        ///
+        ///APS (Average Power Source) voltage ADC (true: enabled, false: disabled).
+        pub fn aps_voltage_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `ts_pin_adc_enable` field of the register.
+        ///
+        ///TS (Temperature Sense) pin ADC function (true: enabled, false: disabled).
+        pub fn ts_pin_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `battery_voltage_adc_enable` field of the register.
+        ///
+        ///Battery voltage ADC (true: enabled, false: disabled).
+        pub fn set_battery_voltage_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `battery_current_adc_enable` field of the register.
+        ///
+        ///Battery charge/discharge current ADC (true: enabled, false: disabled).
+        pub fn set_battery_current_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `acin_voltage_adc_enable` field of the register.
+        ///
+        ///ACIN voltage ADC (true: enabled, false: disabled).
+        pub fn set_acin_voltage_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `acin_current_adc_enable` field of the register.
+        ///
+        ///ACIN current ADC (true: enabled, false: disabled).
+        pub fn set_acin_current_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_voltage_adc_enable` field of the register.
+        ///
+        ///VBUS voltage ADC (true: enabled, false: disabled).
+        pub fn set_vbus_voltage_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_current_adc_enable` field of the register.
+        ///
+        ///VBUS current ADC (true: enabled, false: disabled).
+        pub fn set_vbus_current_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `aps_voltage_adc_enable` field of the register.
+        ///
+        ///APS (Average Power Source) voltage ADC (true: enabled, false: disabled).
+        pub fn set_aps_voltage_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `ts_pin_adc_enable` field of the register.
+        ///
+        ///TS (Temperature Sense) pin ADC function (true: enabled, false: disabled).
+        pub fn set_ts_pin_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for AdcEnable1 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<AdcEnable1> for [u8; 1] {
+        fn from(val: AdcEnable1) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for AdcEnable1 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("AdcEnable1");
+            {
+                d.field(
+                    "battery_voltage_adc_enable",
+                    &self.battery_voltage_adc_enable(),
+                );
+            }
+            {
+                d.field(
+                    "battery_current_adc_enable",
+                    &self.battery_current_adc_enable(),
+                );
+            }
+            {
+                d.field("acin_voltage_adc_enable", &self.acin_voltage_adc_enable());
+            }
+            {
+                d.field("acin_current_adc_enable", &self.acin_current_adc_enable());
+            }
+            {
+                d.field("vbus_voltage_adc_enable", &self.vbus_voltage_adc_enable());
+            }
+            {
+                d.field("vbus_current_adc_enable", &self.vbus_current_adc_enable());
+            }
+            {
+                d.field("aps_voltage_adc_enable", &self.aps_voltage_adc_enable());
+            }
+            {
+                d.field("ts_pin_adc_enable", &self.ts_pin_adc_enable());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for AdcEnable1 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "AdcEnable1 { ");
+            defmt::write!(
+                f,
+                "battery_voltage_adc_enable: {=bool}, ",
+                &self.battery_voltage_adc_enable(),
+            );
+            defmt::write!(
+                f,
+                "battery_current_adc_enable: {=bool}, ",
+                &self.battery_current_adc_enable(),
+            );
+            defmt::write!(
+                f,
+                "acin_voltage_adc_enable: {=bool}, ",
+                &self.acin_voltage_adc_enable(),
+            );
+            defmt::write!(
+                f,
+                "acin_current_adc_enable: {=bool}, ",
+                &self.acin_current_adc_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_voltage_adc_enable: {=bool}, ",
+                &self.vbus_voltage_adc_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_current_adc_enable: {=bool}, ",
+                &self.vbus_current_adc_enable(),
+            );
+            defmt::write!(
+                f,
+                "aps_voltage_adc_enable: {=bool}, ",
+                &self.aps_voltage_adc_enable(),
+            );
+            defmt::write!(f, "ts_pin_adc_enable: {=bool}, ", &self.ts_pin_adc_enable());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for AdcEnable1 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for AdcEnable1 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for AdcEnable1 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for AdcEnable1 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for AdcEnable1 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for AdcEnable1 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for AdcEnable1 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Controls the enable state for internal temperature ADC and GPIO ADCs (Set 2).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct AdcEnable2 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for AdcEnable2 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl AdcEnable2 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [128] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `internal_temperature_adc_enable` field of the register.
+        ///
+        ///AXP192 internal temperature monitoring ADC (true: enabled, false: disabled).
+        pub fn internal_temperature_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_0_adc_enable` field of the register.
+        ///
+        ///GPIO0 ADC function (true: enabled, false: disabled).
+        pub fn gpio_0_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_1_adc_enable` field of the register.
+        ///
+        ///GPIO1 ADC function (true: enabled, false: disabled).
+        pub fn gpio_1_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_2_adc_enable` field of the register.
+        ///
+        ///GPIO2 ADC function (true: enabled, false: disabled).
+        pub fn gpio_2_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_3_adc_enable` field of the register.
+        ///
+        ///GPIO3 ADC function (true: enabled, false: disabled).
+        pub fn gpio_3_adc_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `internal_temperature_adc_enable` field of the register.
+        ///
+        ///AXP192 internal temperature monitoring ADC (true: enabled, false: disabled).
+        pub fn set_internal_temperature_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_0_adc_enable` field of the register.
+        ///
+        ///GPIO0 ADC function (true: enabled, false: disabled).
+        pub fn set_gpio_0_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_1_adc_enable` field of the register.
+        ///
+        ///GPIO1 ADC function (true: enabled, false: disabled).
+        pub fn set_gpio_1_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_2_adc_enable` field of the register.
+        ///
+        ///GPIO2 ADC function (true: enabled, false: disabled).
+        pub fn set_gpio_2_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_3_adc_enable` field of the register.
+        ///
+        ///GPIO3 ADC function (true: enabled, false: disabled).
+        pub fn set_gpio_3_adc_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for AdcEnable2 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<AdcEnable2> for [u8; 1] {
+        fn from(val: AdcEnable2) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for AdcEnable2 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("AdcEnable2");
+            {
+                d.field(
+                    "internal_temperature_adc_enable",
+                    &self.internal_temperature_adc_enable(),
+                );
+            }
+            {
+                d.field("gpio_0_adc_enable", &self.gpio_0_adc_enable());
+            }
+            {
+                d.field("gpio_1_adc_enable", &self.gpio_1_adc_enable());
+            }
+            {
+                d.field("gpio_2_adc_enable", &self.gpio_2_adc_enable());
+            }
+            {
+                d.field("gpio_3_adc_enable", &self.gpio_3_adc_enable());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for AdcEnable2 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "AdcEnable2 { ");
+            defmt::write!(
+                f,
+                "internal_temperature_adc_enable: {=bool}, ",
+                &self.internal_temperature_adc_enable(),
+            );
+            defmt::write!(f, "gpio_0_adc_enable: {=bool}, ", &self.gpio_0_adc_enable());
+            defmt::write!(f, "gpio_1_adc_enable: {=bool}, ", &self.gpio_1_adc_enable());
+            defmt::write!(f, "gpio_2_adc_enable: {=bool}, ", &self.gpio_2_adc_enable());
+            defmt::write!(f, "gpio_3_adc_enable: {=bool}, ", &self.gpio_3_adc_enable());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for AdcEnable2 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for AdcEnable2 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for AdcEnable2 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for AdcEnable2 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for AdcEnable2 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for AdcEnable2 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for AdcEnable2 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Configures ADC sample rate and TS (Temperature Sense) pin functionality, current, and output mode.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct AdcSampleRateTsPinControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for AdcSampleRateTsPinControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl AdcSampleRateTsPinControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [50] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `adc_sample_rate` field of the register.
+        ///
+        ///ADC sampling rate for enabled channels.
+        pub fn adc_sample_rate(&self) -> super::AdcSampleRateValue {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 8)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `ts_pin_output_current` field of the register.
+        ///
+        ///Output current for the TS pin (typically for NTC biasing).
+        pub fn ts_pin_output_current(&self) -> super::TsPinCurrentValue {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 6)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `ts_pin_function_is_external_adc` field of the register.
+        ///
+        ///TS pin function (true: External ADC input, false: Battery Temperature Monitor).
+        pub fn ts_pin_function_is_external_adc(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `ts_pin_current_output_mode` field of the register.
+        ///
+        ///Controls when current is output on the TS pin.
+        pub fn ts_pin_current_output_mode(&self) -> super::TsPinOutputMode {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 2)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Write the `adc_sample_rate` field of the register.
+        ///
+        ///ADC sampling rate for enabled channels.
+        pub fn set_adc_sample_rate(&mut self, value: super::AdcSampleRateValue) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 8, &mut self.bits)
+            };
+        }
+        ///Write the `ts_pin_output_current` field of the register.
+        ///
+        ///Output current for the TS pin (typically for NTC biasing).
+        pub fn set_ts_pin_output_current(&mut self, value: super::TsPinCurrentValue) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 6, &mut self.bits)
+            };
+        }
+        ///Write the `ts_pin_function_is_external_adc` field of the register.
+        ///
+        ///TS pin function (true: External ADC input, false: Battery Temperature Monitor).
+        pub fn set_ts_pin_function_is_external_adc(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `ts_pin_current_output_mode` field of the register.
+        ///
+        ///Controls when current is output on the TS pin.
+        pub fn set_ts_pin_current_output_mode(&mut self, value: super::TsPinOutputMode) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 2, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for AdcSampleRateTsPinControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<AdcSampleRateTsPinControl> for [u8; 1] {
+        fn from(val: AdcSampleRateTsPinControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for AdcSampleRateTsPinControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("AdcSampleRateTsPinControl");
+            {
+                d.field("adc_sample_rate", &self.adc_sample_rate());
+            }
+            {
+                d.field("ts_pin_output_current", &self.ts_pin_output_current());
+            }
+            {
+                d.field(
+                    "ts_pin_function_is_external_adc",
+                    &self.ts_pin_function_is_external_adc(),
+                );
+            }
+            {
+                d.field(
+                    "ts_pin_current_output_mode",
+                    &self.ts_pin_current_output_mode(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for AdcSampleRateTsPinControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "AdcSampleRateTsPinControl { ");
+            defmt::write!(f, "adc_sample_rate: {}, ", &self.adc_sample_rate());
+            defmt::write!(
+                f,
+                "ts_pin_output_current: {}, ",
+                &self.ts_pin_output_current(),
+            );
+            defmt::write!(
+                f,
+                "ts_pin_function_is_external_adc: {=bool}, ",
+                &self.ts_pin_function_is_external_adc(),
+            );
+            defmt::write!(
+                f,
+                "ts_pin_current_output_mode: {}, ",
+                &self.ts_pin_current_output_mode(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for AdcSampleRateTsPinControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for AdcSampleRateTsPinControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for AdcSampleRateTsPinControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for AdcSampleRateTsPinControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for AdcSampleRateTsPinControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for AdcSampleRateTsPinControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for AdcSampleRateTsPinControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Sets the ADC input voltage range for GPIO0, GPIO1, GPIO2, and GPIO3.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct GpioAdcInputRangeSetting {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for GpioAdcInputRangeSetting {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl GpioAdcInputRangeSetting {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `gpio_3_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO3.
+        pub fn gpio_3_adc_input_range(&self) -> super::GpioAdcRange {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `gpio_2_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO2.
+        pub fn gpio_2_adc_input_range(&self) -> super::GpioAdcRange {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `gpio_1_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO1.
+        pub fn gpio_1_adc_input_range(&self) -> super::GpioAdcRange {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `gpio_0_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO0.
+        pub fn gpio_0_adc_input_range(&self) -> super::GpioAdcRange {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Write the `gpio_3_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO3.
+        pub fn set_gpio_3_adc_input_range(&mut self, value: super::GpioAdcRange) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_2_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO2.
+        pub fn set_gpio_2_adc_input_range(&mut self, value: super::GpioAdcRange) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_1_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO1.
+        pub fn set_gpio_1_adc_input_range(&mut self, value: super::GpioAdcRange) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_0_adc_input_range` field of the register.
+        ///
+        ///ADC input voltage range for GPIO0.
+        pub fn set_gpio_0_adc_input_range(&mut self, value: super::GpioAdcRange) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for GpioAdcInputRangeSetting {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<GpioAdcInputRangeSetting> for [u8; 1] {
+        fn from(val: GpioAdcInputRangeSetting) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for GpioAdcInputRangeSetting {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("GpioAdcInputRangeSetting");
+            {
+                d.field("gpio_3_adc_input_range", &self.gpio_3_adc_input_range());
+            }
+            {
+                d.field("gpio_2_adc_input_range", &self.gpio_2_adc_input_range());
+            }
+            {
+                d.field("gpio_1_adc_input_range", &self.gpio_1_adc_input_range());
+            }
+            {
+                d.field("gpio_0_adc_input_range", &self.gpio_0_adc_input_range());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for GpioAdcInputRangeSetting {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "GpioAdcInputRangeSetting { ");
+            defmt::write!(
+                f,
+                "gpio_3_adc_input_range: {}, ",
+                &self.gpio_3_adc_input_range(),
+            );
+            defmt::write!(
+                f,
+                "gpio_2_adc_input_range: {}, ",
+                &self.gpio_2_adc_input_range(),
+            );
+            defmt::write!(
+                f,
+                "gpio_1_adc_input_range: {}, ",
+                &self.gpio_1_adc_input_range(),
+            );
+            defmt::write!(
+                f,
+                "gpio_0_adc_input_range: {}, ",
+                &self.gpio_0_adc_input_range(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for GpioAdcInputRangeSetting {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for GpioAdcInputRangeSetting {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for GpioAdcInputRangeSetting {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for GpioAdcInputRangeSetting {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for GpioAdcInputRangeSetting {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for GpioAdcInputRangeSetting {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for GpioAdcInputRangeSetting {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -5734,6 +6905,14 @@ pub mod field_sets {
         BatteryDischargeHighTempThreshold(BatteryDischargeHighTempThreshold),
         ///Selects the operating mode (PFM/PWM Auto or Fixed PWM) for DC-DC1, DC-DC2, and DC-DC3.
         DcDcOperatingMode(DcDcOperatingMode),
+        ///Controls the enable state for various ADC channels (Set 1).
+        AdcEnable1(AdcEnable1),
+        ///Controls the enable state for internal temperature ADC and GPIO ADCs (Set 2).
+        AdcEnable2(AdcEnable2),
+        ///Configures ADC sample rate and TS (Temperature Sense) pin functionality, current, and output mode.
+        AdcSampleRateTsPinControl(AdcSampleRateTsPinControl),
+        ///Sets the ADC input voltage range for GPIO0, GPIO1, GPIO2, and GPIO3.
+        GpioAdcInputRangeSetting(GpioAdcInputRangeSetting),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -5769,6 +6948,10 @@ pub mod field_sets {
                     core::fmt::Debug::fmt(val, f)
                 }
                 Self::DcDcOperatingMode(val) => core::fmt::Debug::fmt(val, f),
+                Self::AdcEnable1(val) => core::fmt::Debug::fmt(val, f),
+                Self::AdcEnable2(val) => core::fmt::Debug::fmt(val, f),
+                Self::AdcSampleRateTsPinControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::GpioAdcInputRangeSetting(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -5808,6 +6991,10 @@ pub mod field_sets {
                     defmt::Format::format(val, f)
                 }
                 Self::DcDcOperatingMode(val) => defmt::Format::format(val, f),
+                Self::AdcEnable1(val) => defmt::Format::format(val, f),
+                Self::AdcEnable2(val) => defmt::Format::format(val, f),
+                Self::AdcSampleRateTsPinControl(val) => defmt::Format::format(val, f),
+                Self::GpioAdcInputRangeSetting(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -5934,6 +7121,26 @@ pub mod field_sets {
     impl From<DcDcOperatingMode> for FieldSetValue {
         fn from(val: DcDcOperatingMode) -> Self {
             Self::DcDcOperatingMode(val)
+        }
+    }
+    impl From<AdcEnable1> for FieldSetValue {
+        fn from(val: AdcEnable1) -> Self {
+            Self::AdcEnable1(val)
+        }
+    }
+    impl From<AdcEnable2> for FieldSetValue {
+        fn from(val: AdcEnable2) -> Self {
+            Self::AdcEnable2(val)
+        }
+    }
+    impl From<AdcSampleRateTsPinControl> for FieldSetValue {
+        fn from(val: AdcSampleRateTsPinControl) -> Self {
+            Self::AdcSampleRateTsPinControl(val)
+        }
+    }
+    impl From<GpioAdcInputRangeSetting> for FieldSetValue {
+        fn from(val: GpioAdcInputRangeSetting) -> Self {
+            Self::GpioAdcInputRangeSetting(val)
         }
     }
 }
@@ -6876,6 +8083,158 @@ impl From<DcDcModeSelection> for u8 {
         match val {
             DcDcModeSelection::AutoPfmPwm => 0,
             DcDcModeSelection::FixedPwm => 1,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum AdcSampleRateValue {
+    ///25Hz sampling rate.
+    Hz25 = 0,
+    ///50Hz sampling rate.
+    Hz50 = 1,
+    ///100Hz sampling rate.
+    Hz100 = 2,
+    ///200Hz sampling rate.
+    Hz200 = 3,
+}
+impl core::convert::TryFrom<u8> for AdcSampleRateValue {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::Hz25),
+            1 => Ok(Self::Hz50),
+            2 => Ok(Self::Hz100),
+            3 => Ok(Self::Hz200),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "AdcSampleRateValue",
+                })
+            }
+        }
+    }
+}
+impl From<AdcSampleRateValue> for u8 {
+    fn from(val: AdcSampleRateValue) -> Self {
+        match val {
+            AdcSampleRateValue::Hz25 => 0,
+            AdcSampleRateValue::Hz50 => 1,
+            AdcSampleRateValue::Hz100 => 2,
+            AdcSampleRateValue::Hz200 => 3,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum TsPinCurrentValue {
+    ///20uA output current.
+    Ua20 = 0,
+    ///40uA output current.
+    Ua40 = 1,
+    ///60uA output current.
+    Ua60 = 2,
+    ///80uA output current.
+    Ua80 = 3,
+}
+impl core::convert::TryFrom<u8> for TsPinCurrentValue {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::Ua20),
+            1 => Ok(Self::Ua40),
+            2 => Ok(Self::Ua60),
+            3 => Ok(Self::Ua80),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "TsPinCurrentValue",
+                })
+            }
+        }
+    }
+}
+impl From<TsPinCurrentValue> for u8 {
+    fn from(val: TsPinCurrentValue) -> Self {
+        match val {
+            TsPinCurrentValue::Ua20 => 0,
+            TsPinCurrentValue::Ua40 => 1,
+            TsPinCurrentValue::Ua60 => 2,
+            TsPinCurrentValue::Ua80 => 3,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum TsPinOutputMode {
+    ///TS pin current output is disabled.
+    Disabled = 0,
+    ///TS pin current output enabled during charging.
+    DuringCharging = 1,
+    ///TS pin current output enabled only during ADC sampling (power saving).
+    DuringAdcSampling = 2,
+    ///TS pin current output is always enabled.
+    AlwaysEnabled = 3,
+}
+impl core::convert::TryFrom<u8> for TsPinOutputMode {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::Disabled),
+            1 => Ok(Self::DuringCharging),
+            2 => Ok(Self::DuringAdcSampling),
+            3 => Ok(Self::AlwaysEnabled),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "TsPinOutputMode",
+                })
+            }
+        }
+    }
+}
+impl From<TsPinOutputMode> for u8 {
+    fn from(val: TsPinOutputMode) -> Self {
+        match val {
+            TsPinOutputMode::Disabled => 0,
+            TsPinOutputMode::DuringCharging => 1,
+            TsPinOutputMode::DuringAdcSampling => 2,
+            TsPinOutputMode::AlwaysEnabled => 3,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum GpioAdcRange {
+    ///0V to 2.0475V input range.
+    Range00To20475V = 0,
+    ///0.7V to 2.7475V input range.
+    Range07To27475V = 1,
+}
+impl core::convert::TryFrom<u8> for GpioAdcRange {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::Range00To20475V),
+            1 => Ok(Self::Range07To27475V),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "GpioAdcRange",
+                })
+            }
+        }
+    }
+}
+impl From<GpioAdcRange> for u8 {
+    fn from(val: GpioAdcRange) -> Self {
+        match val {
+            GpioAdcRange::Range00To20475V => 0,
+            GpioAdcRange::Range07To27475V => 1,
         }
     }
 }

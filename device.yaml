@@ -807,3 +807,159 @@ DcDcOperatingMode: # REG80H
       description: "DC-DC3 operating mode."
       conversion: "DcDcModeSelection"
     # Bit 0 is reserved.
+
+AdcEnable1: # REG82H
+  type: register
+  address: 0x82
+  size_bits: 8
+  access: RW
+  reset_value: 0x83 # Default: BatVol, APSVol, TS ADCs enabled.
+  description: "Controls the enable state for various ADC channels (Set 1)."
+  fields:
+    battery_voltage_adc_enable:
+      base: bool
+      start: 7
+      description: "Battery voltage ADC (true: enabled, false: disabled)."
+    battery_current_adc_enable:
+      base: bool
+      start: 6
+      description: "Battery charge/discharge current ADC (true: enabled, false: disabled)."
+    acin_voltage_adc_enable:
+      base: bool
+      start: 5
+      description: "ACIN voltage ADC (true: enabled, false: disabled)."
+    acin_current_adc_enable:
+      base: bool
+      start: 4
+      description: "ACIN current ADC (true: enabled, false: disabled)."
+    vbus_voltage_adc_enable:
+      base: bool
+      start: 3
+      description: "VBUS voltage ADC (true: enabled, false: disabled)."
+    vbus_current_adc_enable:
+      base: bool
+      start: 2
+      description: "VBUS current ADC (true: enabled, false: disabled)."
+    aps_voltage_adc_enable:
+      base: bool
+      start: 1
+      description: "APS (Average Power Source) voltage ADC (true: enabled, false: disabled)."
+    ts_pin_adc_enable:
+      base: bool
+      start: 0
+      description: "TS (Temperature Sense) pin ADC function (true: enabled, false: disabled)."
+
+AdcEnable2: # REG83H
+  type: register
+  address: 0x83
+  size_bits: 8
+  access: RW
+  reset_value: 0x80 # Default: Internal Temp ADC enabled, GPIO ADCs disabled.
+  description: "Controls the enable state for internal temperature ADC and GPIO ADCs (Set 2)."
+  fields:
+    internal_temperature_adc_enable:
+      base: bool
+      start: 7
+      description: "AXP192 internal temperature monitoring ADC (true: enabled, false: disabled)."
+    # Bits 6-4 are reserved.
+    gpio0_adc_enable:
+      base: bool
+      start: 3
+      description: "GPIO0 ADC function (true: enabled, false: disabled)."
+    gpio1_adc_enable:
+      base: bool
+      start: 2
+      description: "GPIO1 ADC function (true: enabled, false: disabled)."
+    gpio2_adc_enable:
+      base: bool
+      start: 1
+      description: "GPIO2 ADC function (true: enabled, false: disabled)."
+    gpio3_adc_enable:
+      base: bool
+      start: 0
+      description: "GPIO3 ADC function (true: enabled, false: disabled)."
+
+AdcSampleRateTsPinControl: # REG84H
+  type: register
+  address: 0x84
+  size_bits: 8
+  access: RW
+  reset_value: 0x32 # Default: ADC @25Hz, TS current 80uA, TS for BatTemp, TS current on ADC sample.
+  description: "Configures ADC sample rate and TS (Temperature Sense) pin functionality, current, and output mode."
+  fields:
+    adc_sample_rate:
+      base: uint
+      start: 6
+      end: 8 # 2 bits
+      description: "ADC sampling rate for enabled channels."
+      conversion:
+        name: AdcSampleRateValue
+        Hz25:  { value: 0b00, description: "25Hz sampling rate." } # Default
+        Hz50:  { value: 0b01, description: "50Hz sampling rate." }
+        Hz100: { value: 0b10, description: "100Hz sampling rate." }
+        Hz200: { value: 0b11, description: "200Hz sampling rate." }
+    ts_pin_output_current:
+      base: uint
+      start: 4
+      end: 6 # 2 bits
+      description: "Output current for the TS pin (typically for NTC biasing)."
+      conversion:
+        name: TsPinCurrentValue
+        Ua20: { value: 0b00, description: "20uA output current." }
+        Ua40: { value: 0b01, description: "40uA output current." }
+        Ua60: { value: 0b10, description: "60uA output current." }
+        Ua80: { value: 0b11, description: "80uA output current." } # Default
+    # Bit 3 is reserved.
+    ts_pin_function_is_external_adc:
+      base: bool
+      start: 2
+      description: "TS pin function (true: External ADC input, false: Battery Temperature Monitor)." # Default: false
+    ts_pin_current_output_mode:
+      base: uint
+      start: 0
+      end: 2 # 2 bits
+      description: "Controls when current is output on the TS pin."
+      conversion:
+        name: TsPinOutputMode
+        Disabled:          { value: 0b00, description: "TS pin current output is disabled." }
+        DuringCharging:    { value: 0b01, description: "TS pin current output enabled during charging." }
+        DuringAdcSampling: { value: 0b10, description: "TS pin current output enabled only during ADC sampling (power saving)." } # Default
+        AlwaysEnabled:     { value: 0b11, description: "TS pin current output is always enabled." }
+
+GpioAdcInputRangeSetting: # REG85H
+  type: register
+  address: 0x85
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default on M5StickC Plus: All GPIO ADC ranges set to 0-2.0475V.
+  description: "Sets the ADC input voltage range for GPIO0, GPIO1, GPIO2, and GPIO3."
+  fields:
+    # Bits 7-4 are reserved.
+    gpio3_adc_input_range:
+      base: uint # For enum conversion
+      start: 3
+      end: 4   # 1 bit
+      description: "ADC input voltage range for GPIO3."
+      conversion:
+        name: GpioAdcRange # Reusable enum
+        Range0_0_to_2_0475V: { value: 0, description: "0V to 2.0475V input range." } # Default for this bit
+        Range0_7_to_2_7475V: { value: 1, description: "0.7V to 2.7475V input range." }
+    gpio2_adc_input_range:
+      base: uint
+      start: 2
+      end: 3   # 1 bit
+      description: "ADC input voltage range for GPIO2."
+      conversion: "GpioAdcRange" # Reuse enum
+    gpio1_adc_input_range:
+      base: uint
+      start: 1
+      end: 2   # 1 bit
+      description: "ADC input voltage range for GPIO1."
+      conversion: "GpioAdcRange" # Reuse enum
+    gpio0_adc_input_range:
+      base: uint
+      start: 0
+      end: 1   # 1 bit
+      description: "ADC input voltage range for GPIO0."
+      conversion: "GpioAdcRange" # Reuse enum
+
