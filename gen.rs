@@ -194,6 +194,12 @@ impl<I> Device<I> {
         callback(124 + 0 * 0, "battery_discharge_current_adc", reg.into());
         let reg = self.aps_voltage_adc().read()?;
         callback(126 + 0 * 0, "aps_voltage_adc", reg.into());
+        let reg = self.battery_charge_coulomb_counter().read()?;
+        callback(176 + 0 * 0, "battery_charge_coulomb_counter", reg.into());
+        let reg = self.battery_discharge_coulomb_counter().read()?;
+        callback(180 + 0 * 0, "battery_discharge_coulomb_counter", reg.into());
+        let reg = self.coulomb_counter_control().read()?;
+        callback(184 + 0 * 0, "coulomb_counter_control", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -376,6 +382,12 @@ impl<I> Device<I> {
         callback(124 + 0 * 0, "battery_discharge_current_adc", reg.into());
         let reg = self.aps_voltage_adc().read_async().await?;
         callback(126 + 0 * 0, "aps_voltage_adc", reg.into());
+        let reg = self.battery_charge_coulomb_counter().read_async().await?;
+        callback(176 + 0 * 0, "battery_charge_coulomb_counter", reg.into());
+        let reg = self.battery_discharge_coulomb_counter().read_async().await?;
+        callback(180 + 0 * 0, "battery_discharge_coulomb_counter", reg.into());
+        let reg = self.coulomb_counter_control().read_async().await?;
+        callback(184 + 0 * 0, "coulomb_counter_control", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -2014,6 +2026,76 @@ impl<I> Device<I> {
             field_sets::ApsVoltageAdc,
             ::device_driver::RO,
         >::new(self.interface(), address as u8, field_sets::ApsVoltageAdc::new)
+    }
+    ///Raw 32-bit data for the battery charge coulomb counter.
+    ///Represents accumulated charge input. See datasheet for formula to convert to mAh
+    ///(requires discharge counter value and ADC sample rate).
+    pub fn battery_charge_coulomb_counter(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BatteryChargeCoulombCounter,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 176;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BatteryChargeCoulombCounter,
+            ::device_driver::RO,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::BatteryChargeCoulombCounter::new,
+        )
+    }
+    ///Raw 32-bit data for the battery discharge coulomb counter.
+    ///Represents accumulated charge output. See datasheet for formula to convert to mAh
+    ///(requires charge counter value and ADC sample rate).
+    pub fn battery_discharge_coulomb_counter(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BatteryDischargeCoulombCounter,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 180;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BatteryDischargeCoulombCounter,
+            ::device_driver::RO,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::BatteryDischargeCoulombCounter::new,
+        )
+    }
+    ///Controls the operation of the fuel gauge / coulomb counter, including enabling,
+    ///pausing, and clearing its value.
+    pub fn coulomb_counter_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::CoulombCounterControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 184;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::CoulombCounterControl,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::CoulombCounterControl::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -15591,6 +15673,475 @@ pub mod field_sets {
             self
         }
     }
+    ///Raw 32-bit data for the battery charge coulomb counter.
+    ///Represents accumulated charge input. See datasheet for formula to convert to mAh
+    ///(requires discharge counter value and ADC sample rate).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BatteryChargeCoulombCounter {
+        /// The internal bits
+        bits: [u8; 4],
+    }
+    impl ::device_driver::FieldSet for BatteryChargeCoulombCounter {
+        const SIZE_BITS: u32 = 32;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BatteryChargeCoulombCounter {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0, 0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 4] }
+        }
+        ///Read the `raw_count` field of the register.
+        ///
+        ///Raw 32-bit unsigned accumulated charge count.
+        pub fn raw_count(&self) -> u32 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u32,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 32)
+            };
+            raw
+        }
+        ///Write the `raw_count` field of the register.
+        ///
+        ///Raw 32-bit unsigned accumulated charge count.
+        pub fn set_raw_count(&mut self, value: u32) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u32,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 32, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 4]> for BatteryChargeCoulombCounter {
+        fn from(bits: [u8; 4]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BatteryChargeCoulombCounter> for [u8; 4] {
+        fn from(val: BatteryChargeCoulombCounter) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BatteryChargeCoulombCounter {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BatteryChargeCoulombCounter");
+            {
+                d.field("raw_count", &self.raw_count());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BatteryChargeCoulombCounter {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BatteryChargeCoulombCounter { ");
+            defmt::write!(f, "raw_count: {=u32}, ", &self.raw_count());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for BatteryChargeCoulombCounter {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BatteryChargeCoulombCounter {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BatteryChargeCoulombCounter {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BatteryChargeCoulombCounter {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BatteryChargeCoulombCounter {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BatteryChargeCoulombCounter {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BatteryChargeCoulombCounter {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Raw 32-bit data for the battery discharge coulomb counter.
+    ///Represents accumulated charge output. See datasheet for formula to convert to mAh
+    ///(requires charge counter value and ADC sample rate).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BatteryDischargeCoulombCounter {
+        /// The internal bits
+        bits: [u8; 4],
+    }
+    impl ::device_driver::FieldSet for BatteryDischargeCoulombCounter {
+        const SIZE_BITS: u32 = 32;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BatteryDischargeCoulombCounter {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0, 0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 4] }
+        }
+        ///Read the `raw_count` field of the register.
+        ///
+        ///Raw 32-bit unsigned accumulated discharge count.
+        pub fn raw_count(&self) -> u32 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u32,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 32)
+            };
+            raw
+        }
+        ///Write the `raw_count` field of the register.
+        ///
+        ///Raw 32-bit unsigned accumulated discharge count.
+        pub fn set_raw_count(&mut self, value: u32) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u32,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 32, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 4]> for BatteryDischargeCoulombCounter {
+        fn from(bits: [u8; 4]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BatteryDischargeCoulombCounter> for [u8; 4] {
+        fn from(val: BatteryDischargeCoulombCounter) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BatteryDischargeCoulombCounter {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BatteryDischargeCoulombCounter");
+            {
+                d.field("raw_count", &self.raw_count());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BatteryDischargeCoulombCounter {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BatteryDischargeCoulombCounter { ");
+            defmt::write!(f, "raw_count: {=u32}, ", &self.raw_count());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for BatteryDischargeCoulombCounter {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BatteryDischargeCoulombCounter {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BatteryDischargeCoulombCounter {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BatteryDischargeCoulombCounter {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BatteryDischargeCoulombCounter {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BatteryDischargeCoulombCounter {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BatteryDischargeCoulombCounter {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Controls the operation of the fuel gauge / coulomb counter, including enabling,
+    ///pausing, and clearing its value.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct CoulombCounterControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for CoulombCounterControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl CoulombCounterControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `coulomb_counter_enable` field of the register.
+        ///
+        ///Coulomb counter enable (true: enabled, false: disabled).
+        pub fn coulomb_counter_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `coulomb_counter_pause_request` field of the register.
+        ///
+        ///Request to pause the coulomb counter (true: pause, bit auto-clears; false: no action).
+        pub fn coulomb_counter_pause_request(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `coulomb_counter_clear_request` field of the register.
+        ///
+        ///Request to clear the coulomb counter (true: clear, bit auto-clears; false: no action).
+        pub fn coulomb_counter_clear_request(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Write the `coulomb_counter_enable` field of the register.
+        ///
+        ///Coulomb counter enable (true: enabled, false: disabled).
+        pub fn set_coulomb_counter_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `coulomb_counter_pause_request` field of the register.
+        ///
+        ///Request to pause the coulomb counter (true: pause, bit auto-clears; false: no action).
+        pub fn set_coulomb_counter_pause_request(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `coulomb_counter_clear_request` field of the register.
+        ///
+        ///Request to clear the coulomb counter (true: clear, bit auto-clears; false: no action).
+        pub fn set_coulomb_counter_clear_request(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for CoulombCounterControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<CoulombCounterControl> for [u8; 1] {
+        fn from(val: CoulombCounterControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for CoulombCounterControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("CoulombCounterControl");
+            {
+                d.field("coulomb_counter_enable", &self.coulomb_counter_enable());
+            }
+            {
+                d.field(
+                    "coulomb_counter_pause_request",
+                    &self.coulomb_counter_pause_request(),
+                );
+            }
+            {
+                d.field(
+                    "coulomb_counter_clear_request",
+                    &self.coulomb_counter_clear_request(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for CoulombCounterControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "CoulombCounterControl { ");
+            defmt::write!(
+                f,
+                "coulomb_counter_enable: {=bool}, ",
+                &self.coulomb_counter_enable(),
+            );
+            defmt::write!(
+                f,
+                "coulomb_counter_pause_request: {=bool}, ",
+                &self.coulomb_counter_pause_request(),
+            );
+            defmt::write!(
+                f,
+                "coulomb_counter_clear_request: {=bool}, ",
+                &self.coulomb_counter_clear_request(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for CoulombCounterControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for CoulombCounterControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for CoulombCounterControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for CoulombCounterControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for CoulombCounterControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for CoulombCounterControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for CoulombCounterControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -15803,6 +16354,17 @@ pub mod field_sets {
         ///The value is formed by (REG7EH_byte << 4) | (REG7FH_byte & 0x0F).
         ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.4.
         ApsVoltageAdc(ApsVoltageAdc),
+        ///Raw 32-bit data for the battery charge coulomb counter.
+        ///Represents accumulated charge input. See datasheet for formula to convert to mAh
+        ///(requires discharge counter value and ADC sample rate).
+        BatteryChargeCoulombCounter(BatteryChargeCoulombCounter),
+        ///Raw 32-bit data for the battery discharge coulomb counter.
+        ///Represents accumulated charge output. See datasheet for formula to convert to mAh
+        ///(requires charge counter value and ADC sample rate).
+        BatteryDischargeCoulombCounter(BatteryDischargeCoulombCounter),
+        ///Controls the operation of the fuel gauge / coulomb counter, including enabling,
+        ///pausing, and clearing its value.
+        CoulombCounterControl(CoulombCounterControl),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -15885,6 +16447,11 @@ pub mod field_sets {
                 Self::BatteryChargeCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::BatteryDischargeCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::ApsVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::BatteryChargeCoulombCounter(val) => core::fmt::Debug::fmt(val, f),
+                Self::BatteryDischargeCoulombCounter(val) => {
+                    core::fmt::Debug::fmt(val, f)
+                }
+                Self::CoulombCounterControl(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -15971,6 +16538,11 @@ pub mod field_sets {
                 Self::BatteryChargeCurrentAdc(val) => defmt::Format::format(val, f),
                 Self::BatteryDischargeCurrentAdc(val) => defmt::Format::format(val, f),
                 Self::ApsVoltageAdc(val) => defmt::Format::format(val, f),
+                Self::BatteryChargeCoulombCounter(val) => defmt::Format::format(val, f),
+                Self::BatteryDischargeCoulombCounter(val) => {
+                    defmt::Format::format(val, f)
+                }
+                Self::CoulombCounterControl(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -16312,6 +16884,21 @@ pub mod field_sets {
     impl From<ApsVoltageAdc> for FieldSetValue {
         fn from(val: ApsVoltageAdc) -> Self {
             Self::ApsVoltageAdc(val)
+        }
+    }
+    impl From<BatteryChargeCoulombCounter> for FieldSetValue {
+        fn from(val: BatteryChargeCoulombCounter) -> Self {
+            Self::BatteryChargeCoulombCounter(val)
+        }
+    }
+    impl From<BatteryDischargeCoulombCounter> for FieldSetValue {
+        fn from(val: BatteryDischargeCoulombCounter) -> Self {
+            Self::BatteryDischargeCoulombCounter(val)
+        }
+    }
+    impl From<CoulombCounterControl> for FieldSetValue {
+        fn from(val: CoulombCounterControl) -> Self {
+            Self::CoulombCounterControl(val)
         }
     }
 }

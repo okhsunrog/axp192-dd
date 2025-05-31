@@ -1981,3 +1981,60 @@ ApsVoltageAdc: # REG7EH & REG7FH combined
       end: 12 # Defines a 12-bit field
       description: "Raw 12-bit APS voltage ADC reading. Multiply by 1.4 to get mV. Assumes REG7FH[7:4] are zero/ignored."
 
+BatteryChargeCoulombCounter: # REGB0H - REGB3H combined
+  type: register
+  address: 0xB0 # Starting address of the 4-byte set
+  size_bits: 32 # Logical size to cover four hardware registers
+  access: RO
+  description: |
+    Raw 32-bit data for the battery charge coulomb counter.
+    Represents accumulated charge input. See datasheet for formula to convert to mAh
+    (requires discharge counter value and ADC sample rate).
+  fields:
+    # With default_byte_order: BE, the tool reads bytes 0xB0 (MSB) through 0xB3 (LSB).
+    raw_count:
+      base: uint
+      start: 0
+      end: 32 # Defines a 32-bit field
+      description: "Raw 32-bit unsigned accumulated charge count."
+
+BatteryDischargeCoulombCounter: # REGB4H - REGB7H combined
+  type: register
+  address: 0xB4 # Starting address of the 4-byte set
+  size_bits: 32 # Logical size to cover four hardware registers
+  access: RO
+  description: |
+    Raw 32-bit data for the battery discharge coulomb counter.
+    Represents accumulated charge output. See datasheet for formula to convert to mAh
+    (requires charge counter value and ADC sample rate).
+  fields:
+    # With default_byte_order: BE, the tool reads bytes 0xB4 (MSB) through 0xB7 (LSB).
+    raw_count:
+      base: uint
+      start: 0
+      end: 32 # Defines a 32-bit field
+      description: "Raw 32-bit unsigned accumulated discharge count."
+
+CoulombCounterControl: # REGB8H
+  type: register
+  address: 0xB8
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default: Coulomb counter disabled, pause/clear not active.
+  description: |
+    Controls the operation of the fuel gauge / coulomb counter, including enabling,
+    pausing, and clearing its value.
+  fields:
+    coulomb_counter_enable:
+      base: bool
+      start: 7
+      description: "Coulomb counter enable (true: enabled, false: disabled)."
+    coulomb_counter_pause_request:
+      base: bool
+      start: 6
+      description: "Request to pause the coulomb counter (true: pause, bit auto-clears; false: no action)."
+    coulomb_counter_clear_request:
+      base: bool
+      start: 5
+      description: "Request to clear the coulomb counter (true: clear, bit auto-clears; false: no action)."
+    # Bits 4-0 are reserved.
