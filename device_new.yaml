@@ -1,7 +1,48 @@
 config:
-  register_address_type: u8
-  command_address_type: u8
-  buffer_address_type: u8
-  default_byte_order: BE
-  default_bit_order: LSB0
-  defmt_feature: "defmt-03"
+  register_address_type: "u8"
+  default_byte_order: "BE"
+  defmt_feature: "defmt"
+
+registers:
+  # --- Power Control Registers (0x00 - 0x3F, some are reserved) ---
+  PowerStatus: # REG00H
+    type: register
+    address: 0x00
+    size_bits: 8
+    access: RO
+    description: |
+      Indicates the input power source status (ACIN, VBUS), battery current direction,
+      boot source, and other power-related conditions.
+    fields:
+      acin_present:
+        base: bool
+        start: 7
+        description: "ACIN physical presence status (true: voltage detected, false: no voltage detected)."
+      acin_usable:
+        base: bool
+        start: 6
+        description: "ACIN usability status (true: ACIN voltage is valid for system use, false: ACIN voltage is not valid/sufficient)."
+      vbus_present:
+        base: bool
+        start: 5
+        description: "VBUS physical presence status (true: voltage detected, false: no voltage detected)."
+      vbus_usable:
+        base: bool
+        start: 4
+        description: "VBUS usability status (true: VBUS voltage is valid for system use, false: VBUS voltage is not valid/sufficient)."
+      vbus_voltage_above_vhold_when_connected:
+        base: bool
+        start: 3
+        description: "Indicates if VBUS voltage was greater than VHOLD when VBUS was connected (true: VBUS > VHOLD, false: VBUS <= VHOLD or not applicable)."
+      battery_is_charging:
+        base: bool
+        start: 2
+        description: "Battery current direction (true: Battery is Charging, false: Battery is Discharging)."
+      acin_and_vbus_inputs_shorted_on_pcb:
+        base: bool
+        start: 1
+        description: "Indicates if ACIN and VBUS inputs are short-circuited on the PCB (true: short-circuited detected, false: no short-circuit)."
+      boot_source_was_acin_or_vbus:
+        base: bool
+        start: 0
+        description: "Indicates if the boot-up power source was ACIN or VBUS (true: boot from ACIN/VBUS, false: boot from Battery or other)."
