@@ -104,6 +104,10 @@ impl<I> Device<I> {
         callback(132 + 0 * 0, "adc_sample_rate_ts_pin_control", reg.into());
         let reg = self.gpio_adc_input_range_setting().read()?;
         callback(133 + 0 * 0, "gpio_adc_input_range_setting", reg.into());
+        let reg = self.gpio_1_adc_irq_rising_threshold().read()?;
+        callback(134 + 0 * 0, "gpio_1_adc_irq_rising_threshold", reg.into());
+        let reg = self.gpio_1_adc_irq_falling_threshold().read()?;
+        callback(135 + 0 * 0, "gpio_1_adc_irq_falling_threshold", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -196,6 +200,10 @@ impl<I> Device<I> {
         callback(132 + 0 * 0, "adc_sample_rate_ts_pin_control", reg.into());
         let reg = self.gpio_adc_input_range_setting().read_async().await?;
         callback(133 + 0 * 0, "gpio_adc_input_range_setting", reg.into());
+        let reg = self.gpio_1_adc_irq_rising_threshold().read_async().await?;
+        callback(134 + 0 * 0, "gpio_1_adc_irq_rising_threshold", reg.into());
+        let reg = self.gpio_1_adc_irq_falling_threshold().read_async().await?;
+        callback(135 + 0 * 0, "gpio_1_adc_irq_falling_threshold", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -956,6 +964,58 @@ impl<I> Device<I> {
             self.interface(),
             address as u8,
             field_sets::GpioAdcInputRangeSetting::new,
+        )
+    }
+    ///Sets the rising edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+    ///An IRQ is generated when the GPIO1 ADC voltage rises above this set threshold.
+    ///Formula: Threshold Voltage (V) = raw_value * 0.008.
+    ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+    pub fn gpio_1_adc_irq_rising_threshold(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio1AdcIrqRisingThreshold,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 134;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio1AdcIrqRisingThreshold,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::Gpio1AdcIrqRisingThreshold::new,
+        )
+    }
+    ///Sets the falling edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+    ///An IRQ is generated when the GPIO1 ADC voltage falls below this set threshold.
+    ///Formula: Threshold Voltage (V) = raw_value * 0.008.
+    ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+    pub fn gpio_1_adc_irq_falling_threshold(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio1AdcIrqFallingThreshold,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 135;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio1AdcIrqFallingThreshold,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::Gpio1AdcIrqFallingThreshold::new,
         )
     }
 }
@@ -6820,6 +6880,280 @@ pub mod field_sets {
             self
         }
     }
+    ///Sets the rising edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+    ///An IRQ is generated when the GPIO1 ADC voltage rises above this set threshold.
+    ///Formula: Threshold Voltage (V) = raw_value * 0.008.
+    ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio1AdcIrqRisingThreshold {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio1AdcIrqRisingThreshold {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio1AdcIrqRisingThreshold {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [255] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `threshold_setting_raw` field of the register.
+        ///
+        ///Raw 8-bit setting for the GPIO1 ADC IRQ rising edge threshold. 1 LSB = 8mV.
+        pub fn threshold_setting_raw(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 8)
+            };
+            raw
+        }
+        ///Write the `threshold_setting_raw` field of the register.
+        ///
+        ///Raw 8-bit setting for the GPIO1 ADC IRQ rising edge threshold. 1 LSB = 8mV.
+        pub fn set_threshold_setting_raw(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 8, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio1AdcIrqRisingThreshold {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio1AdcIrqRisingThreshold> for [u8; 1] {
+        fn from(val: Gpio1AdcIrqRisingThreshold) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio1AdcIrqRisingThreshold {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio1AdcIrqRisingThreshold");
+            {
+                d.field("threshold_setting_raw", &self.threshold_setting_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio1AdcIrqRisingThreshold {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio1AdcIrqRisingThreshold { ");
+            defmt::write!(
+                f,
+                "threshold_setting_raw: {=u8}, ",
+                &self.threshold_setting_raw(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio1AdcIrqRisingThreshold {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio1AdcIrqRisingThreshold {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio1AdcIrqRisingThreshold {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio1AdcIrqRisingThreshold {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio1AdcIrqRisingThreshold {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio1AdcIrqRisingThreshold {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio1AdcIrqRisingThreshold {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Sets the falling edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+    ///An IRQ is generated when the GPIO1 ADC voltage falls below this set threshold.
+    ///Formula: Threshold Voltage (V) = raw_value * 0.008.
+    ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio1AdcIrqFallingThreshold {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio1AdcIrqFallingThreshold {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio1AdcIrqFallingThreshold {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `threshold_setting_raw` field of the register.
+        ///
+        ///Raw 8-bit setting for the GPIO1 ADC IRQ falling edge threshold. 1 LSB = 8mV.
+        pub fn threshold_setting_raw(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 8)
+            };
+            raw
+        }
+        ///Write the `threshold_setting_raw` field of the register.
+        ///
+        ///Raw 8-bit setting for the GPIO1 ADC IRQ falling edge threshold. 1 LSB = 8mV.
+        pub fn set_threshold_setting_raw(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 8, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio1AdcIrqFallingThreshold {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio1AdcIrqFallingThreshold> for [u8; 1] {
+        fn from(val: Gpio1AdcIrqFallingThreshold) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio1AdcIrqFallingThreshold {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio1AdcIrqFallingThreshold");
+            {
+                d.field("threshold_setting_raw", &self.threshold_setting_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio1AdcIrqFallingThreshold {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio1AdcIrqFallingThreshold { ");
+            defmt::write!(
+                f,
+                "threshold_setting_raw: {=u8}, ",
+                &self.threshold_setting_raw(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio1AdcIrqFallingThreshold {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio1AdcIrqFallingThreshold {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio1AdcIrqFallingThreshold {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio1AdcIrqFallingThreshold {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio1AdcIrqFallingThreshold {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio1AdcIrqFallingThreshold {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio1AdcIrqFallingThreshold {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -6913,6 +7247,16 @@ pub mod field_sets {
         AdcSampleRateTsPinControl(AdcSampleRateTsPinControl),
         ///Sets the ADC input voltage range for GPIO0, GPIO1, GPIO2, and GPIO3.
         GpioAdcInputRangeSetting(GpioAdcInputRangeSetting),
+        ///Sets the rising edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+        ///An IRQ is generated when the GPIO1 ADC voltage rises above this set threshold.
+        ///Formula: Threshold Voltage (V) = raw_value * 0.008.
+        ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+        Gpio1AdcIrqRisingThreshold(Gpio1AdcIrqRisingThreshold),
+        ///Sets the falling edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+        ///An IRQ is generated when the GPIO1 ADC voltage falls below this set threshold.
+        ///Formula: Threshold Voltage (V) = raw_value * 0.008.
+        ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+        Gpio1AdcIrqFallingThreshold(Gpio1AdcIrqFallingThreshold),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -6952,6 +7296,8 @@ pub mod field_sets {
                 Self::AdcEnable2(val) => core::fmt::Debug::fmt(val, f),
                 Self::AdcSampleRateTsPinControl(val) => core::fmt::Debug::fmt(val, f),
                 Self::GpioAdcInputRangeSetting(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio1AdcIrqRisingThreshold(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio1AdcIrqFallingThreshold(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -6995,6 +7341,8 @@ pub mod field_sets {
                 Self::AdcEnable2(val) => defmt::Format::format(val, f),
                 Self::AdcSampleRateTsPinControl(val) => defmt::Format::format(val, f),
                 Self::GpioAdcInputRangeSetting(val) => defmt::Format::format(val, f),
+                Self::Gpio1AdcIrqRisingThreshold(val) => defmt::Format::format(val, f),
+                Self::Gpio1AdcIrqFallingThreshold(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -7141,6 +7489,16 @@ pub mod field_sets {
     impl From<GpioAdcInputRangeSetting> for FieldSetValue {
         fn from(val: GpioAdcInputRangeSetting) -> Self {
             Self::GpioAdcInputRangeSetting(val)
+        }
+    }
+    impl From<Gpio1AdcIrqRisingThreshold> for FieldSetValue {
+        fn from(val: Gpio1AdcIrqRisingThreshold) -> Self {
+            Self::Gpio1AdcIrqRisingThreshold(val)
+        }
+    }
+    impl From<Gpio1AdcIrqFallingThreshold> for FieldSetValue {
+        fn from(val: Gpio1AdcIrqFallingThreshold) -> Self {
+            Self::Gpio1AdcIrqFallingThreshold(val)
         }
     }
 }

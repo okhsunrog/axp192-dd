@@ -963,3 +963,39 @@ GpioAdcInputRangeSetting: # REG85H
       description: "ADC input voltage range for GPIO0."
       conversion: "GpioAdcRange" # Reuse enum
 
+Gpio1AdcIrqRisingThreshold: # REG86H
+  type: register
+  address: 0x86
+  size_bits: 8
+  access: RW
+  reset_value: 0xFF # Default 0xFF (255d) corresponds to a rising edge threshold of 2.04V.
+  description: |
+    Sets the rising edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+    An IRQ is generated when the GPIO1 ADC voltage rises above this set threshold.
+    Formula: Threshold Voltage (V) = raw_value * 0.008.
+    Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+  fields:
+    threshold_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for the GPIO1 ADC IRQ rising edge threshold. 1 LSB = 8mV."
+
+Gpio1AdcIrqFallingThreshold: # REG87H
+  type: register
+  address: 0x87
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default 0x00 (0d) corresponds to a falling edge threshold of 0V.
+  description: |
+    Sets the falling edge voltage threshold for GPIO1 ADC input to trigger an interrupt.
+    An IRQ is generated when the GPIO1 ADC voltage falls below this set threshold.
+    Formula: Threshold Voltage (V) = raw_value * 0.008.
+    Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
+  fields:
+    threshold_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for the GPIO1 ADC IRQ falling edge threshold. 1 LSB = 8mV."
+
