@@ -1593,3 +1593,184 @@ IrqEnableControl5: # REG4AH
       start: 0
       description: "GPIO0 input edge trigger interrupt."
 
+IrqStatus1: # REG44H
+  type: register
+  address: 0x44
+  size_bits: 8
+  access: RW # Writable to clear status bits (W1C)
+  reset_value: 0x00 # Default: All status flags clear.
+  description: "Interrupt Status Register 1. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it."
+  fields:
+    acin_over_voltage_status_flag:
+      base: bool
+      start: 7
+      description: "ACIN over-voltage IRQ status. Write 1 to clear."
+    acin_insertion_status_flag:
+      base: bool
+      start: 6
+      description: "ACIN insertion IRQ status. Write 1 to clear."
+    acin_removal_status_flag:
+      base: bool
+      start: 5
+      description: "ACIN removal IRQ status. Write 1 to clear."
+    vbus_over_voltage_status_flag:
+      base: bool
+      start: 4
+      description: "VBUS over-voltage IRQ status. Write 1 to clear."
+    vbus_insertion_status_flag:
+      base: bool
+      start: 3
+      description: "VBUS insertion IRQ status. Write 1 to clear."
+    vbus_removal_status_flag:
+      base: bool
+      start: 2
+      description: "VBUS removal IRQ status. Write 1 to clear."
+    vbus_less_than_vhold_status_flag:
+      base: bool
+      start: 1
+      description: "VBUS < VHOLD IRQ status. Write 1 to clear."
+    # Bit 0 is reserved in corresponding enable register (REG40H) and likely here too.
+    # Datasheet for REG44H (page 49) also shows Bit 0 as "保留".
+
+IrqStatus2: # REG45H
+  type: register
+  address: 0x45
+  size_bits: 8
+  access: RW # W1C
+  reset_value: 0x00
+  description: "Interrupt Status Register 2. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it."
+  fields:
+    battery_insertion_status_flag:
+      base: bool
+      start: 7
+      description: "Battery insertion IRQ status. Write 1 to clear."
+    battery_removal_status_flag:
+      base: bool
+      start: 6
+      description: "Battery removal IRQ status. Write 1 to clear."
+    battery_activation_mode_entry_status_flag:
+      base: bool
+      start: 5
+      description: "Battery enters activation mode IRQ status. Write 1 to clear."
+    battery_activation_mode_exit_status_flag:
+      base: bool
+      start: 4
+      description: "Battery exits activation mode IRQ status. Write 1 to clear."
+    charging_status_flag: # "正在充电"
+      base: bool
+      start: 3
+      description: "Charging started/in progress IRQ status. Write 1 to clear."
+    charge_done_status_flag:
+      base: bool
+      start: 2
+      description: "Charge completion IRQ status. Write 1 to clear."
+    battery_over_temp_status_flag:
+      base: bool
+      start: 1
+      description: "Battery over-temperature IRQ status. Write 1 to clear."
+    battery_under_temp_status_flag:
+      base: bool
+      start: 0
+      description: "Battery under-temperature IRQ status. Write 1 to clear."
+
+IrqStatus3: # REG46H
+  type: register
+  address: 0x46
+  size_bits: 8
+  access: RW # W1C
+  reset_value: 0x00
+  description: "Interrupt Status Register 3. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it."
+  fields:
+    internal_over_temp_status_flag:
+      base: bool
+      start: 7
+      description: "IC internal over-temperature IRQ status. Write 1 to clear."
+    charge_current_insufficient_status_flag:
+      base: bool
+      start: 6
+      description: "Charging current insufficient IRQ status. Write 1 to clear."
+    dcdc1_voltage_low_status_flag:
+      base: bool
+      start: 5
+      description: "DC-DC1 output voltage low IRQ status. Write 1 to clear."
+    dcdc2_voltage_low_status_flag:
+      base: bool
+      start: 4
+      description: "DC-DC2 output voltage low IRQ status. Write 1 to clear."
+    dcdc3_voltage_low_status_flag:
+      base: bool
+      start: 3
+      description: "DC-DC3 output voltage low IRQ status. Write 1 to clear."
+    # Bit 2 is reserved in corresponding enable register (REG42H) and here (datasheet page 50).
+    pek_short_press_status_flag:
+      base: bool
+      start: 1
+      description: "PEK (Power Key) short press IRQ status. Write 1 to clear."
+    pek_long_press_status_flag:
+      base: bool
+      start: 0
+      description: "PEK (Power Key) long press IRQ status. Write 1 to clear."
+
+IrqStatus4: # REG47H
+  type: register
+  address: 0x47
+  size_bits: 8
+  access: RW # W1C
+  reset_value: 0x00
+  description: "Interrupt Status Register 4. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it."
+  fields:
+    n_oe_power_on_status_flag:
+      base: bool
+      start: 7
+      description: "N_OE Power-on event IRQ status. Write 1 to clear."
+    n_oe_power_off_status_flag:
+      base: bool
+      start: 6
+      description: "N_OE Power-off event IRQ status. Write 1 to clear."
+    vbus_valid_status_flag:
+      base: bool
+      start: 5
+      description: "VBUS valid event IRQ status. Write 1 to clear."
+    vbus_invalid_status_flag:
+      base: bool
+      start: 4
+      description: "VBUS invalid event IRQ status. Write 1 to clear."
+    vbus_session_ab_status_flag: # Corresponds to VBUS Session Valid
+      base: bool
+      start: 3
+      description: "VBUS Session A/B valid event IRQ status. Write 1 to clear."
+    vbus_session_end_status_flag:
+      base: bool
+      start: 2
+      description: "VBUS Session End event IRQ status. Write 1 to clear."
+    # Bit 1 is reserved in corresponding enable register (REG43H) and here (datasheet page 50).
+    aps_low_voltage_level2_status_flag:
+      base: bool
+      start: 0
+      description: "APS low voltage (Warning Level 2) IRQ status. Write 1 to clear."
+
+IrqStatus5: # REG4DH
+  type: register
+  address: 0x4D # Note the jump in address from 47H to 4DH
+  size_bits: 8
+  access: RW # W1C
+  reset_value: 0x00
+  description: "Interrupt Status Register 5. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it."
+  fields:
+    timer_timeout_status_flag:
+      base: bool
+      start: 7
+      description: "Timer timeout IRQ status. Write 1 to clear."
+    # Bits 6-3 are reserved in corresponding enable register (REG4AH) and here (datasheet page 51).
+    gpio2_input_edge_trigger_status_flag:
+      base: bool
+      start: 2
+      description: "GPIO2 input edge trigger IRQ status. Write 1 to clear."
+    gpio1_input_edge_trigger_status_flag:
+      base: bool
+      start: 1
+      description: "GPIO1 input edge trigger IRQ status. Write 1 to clear."
+    gpio0_input_edge_trigger_status_flag:
+      base: bool
+      start: 0
+      description: "GPIO0 input edge trigger IRQ status. Write 1 to clear."

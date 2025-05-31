@@ -154,6 +154,16 @@ impl<I> Device<I> {
         callback(67 + 0 * 0, "irq_enable_control_4", reg.into());
         let reg = self.irq_enable_control_5().read()?;
         callback(74 + 0 * 0, "irq_enable_control_5", reg.into());
+        let reg = self.irq_status_1().read()?;
+        callback(68 + 0 * 0, "irq_status_1", reg.into());
+        let reg = self.irq_status_2().read()?;
+        callback(69 + 0 * 0, "irq_status_2", reg.into());
+        let reg = self.irq_status_3().read()?;
+        callback(70 + 0 * 0, "irq_status_3", reg.into());
+        let reg = self.irq_status_4().read()?;
+        callback(71 + 0 * 0, "irq_status_4", reg.into());
+        let reg = self.irq_status_5().read()?;
+        callback(77 + 0 * 0, "irq_status_5", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -296,6 +306,16 @@ impl<I> Device<I> {
         callback(67 + 0 * 0, "irq_enable_control_4", reg.into());
         let reg = self.irq_enable_control_5().read_async().await?;
         callback(74 + 0 * 0, "irq_enable_control_5", reg.into());
+        let reg = self.irq_status_1().read_async().await?;
+        callback(68 + 0 * 0, "irq_status_1", reg.into());
+        let reg = self.irq_status_2().read_async().await?;
+        callback(69 + 0 * 0, "irq_status_2", reg.into());
+        let reg = self.irq_status_3().read_async().await?;
+        callback(70 + 0 * 0, "irq_status_3", reg.into());
+        let reg = self.irq_status_4().read_async().await?;
+        callback(71 + 0 * 0, "irq_status_4", reg.into());
+        let reg = self.irq_status_5().read_async().await?;
+        callback(77 + 0 * 0, "irq_status_5", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1569,6 +1589,101 @@ impl<I> Device<I> {
             field_sets::IrqEnableControl5,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::IrqEnableControl5::new)
+    }
+    ///Interrupt Status Register 1. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    pub fn irq_status_1(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqStatus1,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 68;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqStatus1,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqStatus1::new)
+    }
+    ///Interrupt Status Register 2. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    pub fn irq_status_2(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqStatus2,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 69;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqStatus2,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqStatus2::new)
+    }
+    ///Interrupt Status Register 3. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    pub fn irq_status_3(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqStatus3,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 70;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqStatus3,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqStatus3::new)
+    }
+    ///Interrupt Status Register 4. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    pub fn irq_status_4(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqStatus4,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 71;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqStatus4,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqStatus4::new)
+    }
+    ///Interrupt Status Register 5. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    pub fn irq_status_5(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqStatus5,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 77;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqStatus5,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqStatus5::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -11917,6 +12032,1647 @@ pub mod field_sets {
             self
         }
     }
+    ///Interrupt Status Register 1. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqStatus1 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqStatus1 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqStatus1 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `acin_over_voltage_status_flag` field of the register.
+        ///
+        ///ACIN over-voltage IRQ status. Write 1 to clear.
+        pub fn acin_over_voltage_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `acin_insertion_status_flag` field of the register.
+        ///
+        ///ACIN insertion IRQ status. Write 1 to clear.
+        pub fn acin_insertion_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `acin_removal_status_flag` field of the register.
+        ///
+        ///ACIN removal IRQ status. Write 1 to clear.
+        pub fn acin_removal_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_over_voltage_status_flag` field of the register.
+        ///
+        ///VBUS over-voltage IRQ status. Write 1 to clear.
+        pub fn vbus_over_voltage_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_insertion_status_flag` field of the register.
+        ///
+        ///VBUS insertion IRQ status. Write 1 to clear.
+        pub fn vbus_insertion_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_removal_status_flag` field of the register.
+        ///
+        ///VBUS removal IRQ status. Write 1 to clear.
+        pub fn vbus_removal_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_less_than_vhold_status_flag` field of the register.
+        ///
+        ///VBUS < VHOLD IRQ status. Write 1 to clear.
+        pub fn vbus_less_than_vhold_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Write the `acin_over_voltage_status_flag` field of the register.
+        ///
+        ///ACIN over-voltage IRQ status. Write 1 to clear.
+        pub fn set_acin_over_voltage_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `acin_insertion_status_flag` field of the register.
+        ///
+        ///ACIN insertion IRQ status. Write 1 to clear.
+        pub fn set_acin_insertion_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `acin_removal_status_flag` field of the register.
+        ///
+        ///ACIN removal IRQ status. Write 1 to clear.
+        pub fn set_acin_removal_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_over_voltage_status_flag` field of the register.
+        ///
+        ///VBUS over-voltage IRQ status. Write 1 to clear.
+        pub fn set_vbus_over_voltage_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_insertion_status_flag` field of the register.
+        ///
+        ///VBUS insertion IRQ status. Write 1 to clear.
+        pub fn set_vbus_insertion_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_removal_status_flag` field of the register.
+        ///
+        ///VBUS removal IRQ status. Write 1 to clear.
+        pub fn set_vbus_removal_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_less_than_vhold_status_flag` field of the register.
+        ///
+        ///VBUS < VHOLD IRQ status. Write 1 to clear.
+        pub fn set_vbus_less_than_vhold_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqStatus1 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqStatus1> for [u8; 1] {
+        fn from(val: IrqStatus1) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqStatus1 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqStatus1");
+            {
+                d.field(
+                    "acin_over_voltage_status_flag",
+                    &self.acin_over_voltage_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "acin_insertion_status_flag",
+                    &self.acin_insertion_status_flag(),
+                );
+            }
+            {
+                d.field("acin_removal_status_flag", &self.acin_removal_status_flag());
+            }
+            {
+                d.field(
+                    "vbus_over_voltage_status_flag",
+                    &self.vbus_over_voltage_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "vbus_insertion_status_flag",
+                    &self.vbus_insertion_status_flag(),
+                );
+            }
+            {
+                d.field("vbus_removal_status_flag", &self.vbus_removal_status_flag());
+            }
+            {
+                d.field(
+                    "vbus_less_than_vhold_status_flag",
+                    &self.vbus_less_than_vhold_status_flag(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqStatus1 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqStatus1 { ");
+            defmt::write!(
+                f,
+                "acin_over_voltage_status_flag: {=bool}, ",
+                &self.acin_over_voltage_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "acin_insertion_status_flag: {=bool}, ",
+                &self.acin_insertion_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "acin_removal_status_flag: {=bool}, ",
+                &self.acin_removal_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_over_voltage_status_flag: {=bool}, ",
+                &self.vbus_over_voltage_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_insertion_status_flag: {=bool}, ",
+                &self.vbus_insertion_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_removal_status_flag: {=bool}, ",
+                &self.vbus_removal_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_less_than_vhold_status_flag: {=bool}, ",
+                &self.vbus_less_than_vhold_status_flag(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqStatus1 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqStatus1 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqStatus1 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqStatus1 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqStatus1 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqStatus1 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqStatus1 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Status Register 2. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqStatus2 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqStatus2 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqStatus2 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `battery_insertion_status_flag` field of the register.
+        ///
+        ///Battery insertion IRQ status. Write 1 to clear.
+        pub fn battery_insertion_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `battery_removal_status_flag` field of the register.
+        ///
+        ///Battery removal IRQ status. Write 1 to clear.
+        pub fn battery_removal_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `battery_activation_mode_entry_status_flag` field of the register.
+        ///
+        ///Battery enters activation mode IRQ status. Write 1 to clear.
+        pub fn battery_activation_mode_entry_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `battery_activation_mode_exit_status_flag` field of the register.
+        ///
+        ///Battery exits activation mode IRQ status. Write 1 to clear.
+        pub fn battery_activation_mode_exit_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `charging_status_flag` field of the register.
+        ///
+        ///Charging started/in progress IRQ status. Write 1 to clear.
+        pub fn charging_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `charge_done_status_flag` field of the register.
+        ///
+        ///Charge completion IRQ status. Write 1 to clear.
+        pub fn charge_done_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `battery_over_temp_status_flag` field of the register.
+        ///
+        ///Battery over-temperature IRQ status. Write 1 to clear.
+        pub fn battery_over_temp_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `battery_under_temp_status_flag` field of the register.
+        ///
+        ///Battery under-temperature IRQ status. Write 1 to clear.
+        pub fn battery_under_temp_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `battery_insertion_status_flag` field of the register.
+        ///
+        ///Battery insertion IRQ status. Write 1 to clear.
+        pub fn set_battery_insertion_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `battery_removal_status_flag` field of the register.
+        ///
+        ///Battery removal IRQ status. Write 1 to clear.
+        pub fn set_battery_removal_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `battery_activation_mode_entry_status_flag` field of the register.
+        ///
+        ///Battery enters activation mode IRQ status. Write 1 to clear.
+        pub fn set_battery_activation_mode_entry_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `battery_activation_mode_exit_status_flag` field of the register.
+        ///
+        ///Battery exits activation mode IRQ status. Write 1 to clear.
+        pub fn set_battery_activation_mode_exit_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `charging_status_flag` field of the register.
+        ///
+        ///Charging started/in progress IRQ status. Write 1 to clear.
+        pub fn set_charging_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `charge_done_status_flag` field of the register.
+        ///
+        ///Charge completion IRQ status. Write 1 to clear.
+        pub fn set_charge_done_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `battery_over_temp_status_flag` field of the register.
+        ///
+        ///Battery over-temperature IRQ status. Write 1 to clear.
+        pub fn set_battery_over_temp_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `battery_under_temp_status_flag` field of the register.
+        ///
+        ///Battery under-temperature IRQ status. Write 1 to clear.
+        pub fn set_battery_under_temp_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqStatus2 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqStatus2> for [u8; 1] {
+        fn from(val: IrqStatus2) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqStatus2 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqStatus2");
+            {
+                d.field(
+                    "battery_insertion_status_flag",
+                    &self.battery_insertion_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "battery_removal_status_flag",
+                    &self.battery_removal_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "battery_activation_mode_entry_status_flag",
+                    &self.battery_activation_mode_entry_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "battery_activation_mode_exit_status_flag",
+                    &self.battery_activation_mode_exit_status_flag(),
+                );
+            }
+            {
+                d.field("charging_status_flag", &self.charging_status_flag());
+            }
+            {
+                d.field("charge_done_status_flag", &self.charge_done_status_flag());
+            }
+            {
+                d.field(
+                    "battery_over_temp_status_flag",
+                    &self.battery_over_temp_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "battery_under_temp_status_flag",
+                    &self.battery_under_temp_status_flag(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqStatus2 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqStatus2 { ");
+            defmt::write!(
+                f,
+                "battery_insertion_status_flag: {=bool}, ",
+                &self.battery_insertion_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "battery_removal_status_flag: {=bool}, ",
+                &self.battery_removal_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "battery_activation_mode_entry_status_flag: {=bool}, ",
+                &self.battery_activation_mode_entry_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "battery_activation_mode_exit_status_flag: {=bool}, ",
+                &self.battery_activation_mode_exit_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "charging_status_flag: {=bool}, ",
+                &self.charging_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "charge_done_status_flag: {=bool}, ",
+                &self.charge_done_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "battery_over_temp_status_flag: {=bool}, ",
+                &self.battery_over_temp_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "battery_under_temp_status_flag: {=bool}, ",
+                &self.battery_under_temp_status_flag(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqStatus2 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqStatus2 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqStatus2 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqStatus2 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqStatus2 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqStatus2 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqStatus2 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Status Register 3. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqStatus3 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqStatus3 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqStatus3 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `internal_over_temp_status_flag` field of the register.
+        ///
+        ///IC internal over-temperature IRQ status. Write 1 to clear.
+        pub fn internal_over_temp_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `charge_current_insufficient_status_flag` field of the register.
+        ///
+        ///Charging current insufficient IRQ status. Write 1 to clear.
+        pub fn charge_current_insufficient_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `dcdc_1_voltage_low_status_flag` field of the register.
+        ///
+        ///DC-DC1 output voltage low IRQ status. Write 1 to clear.
+        pub fn dcdc_1_voltage_low_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `dcdc_2_voltage_low_status_flag` field of the register.
+        ///
+        ///DC-DC2 output voltage low IRQ status. Write 1 to clear.
+        pub fn dcdc_2_voltage_low_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `dcdc_3_voltage_low_status_flag` field of the register.
+        ///
+        ///DC-DC3 output voltage low IRQ status. Write 1 to clear.
+        pub fn dcdc_3_voltage_low_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `pek_short_press_status_flag` field of the register.
+        ///
+        ///PEK (Power Key) short press IRQ status. Write 1 to clear.
+        pub fn pek_short_press_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `pek_long_press_status_flag` field of the register.
+        ///
+        ///PEK (Power Key) long press IRQ status. Write 1 to clear.
+        pub fn pek_long_press_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `internal_over_temp_status_flag` field of the register.
+        ///
+        ///IC internal over-temperature IRQ status. Write 1 to clear.
+        pub fn set_internal_over_temp_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `charge_current_insufficient_status_flag` field of the register.
+        ///
+        ///Charging current insufficient IRQ status. Write 1 to clear.
+        pub fn set_charge_current_insufficient_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `dcdc_1_voltage_low_status_flag` field of the register.
+        ///
+        ///DC-DC1 output voltage low IRQ status. Write 1 to clear.
+        pub fn set_dcdc_1_voltage_low_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `dcdc_2_voltage_low_status_flag` field of the register.
+        ///
+        ///DC-DC2 output voltage low IRQ status. Write 1 to clear.
+        pub fn set_dcdc_2_voltage_low_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `dcdc_3_voltage_low_status_flag` field of the register.
+        ///
+        ///DC-DC3 output voltage low IRQ status. Write 1 to clear.
+        pub fn set_dcdc_3_voltage_low_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `pek_short_press_status_flag` field of the register.
+        ///
+        ///PEK (Power Key) short press IRQ status. Write 1 to clear.
+        pub fn set_pek_short_press_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `pek_long_press_status_flag` field of the register.
+        ///
+        ///PEK (Power Key) long press IRQ status. Write 1 to clear.
+        pub fn set_pek_long_press_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqStatus3 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqStatus3> for [u8; 1] {
+        fn from(val: IrqStatus3) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqStatus3 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqStatus3");
+            {
+                d.field(
+                    "internal_over_temp_status_flag",
+                    &self.internal_over_temp_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "charge_current_insufficient_status_flag",
+                    &self.charge_current_insufficient_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "dcdc_1_voltage_low_status_flag",
+                    &self.dcdc_1_voltage_low_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "dcdc_2_voltage_low_status_flag",
+                    &self.dcdc_2_voltage_low_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "dcdc_3_voltage_low_status_flag",
+                    &self.dcdc_3_voltage_low_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "pek_short_press_status_flag",
+                    &self.pek_short_press_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "pek_long_press_status_flag",
+                    &self.pek_long_press_status_flag(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqStatus3 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqStatus3 { ");
+            defmt::write!(
+                f,
+                "internal_over_temp_status_flag: {=bool}, ",
+                &self.internal_over_temp_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "charge_current_insufficient_status_flag: {=bool}, ",
+                &self.charge_current_insufficient_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "dcdc_1_voltage_low_status_flag: {=bool}, ",
+                &self.dcdc_1_voltage_low_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "dcdc_2_voltage_low_status_flag: {=bool}, ",
+                &self.dcdc_2_voltage_low_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "dcdc_3_voltage_low_status_flag: {=bool}, ",
+                &self.dcdc_3_voltage_low_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "pek_short_press_status_flag: {=bool}, ",
+                &self.pek_short_press_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "pek_long_press_status_flag: {=bool}, ",
+                &self.pek_long_press_status_flag(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqStatus3 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqStatus3 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqStatus3 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqStatus3 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqStatus3 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqStatus3 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqStatus3 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Status Register 4. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqStatus4 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqStatus4 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqStatus4 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `n_oe_power_on_status_flag` field of the register.
+        ///
+        ///N_OE Power-on event IRQ status. Write 1 to clear.
+        pub fn n_oe_power_on_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `n_oe_power_off_status_flag` field of the register.
+        ///
+        ///N_OE Power-off event IRQ status. Write 1 to clear.
+        pub fn n_oe_power_off_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_valid_status_flag` field of the register.
+        ///
+        ///VBUS valid event IRQ status. Write 1 to clear.
+        pub fn vbus_valid_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_invalid_status_flag` field of the register.
+        ///
+        ///VBUS invalid event IRQ status. Write 1 to clear.
+        pub fn vbus_invalid_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_session_ab_status_flag` field of the register.
+        ///
+        ///VBUS Session A/B valid event IRQ status. Write 1 to clear.
+        pub fn vbus_session_ab_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_session_end_status_flag` field of the register.
+        ///
+        ///VBUS Session End event IRQ status. Write 1 to clear.
+        pub fn vbus_session_end_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `aps_low_voltage_level_2_status_flag` field of the register.
+        ///
+        ///APS low voltage (Warning Level 2) IRQ status. Write 1 to clear.
+        pub fn aps_low_voltage_level_2_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `n_oe_power_on_status_flag` field of the register.
+        ///
+        ///N_OE Power-on event IRQ status. Write 1 to clear.
+        pub fn set_n_oe_power_on_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `n_oe_power_off_status_flag` field of the register.
+        ///
+        ///N_OE Power-off event IRQ status. Write 1 to clear.
+        pub fn set_n_oe_power_off_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_valid_status_flag` field of the register.
+        ///
+        ///VBUS valid event IRQ status. Write 1 to clear.
+        pub fn set_vbus_valid_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_invalid_status_flag` field of the register.
+        ///
+        ///VBUS invalid event IRQ status. Write 1 to clear.
+        pub fn set_vbus_invalid_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_session_ab_status_flag` field of the register.
+        ///
+        ///VBUS Session A/B valid event IRQ status. Write 1 to clear.
+        pub fn set_vbus_session_ab_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_session_end_status_flag` field of the register.
+        ///
+        ///VBUS Session End event IRQ status. Write 1 to clear.
+        pub fn set_vbus_session_end_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `aps_low_voltage_level_2_status_flag` field of the register.
+        ///
+        ///APS low voltage (Warning Level 2) IRQ status. Write 1 to clear.
+        pub fn set_aps_low_voltage_level_2_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqStatus4 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqStatus4> for [u8; 1] {
+        fn from(val: IrqStatus4) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqStatus4 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqStatus4");
+            {
+                d.field("n_oe_power_on_status_flag", &self.n_oe_power_on_status_flag());
+            }
+            {
+                d.field(
+                    "n_oe_power_off_status_flag",
+                    &self.n_oe_power_off_status_flag(),
+                );
+            }
+            {
+                d.field("vbus_valid_status_flag", &self.vbus_valid_status_flag());
+            }
+            {
+                d.field("vbus_invalid_status_flag", &self.vbus_invalid_status_flag());
+            }
+            {
+                d.field(
+                    "vbus_session_ab_status_flag",
+                    &self.vbus_session_ab_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "vbus_session_end_status_flag",
+                    &self.vbus_session_end_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "aps_low_voltage_level_2_status_flag",
+                    &self.aps_low_voltage_level_2_status_flag(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqStatus4 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqStatus4 { ");
+            defmt::write!(
+                f,
+                "n_oe_power_on_status_flag: {=bool}, ",
+                &self.n_oe_power_on_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "n_oe_power_off_status_flag: {=bool}, ",
+                &self.n_oe_power_off_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_valid_status_flag: {=bool}, ",
+                &self.vbus_valid_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_invalid_status_flag: {=bool}, ",
+                &self.vbus_invalid_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_session_ab_status_flag: {=bool}, ",
+                &self.vbus_session_ab_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "vbus_session_end_status_flag: {=bool}, ",
+                &self.vbus_session_end_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "aps_low_voltage_level_2_status_flag: {=bool}, ",
+                &self.aps_low_voltage_level_2_status_flag(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqStatus4 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqStatus4 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqStatus4 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqStatus4 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqStatus4 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqStatus4 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqStatus4 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Status Register 5. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqStatus5 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqStatus5 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqStatus5 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `timer_timeout_status_flag` field of the register.
+        ///
+        ///Timer timeout IRQ status. Write 1 to clear.
+        pub fn timer_timeout_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_2_input_edge_trigger_status_flag` field of the register.
+        ///
+        ///GPIO2 input edge trigger IRQ status. Write 1 to clear.
+        pub fn gpio_2_input_edge_trigger_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_1_input_edge_trigger_status_flag` field of the register.
+        ///
+        ///GPIO1 input edge trigger IRQ status. Write 1 to clear.
+        pub fn gpio_1_input_edge_trigger_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_0_input_edge_trigger_status_flag` field of the register.
+        ///
+        ///GPIO0 input edge trigger IRQ status. Write 1 to clear.
+        pub fn gpio_0_input_edge_trigger_status_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `timer_timeout_status_flag` field of the register.
+        ///
+        ///Timer timeout IRQ status. Write 1 to clear.
+        pub fn set_timer_timeout_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_2_input_edge_trigger_status_flag` field of the register.
+        ///
+        ///GPIO2 input edge trigger IRQ status. Write 1 to clear.
+        pub fn set_gpio_2_input_edge_trigger_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_1_input_edge_trigger_status_flag` field of the register.
+        ///
+        ///GPIO1 input edge trigger IRQ status. Write 1 to clear.
+        pub fn set_gpio_1_input_edge_trigger_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_0_input_edge_trigger_status_flag` field of the register.
+        ///
+        ///GPIO0 input edge trigger IRQ status. Write 1 to clear.
+        pub fn set_gpio_0_input_edge_trigger_status_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqStatus5 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqStatus5> for [u8; 1] {
+        fn from(val: IrqStatus5) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqStatus5 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqStatus5");
+            {
+                d.field("timer_timeout_status_flag", &self.timer_timeout_status_flag());
+            }
+            {
+                d.field(
+                    "gpio_2_input_edge_trigger_status_flag",
+                    &self.gpio_2_input_edge_trigger_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_1_input_edge_trigger_status_flag",
+                    &self.gpio_1_input_edge_trigger_status_flag(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_0_input_edge_trigger_status_flag",
+                    &self.gpio_0_input_edge_trigger_status_flag(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqStatus5 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqStatus5 { ");
+            defmt::write!(
+                f,
+                "timer_timeout_status_flag: {=bool}, ",
+                &self.timer_timeout_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "gpio_2_input_edge_trigger_status_flag: {=bool}, ",
+                &self.gpio_2_input_edge_trigger_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "gpio_1_input_edge_trigger_status_flag: {=bool}, ",
+                &self.gpio_1_input_edge_trigger_status_flag(),
+            );
+            defmt::write!(
+                f,
+                "gpio_0_input_edge_trigger_status_flag: {=bool}, ",
+                &self.gpio_0_input_edge_trigger_status_flag(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqStatus5 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqStatus5 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqStatus5 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqStatus5 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqStatus5 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqStatus5 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqStatus5 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -12067,6 +13823,16 @@ pub mod field_sets {
         IrqEnableControl4(IrqEnableControl4),
         ///Interrupt Enable Control Register 5 (Timer and GPIO Input Edge Trigger IRQs).
         IrqEnableControl5(IrqEnableControl5),
+        ///Interrupt Status Register 1. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+        IrqStatus1(IrqStatus1),
+        ///Interrupt Status Register 2. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+        IrqStatus2(IrqStatus2),
+        ///Interrupt Status Register 3. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+        IrqStatus3(IrqStatus3),
+        ///Interrupt Status Register 4. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+        IrqStatus4(IrqStatus4),
+        ///Interrupt Status Register 5. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
+        IrqStatus5(IrqStatus5),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -12132,6 +13898,11 @@ pub mod field_sets {
                 Self::IrqEnableControl3(val) => core::fmt::Debug::fmt(val, f),
                 Self::IrqEnableControl4(val) => core::fmt::Debug::fmt(val, f),
                 Self::IrqEnableControl5(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqStatus1(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqStatus2(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqStatus3(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqStatus4(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqStatus5(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -12201,6 +13972,11 @@ pub mod field_sets {
                 Self::IrqEnableControl3(val) => defmt::Format::format(val, f),
                 Self::IrqEnableControl4(val) => defmt::Format::format(val, f),
                 Self::IrqEnableControl5(val) => defmt::Format::format(val, f),
+                Self::IrqStatus1(val) => defmt::Format::format(val, f),
+                Self::IrqStatus2(val) => defmt::Format::format(val, f),
+                Self::IrqStatus3(val) => defmt::Format::format(val, f),
+                Self::IrqStatus4(val) => defmt::Format::format(val, f),
+                Self::IrqStatus5(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -12457,6 +14233,31 @@ pub mod field_sets {
     impl From<IrqEnableControl5> for FieldSetValue {
         fn from(val: IrqEnableControl5) -> Self {
             Self::IrqEnableControl5(val)
+        }
+    }
+    impl From<IrqStatus1> for FieldSetValue {
+        fn from(val: IrqStatus1) -> Self {
+            Self::IrqStatus1(val)
+        }
+    }
+    impl From<IrqStatus2> for FieldSetValue {
+        fn from(val: IrqStatus2) -> Self {
+            Self::IrqStatus2(val)
+        }
+    }
+    impl From<IrqStatus3> for FieldSetValue {
+        fn from(val: IrqStatus3) -> Self {
+            Self::IrqStatus3(val)
+        }
+    }
+    impl From<IrqStatus4> for FieldSetValue {
+        fn from(val: IrqStatus4) -> Self {
+            Self::IrqStatus4(val)
+        }
+    }
+    impl From<IrqStatus5> for FieldSetValue {
+        fn from(val: IrqStatus5) -> Self {
+            Self::IrqStatus5(val)
         }
     }
 }
