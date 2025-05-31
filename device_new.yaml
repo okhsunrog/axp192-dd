@@ -82,3 +82,23 @@ ChargeStatus: # REG01H
       description: "AXP192 startup mode (true: Mode B, false: Mode A)."
     # Bit 0 is reserved.
 
+OtgVbusStatus: # REG04H (Corrected from 02H based on summary table)
+  type: register
+  address: 0x04
+  size_bits: 8
+  access: RO
+  description: "Indicates the status of VBUS when operating in USB OTG (On-The-Go) mode."
+  fields:
+    # Bits 7-3 are reserved.
+    vbus_is_valid:
+      base: bool
+      start: 2
+      description: "VBUS validity status in OTG mode (true: VBUS is valid, false: VBUS is not valid)."
+    vbus_session_ab_is_valid:
+      base: bool
+      start: 1
+      description: "VBUS Session A/B validity status (true: Session A/B is valid, false: Session A/B is not valid)."
+    vbus_session_ended:
+      base: bool
+      start: 0
+      description: "VBUS Session End status (true: Session has ended, false: Session is ongoing or not started)."
