@@ -1897,3 +1897,22 @@ GpioVoltageAdc: # This will be the base name for the repeated access, REG64H-REG
       end: 12 # Defines a 12-bit field within the 16-bit read window
       description: "Raw 12-bit GPIO voltage ADC reading. Multiply by 0.5 to get mV."
 
+BatteryInstantaneousPowerAdc: # REG70H, REG71H, REG72H combined
+  type: register
+  address: 0x70 # Starting address of the triplet
+  size_bits: 24 # Logical size to cover three hardware registers
+  access: RO
+  description: |
+    Battery Instantaneous Power ADC Data. This is a 24-bit value.
+    The value is formed by (REG70H_byte << 16) | (REG71H_byte << 8) | (REG72H_byte).
+    Formula for conversion: Power (mW) = raw_24bit_adc_value * 1.1 * 0.5 / 1000.
+    This simplifies to: Power (mW) = raw_24bit_adc_value * 0.00055.
+    Or, Power (uW) = raw_24bit_adc_value * 0.55.
+  fields:
+    # With default_byte_order: BE, the tool reads bytes in order 70, 71, 72.
+    # Byte from 0x70 is MSB, from 0x72 is LSB of the 24-bit value.
+    value_raw:
+      base: uint
+      start: 0
+      end: 24 # Defines a 24-bit field
+      description: "Raw 24-bit battery instantaneous power ADC reading. See register description for conversion formula to mW or uW."

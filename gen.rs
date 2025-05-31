@@ -184,6 +184,8 @@ impl<I> Device<I> {
         callback(100 + 2 * 2, "gpio_voltage_adc[2]", reg.into());
         let reg = self.gpio_voltage_adc(3).read()?;
         callback(100 + 3 * 2, "gpio_voltage_adc[3]", reg.into());
+        let reg = self.battery_instantaneous_power_adc().read()?;
+        callback(112 + 0 * 0, "battery_instantaneous_power_adc", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -356,6 +358,8 @@ impl<I> Device<I> {
         callback(100 + 2 * 2, "gpio_voltage_adc[2]", reg.into());
         let reg = self.gpio_voltage_adc(3).read_async().await?;
         callback(100 + 3 * 2, "gpio_voltage_adc[3]", reg.into());
+        let reg = self.battery_instantaneous_power_adc().read_async().await?;
+        callback(112 + 0 * 0, "battery_instantaneous_power_adc", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1879,6 +1883,33 @@ impl<I> Device<I> {
             field_sets::GpioVoltageAdc,
             ::device_driver::RO,
         >::new(self.interface(), address as u8, field_sets::GpioVoltageAdc::new)
+    }
+    ///Battery Instantaneous Power ADC Data. This is a 24-bit value.
+    ///The value is formed by (REG70H_byte << 16) | (REG71H_byte << 8) | (REG72H_byte).
+    ///Formula for conversion: Power (mW) = raw_24bit_adc_value * 1.1 * 0.5 / 1000.
+    ///This simplifies to: Power (mW) = raw_24bit_adc_value * 0.00055.
+    ///Or, Power (uW) = raw_24bit_adc_value * 0.55.
+    pub fn battery_instantaneous_power_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BatteryInstantaneousPowerAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 112;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BatteryInstantaneousPowerAdc,
+            ::device_driver::RO,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::BatteryInstantaneousPowerAdc::new,
+        )
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -14794,6 +14825,140 @@ pub mod field_sets {
             self
         }
     }
+    ///Battery Instantaneous Power ADC Data. This is a 24-bit value.
+    ///The value is formed by (REG70H_byte << 16) | (REG71H_byte << 8) | (REG72H_byte).
+    ///Formula for conversion: Power (mW) = raw_24bit_adc_value * 1.1 * 0.5 / 1000.
+    ///This simplifies to: Power (mW) = raw_24bit_adc_value * 0.00055.
+    ///Or, Power (uW) = raw_24bit_adc_value * 0.55.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BatteryInstantaneousPowerAdc {
+        /// The internal bits
+        bits: [u8; 3],
+    }
+    impl ::device_driver::FieldSet for BatteryInstantaneousPowerAdc {
+        const SIZE_BITS: u32 = 24;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BatteryInstantaneousPowerAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 3] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 24-bit battery instantaneous power ADC reading. See register description for conversion formula to mW or uW.
+        pub fn value_raw(&self) -> u32 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u32,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 24)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 24-bit battery instantaneous power ADC reading. See register description for conversion formula to mW or uW.
+        pub fn set_value_raw(&mut self, value: u32) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u32,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 24, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 3]> for BatteryInstantaneousPowerAdc {
+        fn from(bits: [u8; 3]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BatteryInstantaneousPowerAdc> for [u8; 3] {
+        fn from(val: BatteryInstantaneousPowerAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BatteryInstantaneousPowerAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BatteryInstantaneousPowerAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BatteryInstantaneousPowerAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BatteryInstantaneousPowerAdc { ");
+            defmt::write!(f, "value_raw: {=u32}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for BatteryInstantaneousPowerAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BatteryInstantaneousPowerAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BatteryInstantaneousPowerAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BatteryInstantaneousPowerAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BatteryInstantaneousPowerAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BatteryInstantaneousPowerAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BatteryInstantaneousPowerAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -14984,6 +15149,12 @@ pub mod field_sets {
         ///Formula for pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.5.
         ///The measurable voltage input range for each GPIO ADC is set in REG85H.
         GpioVoltageAdc(GpioVoltageAdc),
+        ///Battery Instantaneous Power ADC Data. This is a 24-bit value.
+        ///The value is formed by (REG70H_byte << 16) | (REG71H_byte << 8) | (REG72H_byte).
+        ///Formula for conversion: Power (mW) = raw_24bit_adc_value * 1.1 * 0.5 / 1000.
+        ///This simplifies to: Power (mW) = raw_24bit_adc_value * 0.00055.
+        ///Or, Power (uW) = raw_24bit_adc_value * 0.55.
+        BatteryInstantaneousPowerAdc(BatteryInstantaneousPowerAdc),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -15061,6 +15232,7 @@ pub mod field_sets {
                 Self::InternalTemperatureAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::TsPinAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::GpioVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::BatteryInstantaneousPowerAdc(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -15142,6 +15314,7 @@ pub mod field_sets {
                 Self::InternalTemperatureAdc(val) => defmt::Format::format(val, f),
                 Self::TsPinAdc(val) => defmt::Format::format(val, f),
                 Self::GpioVoltageAdc(val) => defmt::Format::format(val, f),
+                Self::BatteryInstantaneousPowerAdc(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -15458,6 +15631,11 @@ pub mod field_sets {
     impl From<GpioVoltageAdc> for FieldSetValue {
         fn from(val: GpioVoltageAdc) -> Self {
             Self::GpioVoltageAdc(val)
+        }
+    }
+    impl From<BatteryInstantaneousPowerAdc> for FieldSetValue {
+        fn from(val: BatteryInstantaneousPowerAdc) -> Self {
+            Self::BatteryInstantaneousPowerAdc(val)
         }
     }
 }
