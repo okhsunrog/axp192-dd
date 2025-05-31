@@ -45,4 +45,40 @@ PowerStatus: # REG00H
       base: bool
       start: 0
       description: "Indicates if the boot-up power source was ACIN or VBUS (true: boot from ACIN/VBUS, false: boot from Battery or other)."
-# Next register will go here
+
+ChargeStatus: # REG01H
+  type: register
+  address: 0x01
+  size_bits: 8
+  access: RO
+  description: |
+    Indicates various operational modes and charging statuses, including AXP192 temperature,
+    battery presence, and charging progress.
+  fields:
+    axp192_over_temperature:
+      base: bool
+      start: 7
+      description: "AXP192 over-temperature status (true: over-temperature, false: normal temperature)."
+    charging_in_progress:
+      base: bool
+      start: 6
+      description: "Charging progress status (true: charging is in progress, false: not charging or charge complete)."
+    battery_connected:
+      base: bool
+      start: 5
+      description: "Battery connection status (true: battery is connected, false: no battery connected)."
+    # Bit 4 is reserved.
+    battery_in_activation_mode:
+      base: bool
+      start: 3
+      description: "Battery activation mode status (true: battery is in activation mode, false: not in activation mode)."
+    charge_current_less_than_expected:
+      base: bool
+      start: 2
+      description: "Indicates if actual charging current is less than the set/expected current (true: actual < expected, false: actual >= expected)."
+    axp192_startup_mode_is_b:
+      base: bool
+      start: 1
+      description: "AXP192 startup mode (true: Mode B, false: Mode A)."
+    # Bit 0 is reserved.
+
