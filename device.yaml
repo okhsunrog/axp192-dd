@@ -33,10 +33,15 @@ PowerStatus: # REG00H
       base: bool
       start: 3
       description: "Indicates if VBUS voltage was greater than VHOLD when VBUS was connected (true: VBUS > VHOLD, false: VBUS <= VHOLD or not applicable)."
-    battery_is_charging:
-      base: bool
+    battery_flow:
+      base: uint
       start: 2
-      description: "Battery current direction (true: Battery is Charging, false: Battery is Discharging)."
+      end: 3
+      description: "Battery current direction."
+      conversion:
+        name: BatteryFlowDirection
+        Discharging: { value: 0 }
+        Charging:    { value: 1 }
     acin_and_vbus_inputs_shorted_on_pcb:
       base: bool
       start: 1
@@ -76,13 +81,18 @@ ChargeStatus: # REG01H
       base: bool
       start: 2
       description: "Indicates if actual charging current is less than the set/expected current (true: actual < expected, false: actual >= expected)."
-    axp192_startup_mode_is_b:
-      base: bool
+    startup_mode:
+      base: uint
       start: 1
-      description: "AXP192 startup mode (true: Mode B, false: Mode A)."
+      end: 2
+      description: "AXP192 startup mode."
+      conversion:
+        name: AxpStartupMode
+        ModeA: { value: 0, description: "Startup Mode A." }
+        ModeB: { value: 1, description: "Startup Mode B." }
     # Bit 0 is reserved.
 
-OtgVbusStatus: # REG04H (Corrected from 02H based on summary table)
+OtgVbusStatus: # REG04H
   type: register
   address: 0x04
   size_bits: 8
@@ -186,7 +196,8 @@ PowerOutputControl: # REG12H
   access: RW
   reset_value: 0x5F # Default on M5StickC Plus: All outputs are ON.
   description: |
-    Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, and provides alternative controls for EXTEN and DC-DC2.
+    Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, EXTEN, and DC-DC2.
+    Power-on default for M5StickC Plus is 0x5F.
     IMPORTANT: REG12H bit 6 (exten_output_enable) is linked to REG10H bit 2.
                  REG12H bit 4 (dcdc2_output_enable) is linked to REG10H bit 0.
                  These pairs control the same underlying hardware function.
@@ -223,19 +234,16 @@ DcDc2VoltageSetting: # REG23H
   address: 0x23
   size_bits: 8
   access: RW
-  reset_value: 0x16 # Default 0x16 (bits 5-0 = 010110B = 22d) corresponds to 1.25V.
+  reset_value: 0x16 # Default 0x16 (22d) corresponds to 1.25V.
   description: |
     Sets the output voltage for the DC-DC2 converter.
-    Formula: Output Voltage (V) = 0.7 + (voltage_setting_raw * 0.025).
-    Effective range for voltage_setting_raw (bits 0-5): 0-63.
-    Resulting voltage range: 0.7V to 2.275V, in 25mV steps.
+    Formula: Output Voltage (V) = 0.7 + (value * 0.025). Range: 0.7V to 2.275V (raw 0-63).
   fields:
     # Bits 7-6 are reserved.
-    voltage_setting_raw:
+    voltage_setting:
       base: uint
       start: 0
-      end: 6 # 6 bits (0 to 5 inclusive)
-      description: "Raw 6-bit value for DC-DC2 output voltage setting. See register description for conversion formula."
+      end: 6
 
 DcDc2VrcParameter: # REG25H
   type: register
@@ -244,39 +252,39 @@ DcDc2VrcParameter: # REG25H
   access: RW
   reset_value: 0x00 # Default: VRC enabled (bit 2=0), Rise slope 1.6mV/us (bit 0=0)
   description: |
-    Configures parameters for DC-DC2 Dynamic Voltage Scaling / Voltage Ramp Control (VRC),
-    including VRC enable state and voltage rise slope.
+    Configures DC-DC2 Dynamic Voltage Scaling / Voltage Ramp Control (VRC).
   fields:
     # Bits 7-3 are reserved.
-    vrc_disabled: # Naming reflects the bit's meaning: true if VRC is disabled
+    vrc_disabled:
       base: bool
       start: 2
-      description: "DC-DC2 VRC (Voltage Ramp Control) disable control (true: VRC disabled, false: VRC enabled). Note inverted logic."
+      description: "DC-DC2 VRC disable control (true: VRC disabled, false: VRC enabled). Note inverted logic."
     # Bit 1 is reserved.
-    vrc_rise_slope_is_0_8mv_us: # Naming reflects the bit's meaning for true state
-      base: bool
+    vrc_rise_slope:
+      base: uint
       start: 0
-      description: "DC-DC2 VRC voltage rise slope (true: 0.8mV/us (25mV/31.25us), false: 1.6mV/us (25mV/15.625us))."
+      end: 1
+      description: "DC-DC2 VRC voltage rise slope."
+      conversion:
+        name: VrcRiseSlope
+        Slope1_6mV_us: { value: 0, description: "1.6mV/us slope."}
+        Slope0_8mV_us: { value: 1, description: "0.8mV/us slope."}
 
 DcDc1VoltageSetting: # REG26H
   type: register
   address: 0x26
   size_bits: 8
   access: RW
-  reset_value: 0x68 # Default 0x68 (bits 6-0 = 1101000B = 104d) corresponds to 3.3V.
+  reset_value: 0x68 # Default 0x68 (104d) corresponds to 3.3V.
   description: |
-    Sets the output voltage for the DC-DC converter.
-    Formula: Output Voltage (V) = 0.7 + (voltage_setting_raw * 0.025).
-    Effective range for voltage_setting_raw (bits 0-6): 0-112 (decimal).
-    Resulting voltage range: 0.7V to 3.5V, in 25mV steps.
-    Values for voltage_setting_raw from 113 to 127 may be reserved or have undefined behavior.
+    Sets the output voltage for a DC-DC converter.
+    Formula: V_out = 0.7V + (value * 25mV). Range 0.7V-3.5V (raw 0-112).
   fields:
     # Bit 7 is reserved.
-    voltage_setting_raw:
+    voltage_setting:
       base: uint
       start: 0
-      end: 7 # 7 bits (0 to 6 inclusive)
-      description: "Raw 7-bit value for DC-DC1 output voltage setting. See register description for conversion formula and valid range."
+      end: 7
 
 DcDc3VoltageSetting: # REG27H
   type: ref
@@ -291,22 +299,21 @@ Ldo2And3VoltageSetting: # REG28H
   address: 0x28
   size_bits: 8
   access: RW
-  reset_value: 0xCF # Default: LDO2=3.0V (1100B), LDO3=3.3V (1111B)
+  reset_value: 0xCF # Default: LDO2=3.0V, LDO3=3.3V
   description: |
     Sets the output voltage for both LDO2 and LDO3.
-    LDO2 (bits 7-4): Formula: V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
-    LDO3 (bits 3-0): Formula: V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
+    LDO2 (bits 7-4) & LDO3 (bits 3-0): V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
   fields:
-    ldo2_voltage_setting_raw:
+    ldo2_voltage_setting:
       base: uint
-      start: 4 # Bits 7-4
-      end: 8   # 4 bits
-      description: "Raw 4-bit setting for LDO2 output voltage (1.8V to 3.3V, 100mV/step)."
-    ldo3_voltage_setting_raw:
+      start: 4
+      end: 8
+      description: "4-bit setting for LDO2 output voltage (1.8V to 3.3V, 100mV/step)."
+    ldo3_voltage_setting:
       base: uint
-      start: 0 # Bits 3-0
-      end: 4   # 4 bits
-      description: "Raw 4-bit setting for LDO3 output voltage (1.8V to 3.3V, 100mV/step)."
+      start: 0
+      end: 4
+      description: "4-bit setting for LDO3 output voltage (1.8V to 3.3V, 100mV/step)."
 
 VbusIpsoutPathManagement: # REG30H
   type: register
@@ -314,35 +321,53 @@ VbusIpsoutPathManagement: # REG30H
   size_bits: 8
   access: RW
   reset_value: 0x80 # Default on M5StickC Plus: Path Forced Open (ignores N_VBUSEN),
-                     # VHOLD limit OFF, VHOLD setting defaults to 4.0V (if enabled),
-                     # VBUS current limit OFF (defaults to 500mA if enabled).
+                    # VHOLD limit OFF, VHOLD setting defaults to 4.0V (if enabled),
+                    # VBUS current limit OFF (defaults to 500mA if enabled).
   description: |
-    Manages the VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
+    Manages VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
   fields:
-    path_control_by_n_vbusen_pin:
-      base: bool
+    path_selection_override:
+      base: uint
       start: 7
-      description: "VBUS-IPSOUT path selection control (true: path open regardless of N_VBUSEN, false: path controlled by N_VBUSEN pin)."
-    vhold_voltage_limit_enabled: # Note: Datasheet REG30H[6] is '1' for limit enabled
+      end: 8
+      description: "VBUS-IPSOUT path selection control."
+      conversion:
+        name: VbusPathSelectionControl
+        ControlledByNvbusenPin: { value: 0, description: "Path controlled by N_VBUSEN pin." }
+        ForcedOpen:             { value: 1, description: "Path forced open (ignores N_VBUSEN)." }
+    vhold_limit_enabled:
       base: bool
       start: 6
       description: "VBUS VHOLD voltage limiting control (true: limit enabled, false: no limit)."
-    vhold_voltage_setting_raw:
+    vhold_voltage:
       base: uint
       start: 3
-      end: 6 # 3 bits (3, 4, 5)
-      description: |
-        VHOLD voltage setting (000:4.0V, 001:4.1V, 010:4.2V, 011:4.3V, 100:4.4V, 101:4.5V, 110:4.6V, 111:4.7V).
-        Raw value.
+      end: 6
+      description: "VHOLD voltage setting when vhold_limit_enabled is true."
+      conversion:
+        name: VholdVoltageValue
+        V4_0: { value: 0b000, description: "4.0V" }
+        V4_1: { value: 0b001, description: "4.1V" }
+        V4_2: { value: 0b010, description: "4.2V" }
+        V4_3: { value: 0b011, description: "4.3V" }
+        V4_4: { value: 0b100, description: "4.4V" }
+        V4_5: { value: 0b101, description: "4.5V" }
+        V4_6: { value: 0b110, description: "4.6V" }
+        V4_7: { value: 0b111, description: "4.7V" }
     # Bit 2 is reserved.
     vbus_current_limit_enabled:
       base: bool
       start: 1
       description: "VBUS current limit control (true: enabled, false: disabled)."
-    vbus_current_limit_is_100ma: # true if 100mA, false if 500mA (when enabled)
-      base: bool
+    vbus_current_limit:
+      base: uint
       start: 0
-      description: "VBUS current limit selection when enabled (true: 100mA, false: 500mA)."
+      end: 1
+      description: "VBUS current limit selection when vbus_current_limit_enabled is true."
+      conversion:
+        name: VbusCurrentLimitValue
+        Ma500: { value: 0, description: "500mA limit."}
+        Ma100: { value: 1, description: "100mA limit."}
 
 ShutdownVoltageSetting: # REG31H
   type: register
@@ -351,23 +376,28 @@ ShutdownVoltageSetting: # REG31H
   access: RW
   reset_value: 0x03 # Default on M5StickC Plus: VOFF=2.9V, Sleep PWRON wakeup disabled.
   description: |
-    Sets the VOFF (shutdown) voltage threshold and controls the PWRON short-press wakeup
-    functionality when the device is in sleep mode.
-    VOFF (bits 0-2) sets shutdown voltage: 000=2.6V ... 011(default)=2.9V ... 111=3.3V (100mV/step).
-    SleepWakeupEnable (bit 3): Setting to 'true' enables wakeup, but this bit auto-clears.
+    Sets VOFF (shutdown) voltage and PWRON short-press wakeup from sleep.
   fields:
     # Bits 7-4 are reserved.
     sleep_pwron_short_press_wakeup_enable:
       base: bool
       start: 3
-      description: "Enable PWRON short press to wake from sleep (true: enabled, false: disabled). Note: This bit auto-clears to 0 after being written as 1, requires re-setting before each sleep entry if wakeup is desired."
-    voff_shutdown_voltage_setting_raw:
+      description: "Enable PWRON short press to wake from sleep (true: enabled, false: disabled). Auto-clears."
+    voff_voltage:
       base: uint
       start: 0
-      end: 3 # 3 bits (0, 1, 2)
-      description: |
-        Raw 3-bit value for VOFF (shutdown) voltage setting.
-        Mapping: 000=2.6V, 001=2.7V, 010=2.8V, 011=2.9V (default), 100=3.0V, 101=3.1V, 110=3.2V, 111=3.3V.
+      end: 3
+      description: "VOFF (shutdown) voltage threshold."
+      conversion:
+        name: VoffVoltageValue
+        V2_6: { value: 0b000, description: "2.6V" }
+        V2_7: { value: 0b001, description: "2.7V" }
+        V2_8: { value: 0b010, description: "2.8V" }
+        V2_9: { value: 0b011, description: "2.9V" }
+        V3_0: { value: 0b100, description: "3.0V" }
+        V3_1: { value: 0b101, description: "3.1V" }
+        V3_2: { value: 0b110, description: "3.2V" }
+        V3_3: { value: 0b111, description: "3.3V" }
 
 ShutdownBatChgLedControl: # REG32H
   type: register
@@ -376,34 +406,48 @@ ShutdownBatChgLedControl: # REG32H
   access: RW
   reset_value: 0x46 # Default: Bat mon ON, CHGLED by charge func (default high-Z if by reg), N_OE delay 2S.
   description: |
-    Controls system shutdown (Mode A), battery detection enable, CHGLED pin function and control source,
-    and the N_OE low-to-high shutdown delay.
+    Controls shutdown, battery detection, CHGLED pin, and N_OE shutdown delay.
   fields:
-    request_shutdown_mode_a: # Writing true to this bit initiates shutdown
+    request_shutdown_mode_a:
       base: bool
       start: 7
-      description: "Initiate AXP192 shutdown in Mode A (true: request shutdown, false: no action). Writing true turns off outputs."
+      description: "Initiate AXP192 shutdown in Mode A (true: request shutdown)."
     battery_monitoring_enable:
       base: bool
       start: 6
       description: "Battery monitoring function (true: enabled, false: disabled)."
-    chgled_pin_function_setting_raw: # Bits 5-4
+    chgled_function:
       base: uint
       start: 4
-      end: 6 # 2 bits
-      description: |
-        CHGLED pin function when controlled by this register (chgled_pin_control_by_register is true).
-        Raw value: 00=High-Z, 01=1Hz blink (25% duty), 10=4Hz blink (25% duty), 11=Output Low.
-    chgled_pin_control_by_register: # Bit 3
-      base: bool
+      end: 6
+      description: "CHGLED pin function when chgled_control_source is ByRegister."
+      conversion:
+        name: ChgLedFunctionSetting
+        HighZ:     { value: 0b00, description: "High Impedance." }
+        Blink1Hz:  { value: 0b01, description: "1Hz blink (25% duty)." }
+        Blink4Hz:  { value: 0b10, description: "4Hz blink (25% duty)." }
+        OutputLow: { value: 0b11, description: "Output Low." }
+    chgled_control_source:
+      base: uint
       start: 3
-      description: "CHGLED pin control source (true: controlled by chgled_pin_function_setting_raw, false: controlled by charging function)."
+      end: 4
+      description: "CHGLED pin control source."
+      conversion:
+        name: ChgLedControlSourceSelect
+        ByChargeLogic:     { value: 0, description: "Controlled by charging function." }
+        ByRegisterSetting: { value: 1, description: "Controlled by this register's chgled_function field." }
     # Bit 2 is reserved.
-    n_oe_shutdown_delay_setting_raw: # Bits 1-0
+    n_oe_shutdown_delay:
       base: uint
       start: 0
-      end: 2 # 2 bits
-      description: "Shutdown delay after N_OE goes from low to high. Raw value: 00=0.5S, 01=1S, 10=2S, 11=3S."
+      end: 2
+      description: "Shutdown delay after N_OE pin transitions from low to high."
+      conversion:
+        name: NoeShutdownDelayValue
+        Ms500: { value: 0b00, description: "0.5S delay." }
+        S1:    { value: 0b01, description: "1S delay." }
+        S2:    { value: 0b10, description: "2S delay." }
+        S3:    { value: 0b11, description: "3S delay." }
 
 ChargeControl1: # REG33H
   type: register
@@ -412,27 +456,52 @@ ChargeControl1: # REG33H
   access: RW
   reset_value: 0xC8 # Default: Charging ON, Target 4.2V, End at 10% current, Current 780mA.
   description: |
-    Controls primary charging parameters including enable state, target voltage,
-    charge termination current threshold, and internal path charge current.
+    Controls primary charging parameters.
   fields:
     charge_enable:
       base: bool
       start: 7
       description: "Master charging function enable (true: enabled, false: disabled)."
-    charge_target_voltage_setting_raw: # Bits 6-5
+    target_voltage:
       base: uint
       start: 5
-      end: 7 # 2 bits
-      description: "Charging target voltage. Raw: 00=4.1V, 01=4.15V, 10=4.2V (default), 11=4.36V."
-    charge_end_current_threshold_is_15_percent: # Bit 4
-      base: bool
+      end: 7
+      description: "Charging target voltage setting."
+      conversion:
+        name: ChargeTargetVoltageValue
+        V4_10: { value: 0b00, description: "4.10V" }
+        V4_15: { value: 0b01, description: "4.15V" }
+        V4_20: { value: 0b10, description: "4.20V" }
+        V4_36: { value: 0b11, description: "4.36V" }
+    end_current_threshold:
+      base: uint
       start: 4
-      description: "Charge termination current threshold (true: 15% of set charge current, false: 10% of set charge current (default))."
-    internal_charge_current_setting_raw: # Bits 3-0
+      end: 5
+      description: "Charge termination current threshold."
+      conversion:
+        name: ChargeEndCurrentThresholdValue
+        Percent10: { value: 0, description: "Terminate at <10% of set current." }
+        Percent15: { value: 1, description: "Terminate at <15% of set current." }
+    charge_current:
       base: uint
       start: 0
-      end: 4 # 4 bits
-      description: |
-        Internal path charging current setting. Raw value maps to mA:
-        0000=100, 0001=190, 0010=280, 0011=360, 0100=450, 0101=550, 0110=630, 0111=700,
-        1000=780 (default), 1001=880, 1010=960, 1011=1000, 1100=1080, 1101=1160, 1110=1240, 1111=1320mA.
+      end: 4
+      description: "Internal path charging current setting."
+      conversion:
+        name: ChargeCurrentValue
+        MA100:  { value: 0b0000, description: "100mA" }
+        MA190:  { value: 0b0001, description: "190mA" }
+        MA280:  { value: 0b0010, description: "280mA" }
+        MA360:  { value: 0b0011, description: "360mA" }
+        MA450:  { value: 0b0100, description: "450mA" }
+        MA550:  { value: 0b0101, description: "550mA" }
+        MA630:  { value: 0b0110, description: "630mA" }
+        MA700:  { value: 0b0111, description: "700mA" }
+        MA780:  { value: 0b1000, description: "780mA" }
+        MA880:  { value: 0b1001, description: "880mA" }
+        MA960:  { value: 0b1010, description: "960mA" }
+        MA1000: { value: 0b1011, description: "1000mA" }
+        MA1080: { value: 0b1100, description: "1080mA" }
+        MA1160: { value: 0b1101, description: "1160mA" }
+        MA1240: { value: 0b1110, description: "1240mA" }
+        MA1320: { value: 0b1111, description: "1320mA" }
