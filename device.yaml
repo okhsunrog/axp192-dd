@@ -461,7 +461,7 @@ ChargeControl1: # REG33H
     charge_enable:
       base: bool
       start: 7
-      description: "Master charging function enable (true: enabled, false: disabled)."
+      description: "Charging function enable (true: enabled, false: disabled)."
     target_voltage:
       base: uint
       start: 5
