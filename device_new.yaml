@@ -180,3 +180,44 @@ ExtenDcDc2Control: # REG10H
       base: bool
       start: 0
       description: "DC-DC2 converter output switch control (true: enabled/on, false: disabled/off)."
+
+PowerOutputControl: # REG12H
+  type: register
+  address: 0x12
+  size_bits: 8
+  access: RW
+  # reset_value: is omitted as datasheet indicates XFH (customizable)
+  description: |
+    Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, and provides alternative controls for EXTEN and DC-DC2.
+    Note: The default power-on state of these outputs (reset value XFH) is hardware-dependent
+    and may vary based on chip customization or revision.
+    IMPORTANT: REG12H bit 6 (exten_output_enable) is linked to REG10H bit 2.
+                 REG12H bit 4 (dcdc2_output_enable) is linked to REG10H bit 0.
+                 These pairs control the same underlying hardware function.
+  fields:
+    # Bit 7 is reserved.
+    exten_output_enable:
+      base: bool
+      start: 6
+      description: "EXTEN pin output switch control (true: enabled, false: disabled). Linked to REG10H[2]."
+    # Bit 5 is reserved.
+    dcdc2_output_enable:
+      base: bool
+      start: 4
+      description: "DC-DC2 converter output switch control (true: enabled, false: disabled). Linked to REG10H[0]."
+    ldo3_output_enable:
+      base: bool
+      start: 3
+      description: "LDO3 output switch control (true: enabled, false: disabled)."
+    ldo2_output_enable:
+      base: bool
+      start: 2
+      description: "LDO2 output switch control (true: enabled, false: disabled)."
+    dcdc3_output_enable:
+      base: bool
+      start: 1
+      description: "DC-DC3 converter output switch control (true: enabled, false: disabled)."
+    dcdc1_output_enable:
+      base: bool
+      start: 0
+      description: "DC-DC1 converter output switch control (true: enabled, false: disabled)."
