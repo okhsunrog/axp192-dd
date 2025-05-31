@@ -164,7 +164,7 @@ ExtenDcDc2Control: # REG10H
   address: 0x10
   size_bits: 8
   access: RW
-  reset_value: 0x05
+  reset_value: 0x05 # Default on M5StickC Plus: EXTEN ON, DCDC2 ON
   description: |
     Controls the output enable state for the EXTEN pin and the DC-DC2 converter.
   fields:
@@ -184,7 +184,7 @@ PowerOutputControl: # REG12H
   address: 0x12
   size_bits: 8
   access: RW
-  reset_value: 0x5F
+  reset_value: 0x5F # Default on M5StickC Plus: All outputs are ON.
   description: |
     Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, and provides alternative controls for EXTEN and DC-DC2.
     IMPORTANT: REG12H bit 6 (exten_output_enable) is linked to REG10H bit 2.
@@ -369,3 +369,38 @@ ShutdownVoltageSetting: # REG31H
         Raw 3-bit value for VOFF (shutdown) voltage setting.
         Mapping: 000=2.6V, 001=2.7V, 010=2.8V, 011=2.9V (default), 100=3.0V, 101=3.1V, 110=3.2V, 111=3.3V.
 
+ShutdownBatChgLedControl: # REG32H
+  type: register
+  address: 0x32
+  size_bits: 8
+  access: RW
+  reset_value: 0x46 # Default: Bat mon ON, CHGLED by charge func (default high-Z if by reg), N_OE delay 2S.
+  description: |
+    Controls system shutdown (Mode A), battery detection enable, CHGLED pin function and control source,
+    and the N_OE low-to-high shutdown delay.
+  fields:
+    request_shutdown_mode_a: # Writing true to this bit initiates shutdown
+      base: bool
+      start: 7
+      description: "Initiate AXP192 shutdown in Mode A (true: request shutdown, false: no action). Writing true turns off outputs."
+    battery_monitoring_enable:
+      base: bool
+      start: 6
+      description: "Battery monitoring function (true: enabled, false: disabled)."
+    chgled_pin_function_setting_raw: # Bits 5-4
+      base: uint
+      start: 4
+      end: 6 # 2 bits
+      description: |
+        CHGLED pin function when controlled by this register (chgled_pin_control_by_register is true).
+        Raw value: 00=High-Z, 01=1Hz blink (25% duty), 10=4Hz blink (25% duty), 11=Output Low.
+    chgled_pin_control_by_register: # Bit 3
+      base: bool
+      start: 3
+      description: "CHGLED pin control source (true: controlled by chgled_pin_function_setting_raw, false: controlled by charging function)."
+    # Bit 2 is reserved.
+    n_oe_shutdown_delay_setting_raw: # Bits 1-0
+      base: uint
+      start: 0
+      end: 2 # 2 bits
+      description: "Shutdown delay after N_OE goes from low to high. Raw value: 00=0.5S, 01=1S, 10=2S, 11=3S."
