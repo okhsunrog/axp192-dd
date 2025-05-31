@@ -221,3 +221,22 @@ PowerOutputControl: # REG12H
       base: bool
       start: 0
       description: "DC-DC1 converter output switch control (true: enabled, false: disabled)."
+
+DcDc2VoltageSetting: # REG23H
+  type: register
+  address: 0x23
+  size_bits: 8
+  access: RW
+  reset_value: 0x16 # Default 0x16 (bits 5-0 = 010110B = 22d) corresponds to 1.25V.
+  description: |
+    Sets the output voltage for the DC-DC2 converter.
+    Formula: Output Voltage (V) = 0.7 + (voltage_setting_raw * 0.025).
+    Effective range for voltage_setting_raw (bits 0-5): 0-63.
+    Resulting voltage range: 0.7V to 2.275V, in 25mV steps.
+  fields:
+    # Bits 7-6 are reserved.
+    voltage_setting_raw:
+      base: uint
+      start: 0
+      end: 6 # 6 bits (0 to 5 inclusive)
+      description: "Raw 6-bit value for DC-DC2 output voltage setting. See register description for conversion formula."
