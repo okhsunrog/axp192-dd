@@ -164,11 +164,9 @@ ExtenDcDc2Control: # REG10H
   address: 0x10
   size_bits: 8
   access: RW
-  # reset_value: is omitted as datasheet indicates XXH (customizable)
+  reset_value: 0x05
   description: |
     Controls the output enable state for the EXTEN pin and the DC-DC2 converter.
-    Note: The default power-on state of these outputs (reset value) is hardware-dependent (XXH in datasheet)
-    and may vary based on chip customization or revision.
   fields:
     # Bits 7-3 are reserved.
     exten_output_enable:
@@ -186,11 +184,9 @@ PowerOutputControl: # REG12H
   address: 0x12
   size_bits: 8
   access: RW
-  # reset_value: is omitted as datasheet indicates XXH (customizable)
+  reset_value: 0x5F
   description: |
     Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, and provides alternative controls for EXTEN and DC-DC2.
-    Note: The default power-on state of these outputs (reset value XXH) is hardware-dependent
-    and may vary based on chip customization or revision.
     IMPORTANT: REG12H bit 6 (exten_output_enable) is linked to REG10H bit 2.
                  REG12H bit 4 (dcdc2_output_enable) is linked to REG10H bit 0.
                  These pairs control the same underlying hardware function.
@@ -317,7 +313,9 @@ VbusIpsoutPathManagement: # REG30H
   address: 0x30
   size_bits: 8
   access: RW
-  reset_value: 0x60 # Default: N_VBUSEN path control, VHOLD limit enabled, VHOLD=4.4V, Current limit off.
+  reset_value: 0x80 # Default on M5StickC Plus: Path Forced Open (ignores N_VBUSEN),
+                     # VHOLD limit OFF, VHOLD setting defaults to 4.0V (if enabled),
+                     # VBUS current limit OFF (defaults to 500mA if enabled).
   description: |
     Manages the VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
   fields:
