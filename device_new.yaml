@@ -158,3 +158,25 @@ DataBuffer5: # REG0BH
     type: register
     address: 0x0B
     reset_value: 0x00
+
+ExtenDcDc2Control: # REG10H
+  type: register
+  address: 0x10
+  size_bits: 8
+  access: RW
+  # reset_value: is omitted as datasheet indicates XXH (customizable)
+  description: |
+    Controls the output enable state for the EXTEN pin and the DC-DC2 converter.
+    Note: The default power-on state of these outputs (reset value) is hardware-dependent (XXH in datasheet)
+    and may vary based on chip customization or revision.
+  fields:
+    # Bits 7-3 are reserved.
+    exten_output_enable:
+      base: bool
+      start: 2
+      description: "EXTEN pin output switch control (true: enabled/on, false: disabled/off)."
+    # Bit 1 is reserved.
+    dcdc2_output_enable:
+      base: bool
+      start: 0
+      description: "DC-DC2 converter output switch control (true: enabled/on, false: disabled/off)."
