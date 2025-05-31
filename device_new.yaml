@@ -186,10 +186,10 @@ PowerOutputControl: # REG12H
   address: 0x12
   size_bits: 8
   access: RW
-  # reset_value: is omitted as datasheet indicates XFH (customizable)
+  # reset_value: is omitted as datasheet indicates XXH (customizable)
   description: |
     Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, and provides alternative controls for EXTEN and DC-DC2.
-    Note: The default power-on state of these outputs (reset value XFH) is hardware-dependent
+    Note: The default power-on state of these outputs (reset value XXH) is hardware-dependent
     and may vary based on chip customization or revision.
     IMPORTANT: REG12H bit 6 (exten_output_enable) is linked to REG10H bit 2.
                  REG12H bit 4 (dcdc2_output_enable) is linked to REG10H bit 0.
@@ -281,3 +281,23 @@ DcDc1VoltageSetting: # REG26H
       start: 0
       end: 7 # 7 bits (0 to 6 inclusive)
       description: "Raw 7-bit value for DC-DC1 output voltage setting. See register description for conversion formula and valid range."
+
+DcDc3VoltageSetting: # REG27H
+  type: register
+  address: 0x27
+  size_bits: 8
+  access: RW
+  reset_value: 0x48 # Default 0x48 (bits 6-0 = 1001000B = 72d) corresponds to 2.5V.
+  description: |
+    Sets the output voltage for the DC-DC3 converter.
+    Formula: Output Voltage (V) = 0.7 + (voltage_setting_raw * 0.025).
+    Effective range for voltage_setting_raw (bits 0-6): 0-112 (decimal).
+    Resulting voltage range: 0.7V to 3.5V, in 25mV steps.
+    Values for voltage_setting_raw from 113 to 127 may be reserved or have undefined behavior.
+  fields:
+    # Bit 7 is reserved.
+    voltage_setting_raw:
+      base: uint
+      start: 0
+      end: 7 # 7 bits (0 to 6 inclusive)
+      description: "Raw 7-bit value for DC-DC3 output voltage setting. See register description for conversion formula and valid range."
