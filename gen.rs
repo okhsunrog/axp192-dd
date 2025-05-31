@@ -142,6 +142,8 @@ impl<I> Device<I> {
         callback(156 + 0 * 0, "pwm_2_duty_cycle_setting_y_1", reg.into());
         let reg = self.pwm_2_duty_cycle_setting_y_2().read()?;
         callback(157 + 0 * 0, "pwm_2_duty_cycle_setting_y_2", reg.into());
+        let reg = self.nrsto_gpio_5_control().read()?;
+        callback(158 + 0 * 0, "nrsto_gpio_5_control", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -272,6 +274,8 @@ impl<I> Device<I> {
         callback(156 + 0 * 0, "pwm_2_duty_cycle_setting_y_1", reg.into());
         let reg = self.pwm_2_duty_cycle_setting_y_2().read_async().await?;
         callback(157 + 0 * 0, "pwm_2_duty_cycle_setting_y_2", reg.into());
+        let reg = self.nrsto_gpio_5_control().read_async().await?;
+        callback(158 + 0 * 0, "nrsto_gpio_5_control", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1430,6 +1434,26 @@ impl<I> Device<I> {
             field_sets::Pwm1DutyCycleSettingY2,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::Pwm1DutyCycleSettingY2::new)
+    }
+    ///Configures the N_RSTO/GPIO5 pin function. It can operate as N_RSTO (LDO1 status monitor)
+    ///or as a general-purpose I/O pin (GPIO5) with configurable direction and output state.
+    pub fn nrsto_gpio_5_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::NrstoGpio5Control,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 158;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::NrstoGpio5Control,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::NrstoGpio5Control::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -9935,6 +9959,220 @@ pub mod field_sets {
             self
         }
     }
+    ///Configures the N_RSTO/GPIO5 pin function. It can operate as N_RSTO (LDO1 status monitor)
+    ///or as a general-purpose I/O pin (GPIO5) with configurable direction and output state.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct NrstoGpio5Control {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for NrstoGpio5Control {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl NrstoGpio5Control {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [32] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `pin_is_gpio_5` field of the register.
+        ///
+        ///Selects the primary function of the N_RSTO/GPIO5 pin.
+        pub fn pin_is_gpio_5(&self) -> super::NrstoPinFunction {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `gpio_5_is_input` field of the register.
+        ///
+        ///Sets GPIO5 direction when pin_is_gpio5 is Gpio5 (true: input, false: NMOS open-drain output).
+        pub fn gpio_5_is_input(&self) -> super::Gpio5Direction {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `gpio_5_output_set_floating` field of the register.
+        ///
+        ///GPIO5 output level when in NMOS output mode (true: set floating/NMOS off, false: set output low/NMOS on).
+        pub fn gpio_5_output_set_floating(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_5_input_status` field of the register.
+        ///
+        ///Current input level of GPIO5 when configured as input (true: high, false: low).
+        pub fn gpio_5_input_status(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Write the `pin_is_gpio_5` field of the register.
+        ///
+        ///Selects the primary function of the N_RSTO/GPIO5 pin.
+        pub fn set_pin_is_gpio_5(&mut self, value: super::NrstoPinFunction) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_5_is_input` field of the register.
+        ///
+        ///Sets GPIO5 direction when pin_is_gpio5 is Gpio5 (true: input, false: NMOS open-drain output).
+        pub fn set_gpio_5_is_input(&mut self, value: super::Gpio5Direction) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_5_output_set_floating` field of the register.
+        ///
+        ///GPIO5 output level when in NMOS output mode (true: set floating/NMOS off, false: set output low/NMOS on).
+        pub fn set_gpio_5_output_set_floating(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for NrstoGpio5Control {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<NrstoGpio5Control> for [u8; 1] {
+        fn from(val: NrstoGpio5Control) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for NrstoGpio5Control {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("NrstoGpio5Control");
+            {
+                d.field("pin_is_gpio_5", &self.pin_is_gpio_5());
+            }
+            {
+                d.field("gpio_5_is_input", &self.gpio_5_is_input());
+            }
+            {
+                d.field(
+                    "gpio_5_output_set_floating",
+                    &self.gpio_5_output_set_floating(),
+                );
+            }
+            {
+                d.field("gpio_5_input_status", &self.gpio_5_input_status());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for NrstoGpio5Control {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "NrstoGpio5Control { ");
+            defmt::write!(f, "pin_is_gpio_5: {}, ", &self.pin_is_gpio_5());
+            defmt::write!(f, "gpio_5_is_input: {}, ", &self.gpio_5_is_input());
+            defmt::write!(
+                f,
+                "gpio_5_output_set_floating: {=bool}, ",
+                &self.gpio_5_output_set_floating(),
+            );
+            defmt::write!(
+                f,
+                "gpio_5_input_status: {=bool}, ",
+                &self.gpio_5_input_status(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for NrstoGpio5Control {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for NrstoGpio5Control {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for NrstoGpio5Control {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for NrstoGpio5Control {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for NrstoGpio5Control {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for NrstoGpio5Control {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for NrstoGpio5Control {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -10072,6 +10310,9 @@ pub mod field_sets {
         ///Sets the 'Y2' parameter (numerator) for PWM1 duty cycle calculation (Duty = Y2/Y1).
         ///Only upper 5 bits (bits 7-3) are used for Y2.
         Pwm1DutyCycleSettingY2(Pwm1DutyCycleSettingY2),
+        ///Configures the N_RSTO/GPIO5 pin function. It can operate as N_RSTO (LDO1 status monitor)
+        ///or as a general-purpose I/O pin (GPIO5) with configurable direction and output state.
+        NrstoGpio5Control(NrstoGpio5Control),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -10131,6 +10372,7 @@ pub mod field_sets {
                 Self::Pwm1FrequencySetting(val) => core::fmt::Debug::fmt(val, f),
                 Self::Pwm1DutyCycleSettingY1(val) => core::fmt::Debug::fmt(val, f),
                 Self::Pwm1DutyCycleSettingY2(val) => core::fmt::Debug::fmt(val, f),
+                Self::NrstoGpio5Control(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -10194,6 +10436,7 @@ pub mod field_sets {
                 Self::Pwm1FrequencySetting(val) => defmt::Format::format(val, f),
                 Self::Pwm1DutyCycleSettingY1(val) => defmt::Format::format(val, f),
                 Self::Pwm1DutyCycleSettingY2(val) => defmt::Format::format(val, f),
+                Self::NrstoGpio5Control(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -10420,6 +10663,11 @@ pub mod field_sets {
     impl From<Pwm1DutyCycleSettingY2> for FieldSetValue {
         fn from(val: Pwm1DutyCycleSettingY2) -> Self {
             Self::Pwm1DutyCycleSettingY2(val)
+        }
+    }
+    impl From<NrstoGpio5Control> for FieldSetValue {
+        fn from(val: NrstoGpio5Control) -> Self {
+            Self::NrstoGpio5Control(val)
         }
     }
 }
@@ -11768,6 +12016,70 @@ impl From<Gpio3FunctionSetting> for u8 {
             Gpio3FunctionSetting::NmosOpenDrainOutput => 1,
             Gpio3FunctionSetting::UniversalInput => 2,
             Gpio3FunctionSetting::AdcInput => 3,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum NrstoPinFunction {
+    ///Pin functions as N_RSTO (LDO1 status monitor).
+    NrstoLdo1Monitor = 0,
+    ///Pin functions as GPIO5 (universal I/O).
+    Gpio5 = 1,
+}
+impl core::convert::TryFrom<u8> for NrstoPinFunction {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::NrstoLdo1Monitor),
+            1 => Ok(Self::Gpio5),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "NrstoPinFunction",
+                })
+            }
+        }
+    }
+}
+impl From<NrstoPinFunction> for u8 {
+    fn from(val: NrstoPinFunction) -> Self {
+        match val {
+            NrstoPinFunction::NrstoLdo1Monitor => 0,
+            NrstoPinFunction::Gpio5 => 1,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Gpio5Direction {
+    ///GPIO5 configured as NMOS Open-Drain Output.
+    NmosOpenDrainOutput = 0,
+    ///GPIO5 configured as Universal Input.
+    UniversalInput = 1,
+}
+impl core::convert::TryFrom<u8> for Gpio5Direction {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::NmosOpenDrainOutput),
+            1 => Ok(Self::UniversalInput),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "Gpio5Direction",
+                })
+            }
+        }
+    }
+}
+impl From<Gpio5Direction> for u8 {
+    fn from(val: Gpio5Direction) -> Self {
+        match val {
+            Gpio5Direction::NmosOpenDrainOutput => 0,
+            Gpio5Direction::UniversalInput => 1,
         }
     }
 }
