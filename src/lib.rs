@@ -222,13 +222,13 @@ where
 {
     #[bisync(async_suffix = "async")]
     pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let adc_data_fieldset = self.ll.battery_voltage_adc().read().await?; // Changed to .read()
+        let adc_data_fieldset = self.ll.battery_voltage_adc().read().await?;
         Ok(adc_data_fieldset.value_raw() as f32 * 1.1)
     }
 
     #[bisync(async_suffix = "async")]
     pub async fn is_charging(&mut self) -> Result<bool, AxpError<I2CBusErr>> {
-        let status_fieldset = self.ll.power_status().read().await?; // Changed to .read()
+        let status_fieldset = self.ll.power_status().read().await?;
         // Assuming the generated enum is directly accessible via AxpLowLevel
         Ok(status_fieldset.battery_flow() == BatteryFlowDirection::Charging)
     }
@@ -241,12 +241,9 @@ where
     ) -> Result<(), AxpError<I2CBusErr>> {
         self.ll
             .power_output_control()
-            .modify(|r| {
-                // Changed to .modify()
-                match dc {
-                    DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
-                    DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
-                }
+            .modify(|r| match dc {
+                DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
+                DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
             })
             .await
     }
@@ -265,14 +262,14 @@ where
         match dc {
             DcId::Dcdc1 => {
                 self.ll
-                    .dc_dc_1_voltage_setting() // Changed to snake_case
-                    .modify(|r| r.set_voltage_setting(raw_setting)) // Changed to .modify()
+                    .dc_dc_1_voltage_setting()
+                    .modify(|r| r.set_voltage_setting(raw_setting))
                     .await
             }
             DcId::Dcdc3 => {
                 self.ll
-                    .dc_dc_3_voltage_setting() // Changed to snake_case
-                    .modify(|r| r.set_voltage_setting(raw_setting)) // Changed to .modify()
+                    .dc_dc_3_voltage_setting()
+                    .modify(|r| r.set_voltage_setting(raw_setting))
                     .await
             }
         }
