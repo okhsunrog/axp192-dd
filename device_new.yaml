@@ -404,3 +404,35 @@ ShutdownBatChgLedControl: # REG32H
       start: 0
       end: 2 # 2 bits
       description: "Shutdown delay after N_OE goes from low to high. Raw value: 00=0.5S, 01=1S, 10=2S, 11=3S."
+
+ChargeControl1: # REG33H
+  type: register
+  address: 0x33
+  size_bits: 8
+  access: RW
+  reset_value: 0xC8 # Default: Charging ON, Target 4.2V, End at 10% current, Current 780mA.
+  description: |
+    Controls primary charging parameters including enable state, target voltage,
+    charge termination current threshold, and internal path charge current.
+  fields:
+    charge_enable:
+      base: bool
+      start: 7
+      description: "Master charging function enable (true: enabled, false: disabled)."
+    charge_target_voltage_setting_raw: # Bits 6-5
+      base: uint
+      start: 5
+      end: 7 # 2 bits
+      description: "Charging target voltage. Raw: 00=4.1V, 01=4.15V, 10=4.2V (default), 11=4.36V."
+    charge_end_current_threshold_is_15_percent: # Bit 4
+      base: bool
+      start: 4
+      description: "Charge termination current threshold (true: 15% of set charge current, false: 10% of set charge current (default))."
+    internal_charge_current_setting_raw: # Bits 3-0
+      base: uint
+      start: 0
+      end: 4 # 4 bits
+      description: |
+        Internal path charging current setting. Raw value maps to mA:
+        0000=100, 0001=190, 0010=280, 0011=360, 0100=450, 0101=550, 0110=630, 0111=700,
+        1000=780 (default), 1001=880, 1010=960, 1011=1000, 1100=1080, 1101=1160, 1110=1240, 1111=1320mA.
