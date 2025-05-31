@@ -108,6 +108,28 @@ impl<I> Device<I> {
         callback(134 + 0 * 0, "gpio_1_adc_irq_rising_threshold", reg.into());
         let reg = self.gpio_1_adc_irq_falling_threshold().read()?;
         callback(135 + 0 * 0, "gpio_1_adc_irq_falling_threshold", reg.into());
+        let reg = self.timer_control().read()?;
+        callback(138 + 0 * 0, "timer_control", reg.into());
+        let reg = self.vbus_srp_control().read()?;
+        callback(139 + 0 * 0, "vbus_srp_control", reg.into());
+        let reg = self.over_temp_shutdown_control().read()?;
+        callback(143 + 0 * 0, "over_temp_shutdown_control", reg.into());
+        let reg = self.gpio_0_control().read()?;
+        callback(144 + 0 * 0, "gpio_0_control", reg.into());
+        let reg = self.gpio_0_ldo_voltage_setting().read()?;
+        callback(145 + 0 * 0, "gpio_0_ldo_voltage_setting", reg.into());
+        let reg = self.gpio_1_control().read()?;
+        callback(146 + 0 * 0, "gpio_1_control", reg.into());
+        let reg = self.gpio_2_control().read()?;
+        callback(147 + 0 * 0, "gpio_2_control", reg.into());
+        let reg = self.gpio_0_to_2_signal_status_and_control().read()?;
+        callback(148 + 0 * 0, "gpio_0_to_2_signal_status_and_control", reg.into());
+        let reg = self.gpio_3_and_4_function_control().read()?;
+        callback(149 + 0 * 0, "gpio_3_and_4_function_control", reg.into());
+        let reg = self.gpio_3_and_4_signal_status_and_control().read()?;
+        callback(150 + 0 * 0, "gpio_3_and_4_signal_status_and_control", reg.into());
+        let reg = self.gpio_0_to_2_pulldown_control().read()?;
+        callback(151 + 0 * 0, "gpio_0_to_2_pulldown_control", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -204,6 +226,28 @@ impl<I> Device<I> {
         callback(134 + 0 * 0, "gpio_1_adc_irq_rising_threshold", reg.into());
         let reg = self.gpio_1_adc_irq_falling_threshold().read_async().await?;
         callback(135 + 0 * 0, "gpio_1_adc_irq_falling_threshold", reg.into());
+        let reg = self.timer_control().read_async().await?;
+        callback(138 + 0 * 0, "timer_control", reg.into());
+        let reg = self.vbus_srp_control().read_async().await?;
+        callback(139 + 0 * 0, "vbus_srp_control", reg.into());
+        let reg = self.over_temp_shutdown_control().read_async().await?;
+        callback(143 + 0 * 0, "over_temp_shutdown_control", reg.into());
+        let reg = self.gpio_0_control().read_async().await?;
+        callback(144 + 0 * 0, "gpio_0_control", reg.into());
+        let reg = self.gpio_0_ldo_voltage_setting().read_async().await?;
+        callback(145 + 0 * 0, "gpio_0_ldo_voltage_setting", reg.into());
+        let reg = self.gpio_1_control().read_async().await?;
+        callback(146 + 0 * 0, "gpio_1_control", reg.into());
+        let reg = self.gpio_2_control().read_async().await?;
+        callback(147 + 0 * 0, "gpio_2_control", reg.into());
+        let reg = self.gpio_0_to_2_signal_status_and_control().read_async().await?;
+        callback(148 + 0 * 0, "gpio_0_to_2_signal_status_and_control", reg.into());
+        let reg = self.gpio_3_and_4_function_control().read_async().await?;
+        callback(149 + 0 * 0, "gpio_3_and_4_function_control", reg.into());
+        let reg = self.gpio_3_and_4_signal_status_and_control().read_async().await?;
+        callback(150 + 0 * 0, "gpio_3_and_4_signal_status_and_control", reg.into());
+        let reg = self.gpio_0_to_2_pulldown_control().read_async().await?;
+        callback(151 + 0 * 0, "gpio_0_to_2_pulldown_control", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1017,6 +1061,229 @@ impl<I> Device<I> {
             address as u8,
             field_sets::Gpio1AdcIrqFallingThreshold::new,
         )
+    }
+    ///Controls an internal timer, sets its duration, and indicates timeout status.
+    pub fn timer_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::TimerControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 138;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::TimerControl,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::TimerControl::new)
+    }
+    ///Controls VBUS pin monitoring for Session Request Protocol (SRP) related functions, including valid voltage threshold and SRP feature enables.
+    pub fn vbus_srp_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::VbusSrpControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 139;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::VbusSrpControl,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::VbusSrpControl::new)
+    }
+    ///Controls the AXP192 internal over-temperature shutdown function. Other bits are reserved.
+    pub fn over_temp_shutdown_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::OverTempShutdownControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 143;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::OverTempShutdownControl,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::OverTempShutdownControl::new)
+    }
+    ///Configures the function of the GPIO0 pin.
+    pub fn gpio_0_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio0Control,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 144;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio0Control,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Gpio0Control::new)
+    }
+    ///Sets the output voltage for GPIO0 when it is configured in Low Noise LDO (LDOIO0) mode (via REG90H).
+    pub fn gpio_0_ldo_voltage_setting(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio0LdoVoltageSetting,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 145;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio0LdoVoltageSetting,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Gpio0LdoVoltageSetting::new)
+    }
+    ///Configures the function of the GPIO1 pin.
+    pub fn gpio_1_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio1Control,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 146;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio1Control,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Gpio1Control::new)
+    }
+    ///Configures the function of the GPIO2 pin.
+    pub fn gpio_2_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio2Control,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 147;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio2Control,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Gpio2Control::new)
+    }
+    ///Monitors input status for GPIO0-GPIO2 and controls their output levels
+    ///when configured as NMOS open-drain or output low.
+    pub fn gpio_0_to_2_signal_status_and_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio0To2SignalStatusAndControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 148;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio0To2SignalStatusAndControl,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::Gpio0To2SignalStatusAndControl::new,
+        )
+    }
+    ///Configures the function for GPIO3 and GPIO4 pins, and enables their GPIO mode.
+    pub fn gpio_3_and_4_function_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio3And4FunctionControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 149;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio3And4FunctionControl,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::Gpio3And4FunctionControl::new,
+        )
+    }
+    ///Monitors input status for GPIO3-GPIO4 and controls their output levels
+    ///when configured as NMOS open-drain or output low.
+    pub fn gpio_3_and_4_signal_status_and_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio3And4SignalStatusAndControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 150;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio3And4SignalStatusAndControl,
+            ::device_driver::RW,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::Gpio3And4SignalStatusAndControl::new,
+        )
+    }
+    ///Controls internal pull-down resistors for GPIO0, GPIO1, and GPIO2 when they are configured as inputs.
+    pub fn gpio_0_to_2_pulldown_control(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::Gpio0To2PulldownControl,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 151;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::Gpio0To2PulldownControl,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::Gpio0To2PulldownControl::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -7154,6 +7421,1980 @@ pub mod field_sets {
             self
         }
     }
+    ///Controls an internal timer, sets its duration, and indicates timeout status.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct TimerControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for TimerControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl TimerControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `timeout_flag` field of the register.
+        ///
+        ///Timer timeout status flag (true: timed out, false: not timed out or cleared). Write 1 to clear this flag (while preserving other bits).
+        pub fn timeout_flag(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `duration_minutes` field of the register.
+        ///
+        ///Timer duration in minutes (0-127). Writing 0 disables the timer.
+        pub fn duration_minutes(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 7)
+            };
+            raw
+        }
+        ///Write the `timeout_flag` field of the register.
+        ///
+        ///Timer timeout status flag (true: timed out, false: not timed out or cleared). Write 1 to clear this flag (while preserving other bits).
+        pub fn set_timeout_flag(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `duration_minutes` field of the register.
+        ///
+        ///Timer duration in minutes (0-127). Writing 0 disables the timer.
+        pub fn set_duration_minutes(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 7, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for TimerControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<TimerControl> for [u8; 1] {
+        fn from(val: TimerControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for TimerControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("TimerControl");
+            {
+                d.field("timeout_flag", &self.timeout_flag());
+            }
+            {
+                d.field("duration_minutes", &self.duration_minutes());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for TimerControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "TimerControl { ");
+            defmt::write!(f, "timeout_flag: {=bool}, ", &self.timeout_flag());
+            defmt::write!(f, "duration_minutes: {=u8}, ", &self.duration_minutes());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for TimerControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for TimerControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for TimerControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for TimerControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for TimerControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for TimerControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for TimerControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Controls VBUS pin monitoring for Session Request Protocol (SRP) related functions, including valid voltage threshold and SRP feature enables.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct VbusSrpControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for VbusSrpControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl VbusSrpControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `vbus_valid_threshold` field of the register.
+        ///
+        ///Threshold voltage for considering VBUS as valid.
+        pub fn vbus_valid_threshold(&self) -> super::VbusValidThresholdValue {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 6)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Read the `vbus_valid_detection_enable` field of the register.
+        ///
+        ///VBUS Valid detection function (true: enabled, false: disabled).
+        pub fn vbus_valid_detection_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_session_detection_enable` field of the register.
+        ///
+        ///VBUS Session detection function (true: enabled, false: disabled).
+        pub fn vbus_session_detection_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_discharge_enable` field of the register.
+        ///
+        ///Enable VBUS discharge path (true: enabled, false: disabled).
+        pub fn vbus_discharge_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_charge_srp_enable` field of the register.
+        ///
+        ///Enable VBUS charge path for SRP (true: enabled, false: disabled).
+        pub fn vbus_charge_srp_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `vbus_valid_threshold` field of the register.
+        ///
+        ///Threshold voltage for considering VBUS as valid.
+        pub fn set_vbus_valid_threshold(
+            &mut self,
+            value: super::VbusValidThresholdValue,
+        ) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 6, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_valid_detection_enable` field of the register.
+        ///
+        ///VBUS Valid detection function (true: enabled, false: disabled).
+        pub fn set_vbus_valid_detection_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_session_detection_enable` field of the register.
+        ///
+        ///VBUS Session detection function (true: enabled, false: disabled).
+        pub fn set_vbus_session_detection_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_discharge_enable` field of the register.
+        ///
+        ///Enable VBUS discharge path (true: enabled, false: disabled).
+        pub fn set_vbus_discharge_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_charge_srp_enable` field of the register.
+        ///
+        ///Enable VBUS charge path for SRP (true: enabled, false: disabled).
+        pub fn set_vbus_charge_srp_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for VbusSrpControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<VbusSrpControl> for [u8; 1] {
+        fn from(val: VbusSrpControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for VbusSrpControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("VbusSrpControl");
+            {
+                d.field("vbus_valid_threshold", &self.vbus_valid_threshold());
+            }
+            {
+                d.field(
+                    "vbus_valid_detection_enable",
+                    &self.vbus_valid_detection_enable(),
+                );
+            }
+            {
+                d.field(
+                    "vbus_session_detection_enable",
+                    &self.vbus_session_detection_enable(),
+                );
+            }
+            {
+                d.field("vbus_discharge_enable", &self.vbus_discharge_enable());
+            }
+            {
+                d.field("vbus_charge_srp_enable", &self.vbus_charge_srp_enable());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for VbusSrpControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "VbusSrpControl { ");
+            defmt::write!(f, "vbus_valid_threshold: {}, ", &self.vbus_valid_threshold());
+            defmt::write!(
+                f,
+                "vbus_valid_detection_enable: {=bool}, ",
+                &self.vbus_valid_detection_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_session_detection_enable: {=bool}, ",
+                &self.vbus_session_detection_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_discharge_enable: {=bool}, ",
+                &self.vbus_discharge_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_charge_srp_enable: {=bool}, ",
+                &self.vbus_charge_srp_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for VbusSrpControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for VbusSrpControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for VbusSrpControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for VbusSrpControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for VbusSrpControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for VbusSrpControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for VbusSrpControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Controls the AXP192 internal over-temperature shutdown function. Other bits are reserved.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct OverTempShutdownControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for OverTempShutdownControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl OverTempShutdownControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [1] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `internal_over_temp_shutdown_enable` field of the register.
+        ///
+        ///AXP192 internal over-temperature shutdown function (true: enabled, device shuts down on OT; false: disabled).
+        pub fn internal_over_temp_shutdown_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Write the `internal_over_temp_shutdown_enable` field of the register.
+        ///
+        ///AXP192 internal over-temperature shutdown function (true: enabled, device shuts down on OT; false: disabled).
+        pub fn set_internal_over_temp_shutdown_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for OverTempShutdownControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<OverTempShutdownControl> for [u8; 1] {
+        fn from(val: OverTempShutdownControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for OverTempShutdownControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("OverTempShutdownControl");
+            {
+                d.field(
+                    "internal_over_temp_shutdown_enable",
+                    &self.internal_over_temp_shutdown_enable(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for OverTempShutdownControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "OverTempShutdownControl { ");
+            defmt::write!(
+                f,
+                "internal_over_temp_shutdown_enable: {=bool}, ",
+                &self.internal_over_temp_shutdown_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for OverTempShutdownControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for OverTempShutdownControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for OverTempShutdownControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for OverTempShutdownControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for OverTempShutdownControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for OverTempShutdownControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for OverTempShutdownControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Configures the function of the GPIO0 pin.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio0Control {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio0Control {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio0Control {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [7] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `function_select` field of the register.
+        ///
+        ///Selects the operating mode for the GPIO0 pin.
+        pub fn function_select(&self) -> super::Gpio0FunctionSelect {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 3)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Write the `function_select` field of the register.
+        ///
+        ///Selects the operating mode for the GPIO0 pin.
+        pub fn set_function_select(&mut self, value: super::Gpio0FunctionSelect) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 3, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio0Control {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio0Control> for [u8; 1] {
+        fn from(val: Gpio0Control) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio0Control {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio0Control");
+            {
+                d.field("function_select", &self.function_select());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio0Control {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio0Control { ");
+            defmt::write!(f, "function_select: {}, ", &self.function_select());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio0Control {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio0Control {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio0Control {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio0Control {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio0Control {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio0Control {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio0Control {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Sets the output voltage for GPIO0 when it is configured in Low Noise LDO (LDOIO0) mode (via REG90H).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio0LdoVoltageSetting {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio0LdoVoltageSetting {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio0LdoVoltageSetting {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [160] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `voltage_setting_raw` field of the register.
+        ///
+        ///Raw 4-bit setting for LDOIO0 output voltage (1.8V to 3.3V, 100mV/step). Active when GPIO0 is in LDO mode.
+        pub fn voltage_setting_raw(&self) -> u8 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 8)
+            };
+            raw
+        }
+        ///Write the `voltage_setting_raw` field of the register.
+        ///
+        ///Raw 4-bit setting for LDOIO0 output voltage (1.8V to 3.3V, 100mV/step). Active when GPIO0 is in LDO mode.
+        pub fn set_voltage_setting_raw(&mut self, value: u8) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 8, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio0LdoVoltageSetting {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio0LdoVoltageSetting> for [u8; 1] {
+        fn from(val: Gpio0LdoVoltageSetting) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio0LdoVoltageSetting {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio0LdoVoltageSetting");
+            {
+                d.field("voltage_setting_raw", &self.voltage_setting_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio0LdoVoltageSetting {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio0LdoVoltageSetting { ");
+            defmt::write!(
+                f,
+                "voltage_setting_raw: {=u8}, ",
+                &self.voltage_setting_raw(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio0LdoVoltageSetting {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio0LdoVoltageSetting {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio0LdoVoltageSetting {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio0LdoVoltageSetting {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio0LdoVoltageSetting {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio0LdoVoltageSetting {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio0LdoVoltageSetting {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Configures the function of the GPIO1 pin.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio1Control {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio1Control {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio1Control {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [7] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `function_select` field of the register.
+        ///
+        ///Selects the operating mode for the GPIO1 pin.
+        pub fn function_select(&self) -> super::Gpio1FunctionSelect {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 3)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Write the `function_select` field of the register.
+        ///
+        ///Selects the operating mode for the GPIO1 pin.
+        pub fn set_function_select(&mut self, value: super::Gpio1FunctionSelect) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 3, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio1Control {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio1Control> for [u8; 1] {
+        fn from(val: Gpio1Control) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio1Control {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio1Control");
+            {
+                d.field("function_select", &self.function_select());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio1Control {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio1Control { ");
+            defmt::write!(f, "function_select: {}, ", &self.function_select());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio1Control {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio1Control {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio1Control {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio1Control {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio1Control {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio1Control {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio1Control {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Configures the function of the GPIO2 pin.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio2Control {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio2Control {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio2Control {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [7] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `function_select` field of the register.
+        ///
+        ///Selects the operating mode for the GPIO2 pin.
+        pub fn function_select(&self) -> super::Gpio2FunctionSelect {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 3)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Write the `function_select` field of the register.
+        ///
+        ///Selects the operating mode for the GPIO2 pin.
+        pub fn set_function_select(&mut self, value: super::Gpio2FunctionSelect) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 3, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio2Control {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio2Control> for [u8; 1] {
+        fn from(val: Gpio2Control) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio2Control {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio2Control");
+            {
+                d.field("function_select", &self.function_select());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio2Control {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio2Control { ");
+            defmt::write!(f, "function_select: {}, ", &self.function_select());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio2Control {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio2Control {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio2Control {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio2Control {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio2Control {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio2Control {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio2Control {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Monitors input status for GPIO0-GPIO2 and controls their output levels
+    ///when configured as NMOS open-drain or output low.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio0To2SignalStatusAndControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio0To2SignalStatusAndControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio0To2SignalStatusAndControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `gpio_2_input_status` field of the register.
+        ///
+        ///Current input level of GPIO2 (true: high, false: low).
+        pub fn gpio_2_input_status(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_1_input_status` field of the register.
+        ///
+        ///Current input level of GPIO1 (true: high, false: low).
+        pub fn gpio_1_input_status(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_0_input_status` field of the register.
+        ///
+        ///Current input level of GPIO0 (true: high, false: low).
+        pub fn gpio_0_input_status(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_2_output_set_floating` field of the register.
+        ///
+        ///GPIO2 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO2 is in an output mode.
+        pub fn gpio_2_output_set_floating(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_1_output_set_floating` field of the register.
+        ///
+        ///GPIO1 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO1 is in an output mode.
+        pub fn gpio_1_output_set_floating(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_0_output_set_floating` field of the register.
+        ///
+        ///GPIO0 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO0 is in an output mode.
+        pub fn gpio_0_output_set_floating(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `gpio_2_output_set_floating` field of the register.
+        ///
+        ///GPIO2 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO2 is in an output mode.
+        pub fn set_gpio_2_output_set_floating(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_1_output_set_floating` field of the register.
+        ///
+        ///GPIO1 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO1 is in an output mode.
+        pub fn set_gpio_1_output_set_floating(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_0_output_set_floating` field of the register.
+        ///
+        ///GPIO0 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO0 is in an output mode.
+        pub fn set_gpio_0_output_set_floating(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio0To2SignalStatusAndControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio0To2SignalStatusAndControl> for [u8; 1] {
+        fn from(val: Gpio0To2SignalStatusAndControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio0To2SignalStatusAndControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio0To2SignalStatusAndControl");
+            {
+                d.field("gpio_2_input_status", &self.gpio_2_input_status());
+            }
+            {
+                d.field("gpio_1_input_status", &self.gpio_1_input_status());
+            }
+            {
+                d.field("gpio_0_input_status", &self.gpio_0_input_status());
+            }
+            {
+                d.field(
+                    "gpio_2_output_set_floating",
+                    &self.gpio_2_output_set_floating(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_1_output_set_floating",
+                    &self.gpio_1_output_set_floating(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_0_output_set_floating",
+                    &self.gpio_0_output_set_floating(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio0To2SignalStatusAndControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio0To2SignalStatusAndControl { ");
+            defmt::write!(
+                f,
+                "gpio_2_input_status: {=bool}, ",
+                &self.gpio_2_input_status(),
+            );
+            defmt::write!(
+                f,
+                "gpio_1_input_status: {=bool}, ",
+                &self.gpio_1_input_status(),
+            );
+            defmt::write!(
+                f,
+                "gpio_0_input_status: {=bool}, ",
+                &self.gpio_0_input_status(),
+            );
+            defmt::write!(
+                f,
+                "gpio_2_output_set_floating: {=bool}, ",
+                &self.gpio_2_output_set_floating(),
+            );
+            defmt::write!(
+                f,
+                "gpio_1_output_set_floating: {=bool}, ",
+                &self.gpio_1_output_set_floating(),
+            );
+            defmt::write!(
+                f,
+                "gpio_0_output_set_floating: {=bool}, ",
+                &self.gpio_0_output_set_floating(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio0To2SignalStatusAndControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio0To2SignalStatusAndControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio0To2SignalStatusAndControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio0To2SignalStatusAndControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio0To2SignalStatusAndControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio0To2SignalStatusAndControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio0To2SignalStatusAndControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Configures the function for GPIO3 and GPIO4 pins, and enables their GPIO mode.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio3And4FunctionControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio3And4FunctionControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio3And4FunctionControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `gpio_3_and_4_mode_enable` field of the register.
+        ///
+        ///Enable GPIO mode for GPIO3 and GPIO4 as set by their respective function_select fields (true: GPIO mode, false: alternative function/disabled).
+        pub fn gpio_3_and_4_mode_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_4_function_select` field of the register.
+        ///
+        ///Selects function for GPIO4 when gpio3_and_4_mode_enable is true.
+        pub fn gpio_4_function_select(
+            &self,
+        ) -> Result<
+            super::Gpio4FunctionSetting,
+            <super::Gpio4FunctionSetting as TryFrom<u8>>::Error,
+        > {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 4)
+            };
+            raw.try_into()
+        }
+        ///Read the `gpio_3_function_select` field of the register.
+        ///
+        ///Selects function for GPIO3 when gpio3_and_4_mode_enable is true.
+        pub fn gpio_3_function_select(&self) -> super::Gpio3FunctionSetting {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 2)
+            };
+            unsafe { raw.try_into().unwrap_unchecked() }
+        }
+        ///Write the `gpio_3_and_4_mode_enable` field of the register.
+        ///
+        ///Enable GPIO mode for GPIO3 and GPIO4 as set by their respective function_select fields (true: GPIO mode, false: alternative function/disabled).
+        pub fn set_gpio_3_and_4_mode_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_4_function_select` field of the register.
+        ///
+        ///Selects function for GPIO4 when gpio3_and_4_mode_enable is true.
+        pub fn set_gpio_4_function_select(
+            &mut self,
+            value: super::Gpio4FunctionSetting,
+        ) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 4, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_3_function_select` field of the register.
+        ///
+        ///Selects function for GPIO3 when gpio3_and_4_mode_enable is true.
+        pub fn set_gpio_3_function_select(
+            &mut self,
+            value: super::Gpio3FunctionSetting,
+        ) {
+            let raw = value.into();
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 2, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio3And4FunctionControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio3And4FunctionControl> for [u8; 1] {
+        fn from(val: Gpio3And4FunctionControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio3And4FunctionControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio3And4FunctionControl");
+            {
+                d.field("gpio_3_and_4_mode_enable", &self.gpio_3_and_4_mode_enable());
+            }
+            {
+                d.field("gpio_4_function_select", &self.gpio_4_function_select());
+            }
+            {
+                d.field("gpio_3_function_select", &self.gpio_3_function_select());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio3And4FunctionControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio3And4FunctionControl { ");
+            defmt::write!(
+                f,
+                "gpio_3_and_4_mode_enable: {=bool}, ",
+                &self.gpio_3_and_4_mode_enable(),
+            );
+            defmt::write!(
+                f,
+                "gpio_4_function_select: {}, ",
+                &self.gpio_4_function_select(),
+            );
+            defmt::write!(
+                f,
+                "gpio_3_function_select: {}, ",
+                &self.gpio_3_function_select(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio3And4FunctionControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio3And4FunctionControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio3And4FunctionControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio3And4FunctionControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio3And4FunctionControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio3And4FunctionControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio3And4FunctionControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Monitors input status for GPIO3-GPIO4 and controls their output levels
+    ///when configured as NMOS open-drain or output low.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio3And4SignalStatusAndControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio3And4SignalStatusAndControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio3And4SignalStatusAndControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `gpio_4_input_status` field of the register.
+        ///
+        ///Current input level of GPIO4 (true: high, false: low).
+        pub fn gpio_4_input_status(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_3_input_status` field of the register.
+        ///
+        ///Current input level of GPIO3 (true: high, false: low).
+        pub fn gpio_3_input_status(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_4_output_set_floating` field of the register.
+        ///
+        ///GPIO4 output level control (true: set output floating/NMOS off, false: set output low/NMOS on).
+        pub fn gpio_4_output_set_floating(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_3_output_set_floating` field of the register.
+        ///
+        ///GPIO3 output level control (true: set output floating/NMOS off, false: set output low/NMOS on).
+        pub fn gpio_3_output_set_floating(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `gpio_4_output_set_floating` field of the register.
+        ///
+        ///GPIO4 output level control (true: set output floating/NMOS off, false: set output low/NMOS on).
+        pub fn set_gpio_4_output_set_floating(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_3_output_set_floating` field of the register.
+        ///
+        ///GPIO3 output level control (true: set output floating/NMOS off, false: set output low/NMOS on).
+        pub fn set_gpio_3_output_set_floating(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio3And4SignalStatusAndControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio3And4SignalStatusAndControl> for [u8; 1] {
+        fn from(val: Gpio3And4SignalStatusAndControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio3And4SignalStatusAndControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio3And4SignalStatusAndControl");
+            {
+                d.field("gpio_4_input_status", &self.gpio_4_input_status());
+            }
+            {
+                d.field("gpio_3_input_status", &self.gpio_3_input_status());
+            }
+            {
+                d.field(
+                    "gpio_4_output_set_floating",
+                    &self.gpio_4_output_set_floating(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_3_output_set_floating",
+                    &self.gpio_3_output_set_floating(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio3And4SignalStatusAndControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio3And4SignalStatusAndControl { ");
+            defmt::write!(
+                f,
+                "gpio_4_input_status: {=bool}, ",
+                &self.gpio_4_input_status(),
+            );
+            defmt::write!(
+                f,
+                "gpio_3_input_status: {=bool}, ",
+                &self.gpio_3_input_status(),
+            );
+            defmt::write!(
+                f,
+                "gpio_4_output_set_floating: {=bool}, ",
+                &self.gpio_4_output_set_floating(),
+            );
+            defmt::write!(
+                f,
+                "gpio_3_output_set_floating: {=bool}, ",
+                &self.gpio_3_output_set_floating(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio3And4SignalStatusAndControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio3And4SignalStatusAndControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio3And4SignalStatusAndControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio3And4SignalStatusAndControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio3And4SignalStatusAndControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio3And4SignalStatusAndControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio3And4SignalStatusAndControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Controls internal pull-down resistors for GPIO0, GPIO1, and GPIO2 when they are configured as inputs.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct Gpio0To2PulldownControl {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for Gpio0To2PulldownControl {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl Gpio0To2PulldownControl {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `gpio_2_pulldown_enable` field of the register.
+        ///
+        ///GPIO2 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO2 is an input.
+        pub fn gpio_2_pulldown_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_1_pulldown_enable` field of the register.
+        ///
+        ///GPIO1 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO1 is an input.
+        pub fn gpio_1_pulldown_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_0_pulldown_enable` field of the register.
+        ///
+        ///GPIO0 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO0 is an input.
+        pub fn gpio_0_pulldown_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `gpio_2_pulldown_enable` field of the register.
+        ///
+        ///GPIO2 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO2 is an input.
+        pub fn set_gpio_2_pulldown_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_1_pulldown_enable` field of the register.
+        ///
+        ///GPIO1 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO1 is an input.
+        pub fn set_gpio_1_pulldown_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_0_pulldown_enable` field of the register.
+        ///
+        ///GPIO0 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO0 is an input.
+        pub fn set_gpio_0_pulldown_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for Gpio0To2PulldownControl {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<Gpio0To2PulldownControl> for [u8; 1] {
+        fn from(val: Gpio0To2PulldownControl) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for Gpio0To2PulldownControl {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("Gpio0To2PulldownControl");
+            {
+                d.field("gpio_2_pulldown_enable", &self.gpio_2_pulldown_enable());
+            }
+            {
+                d.field("gpio_1_pulldown_enable", &self.gpio_1_pulldown_enable());
+            }
+            {
+                d.field("gpio_0_pulldown_enable", &self.gpio_0_pulldown_enable());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for Gpio0To2PulldownControl {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "Gpio0To2PulldownControl { ");
+            defmt::write!(
+                f,
+                "gpio_2_pulldown_enable: {=bool}, ",
+                &self.gpio_2_pulldown_enable(),
+            );
+            defmt::write!(
+                f,
+                "gpio_1_pulldown_enable: {=bool}, ",
+                &self.gpio_1_pulldown_enable(),
+            );
+            defmt::write!(
+                f,
+                "gpio_0_pulldown_enable: {=bool}, ",
+                &self.gpio_0_pulldown_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for Gpio0To2PulldownControl {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for Gpio0To2PulldownControl {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for Gpio0To2PulldownControl {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for Gpio0To2PulldownControl {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for Gpio0To2PulldownControl {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for Gpio0To2PulldownControl {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for Gpio0To2PulldownControl {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -7257,6 +9498,30 @@ pub mod field_sets {
         ///Formula: Threshold Voltage (V) = raw_value * 0.008.
         ///Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
         Gpio1AdcIrqFallingThreshold(Gpio1AdcIrqFallingThreshold),
+        ///Controls an internal timer, sets its duration, and indicates timeout status.
+        TimerControl(TimerControl),
+        ///Controls VBUS pin monitoring for Session Request Protocol (SRP) related functions, including valid voltage threshold and SRP feature enables.
+        VbusSrpControl(VbusSrpControl),
+        ///Controls the AXP192 internal over-temperature shutdown function. Other bits are reserved.
+        OverTempShutdownControl(OverTempShutdownControl),
+        ///Configures the function of the GPIO0 pin.
+        Gpio0Control(Gpio0Control),
+        ///Sets the output voltage for GPIO0 when it is configured in Low Noise LDO (LDOIO0) mode (via REG90H).
+        Gpio0LdoVoltageSetting(Gpio0LdoVoltageSetting),
+        ///Configures the function of the GPIO1 pin.
+        Gpio1Control(Gpio1Control),
+        ///Configures the function of the GPIO2 pin.
+        Gpio2Control(Gpio2Control),
+        ///Monitors input status for GPIO0-GPIO2 and controls their output levels
+        ///when configured as NMOS open-drain or output low.
+        Gpio0To2SignalStatusAndControl(Gpio0To2SignalStatusAndControl),
+        ///Configures the function for GPIO3 and GPIO4 pins, and enables their GPIO mode.
+        Gpio3And4FunctionControl(Gpio3And4FunctionControl),
+        ///Monitors input status for GPIO3-GPIO4 and controls their output levels
+        ///when configured as NMOS open-drain or output low.
+        Gpio3And4SignalStatusAndControl(Gpio3And4SignalStatusAndControl),
+        ///Controls internal pull-down resistors for GPIO0, GPIO1, and GPIO2 when they are configured as inputs.
+        Gpio0To2PulldownControl(Gpio0To2PulldownControl),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -7298,6 +9563,21 @@ pub mod field_sets {
                 Self::GpioAdcInputRangeSetting(val) => core::fmt::Debug::fmt(val, f),
                 Self::Gpio1AdcIrqRisingThreshold(val) => core::fmt::Debug::fmt(val, f),
                 Self::Gpio1AdcIrqFallingThreshold(val) => core::fmt::Debug::fmt(val, f),
+                Self::TimerControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::VbusSrpControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::OverTempShutdownControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio0Control(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio0LdoVoltageSetting(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio1Control(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio2Control(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio0To2SignalStatusAndControl(val) => {
+                    core::fmt::Debug::fmt(val, f)
+                }
+                Self::Gpio3And4FunctionControl(val) => core::fmt::Debug::fmt(val, f),
+                Self::Gpio3And4SignalStatusAndControl(val) => {
+                    core::fmt::Debug::fmt(val, f)
+                }
+                Self::Gpio0To2PulldownControl(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -7343,6 +9623,21 @@ pub mod field_sets {
                 Self::GpioAdcInputRangeSetting(val) => defmt::Format::format(val, f),
                 Self::Gpio1AdcIrqRisingThreshold(val) => defmt::Format::format(val, f),
                 Self::Gpio1AdcIrqFallingThreshold(val) => defmt::Format::format(val, f),
+                Self::TimerControl(val) => defmt::Format::format(val, f),
+                Self::VbusSrpControl(val) => defmt::Format::format(val, f),
+                Self::OverTempShutdownControl(val) => defmt::Format::format(val, f),
+                Self::Gpio0Control(val) => defmt::Format::format(val, f),
+                Self::Gpio0LdoVoltageSetting(val) => defmt::Format::format(val, f),
+                Self::Gpio1Control(val) => defmt::Format::format(val, f),
+                Self::Gpio2Control(val) => defmt::Format::format(val, f),
+                Self::Gpio0To2SignalStatusAndControl(val) => {
+                    defmt::Format::format(val, f)
+                }
+                Self::Gpio3And4FunctionControl(val) => defmt::Format::format(val, f),
+                Self::Gpio3And4SignalStatusAndControl(val) => {
+                    defmt::Format::format(val, f)
+                }
+                Self::Gpio0To2PulldownControl(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -7499,6 +9794,61 @@ pub mod field_sets {
     impl From<Gpio1AdcIrqFallingThreshold> for FieldSetValue {
         fn from(val: Gpio1AdcIrqFallingThreshold) -> Self {
             Self::Gpio1AdcIrqFallingThreshold(val)
+        }
+    }
+    impl From<TimerControl> for FieldSetValue {
+        fn from(val: TimerControl) -> Self {
+            Self::TimerControl(val)
+        }
+    }
+    impl From<VbusSrpControl> for FieldSetValue {
+        fn from(val: VbusSrpControl) -> Self {
+            Self::VbusSrpControl(val)
+        }
+    }
+    impl From<OverTempShutdownControl> for FieldSetValue {
+        fn from(val: OverTempShutdownControl) -> Self {
+            Self::OverTempShutdownControl(val)
+        }
+    }
+    impl From<Gpio0Control> for FieldSetValue {
+        fn from(val: Gpio0Control) -> Self {
+            Self::Gpio0Control(val)
+        }
+    }
+    impl From<Gpio0LdoVoltageSetting> for FieldSetValue {
+        fn from(val: Gpio0LdoVoltageSetting) -> Self {
+            Self::Gpio0LdoVoltageSetting(val)
+        }
+    }
+    impl From<Gpio1Control> for FieldSetValue {
+        fn from(val: Gpio1Control) -> Self {
+            Self::Gpio1Control(val)
+        }
+    }
+    impl From<Gpio2Control> for FieldSetValue {
+        fn from(val: Gpio2Control) -> Self {
+            Self::Gpio2Control(val)
+        }
+    }
+    impl From<Gpio0To2SignalStatusAndControl> for FieldSetValue {
+        fn from(val: Gpio0To2SignalStatusAndControl) -> Self {
+            Self::Gpio0To2SignalStatusAndControl(val)
+        }
+    }
+    impl From<Gpio3And4FunctionControl> for FieldSetValue {
+        fn from(val: Gpio3And4FunctionControl) -> Self {
+            Self::Gpio3And4FunctionControl(val)
+        }
+    }
+    impl From<Gpio3And4SignalStatusAndControl> for FieldSetValue {
+        fn from(val: Gpio3And4SignalStatusAndControl) -> Self {
+            Self::Gpio3And4SignalStatusAndControl(val)
+        }
+    }
+    impl From<Gpio0To2PulldownControl> for FieldSetValue {
+        fn from(val: Gpio0To2PulldownControl) -> Self {
+            Self::Gpio0To2PulldownControl(val)
         }
     }
 }
@@ -8593,6 +10943,260 @@ impl From<GpioAdcRange> for u8 {
         match val {
             GpioAdcRange::Range00To20475V => 0,
             GpioAdcRange::Range07To27475V => 1,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum VbusValidThresholdValue {
+    ///4.00V threshold.
+    V400 = 0,
+    ///4.15V threshold.
+    V415 = 1,
+    ///4.45V threshold.
+    V445 = 2,
+    ///4.55V threshold.
+    V455 = 3,
+}
+impl core::convert::TryFrom<u8> for VbusValidThresholdValue {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::V400),
+            1 => Ok(Self::V415),
+            2 => Ok(Self::V445),
+            3 => Ok(Self::V455),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "VbusValidThresholdValue",
+                })
+            }
+        }
+    }
+}
+impl From<VbusValidThresholdValue> for u8 {
+    fn from(val: VbusValidThresholdValue) -> Self {
+        match val {
+            VbusValidThresholdValue::V400 => 0,
+            VbusValidThresholdValue::V415 => 1,
+            VbusValidThresholdValue::V445 => 2,
+            VbusValidThresholdValue::V455 => 3,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Gpio0FunctionSelect {
+    ///NMOS Open-Drain Output.
+    NmosOpenDrainOutput = 0,
+    ///Universal Input.
+    UniversalInput = 1,
+    ///Low Noise LDO (LDOIO0) Output.
+    LowNoiseLdoOutput = 2,
+    ///ADC Input.
+    AdcInput = 4,
+    ///Output Driven Low.
+    OutputLow = 5,
+    ///Floating (High-Impedance).
+    Floating = 6,
+}
+impl Default for Gpio0FunctionSelect {
+    fn default() -> Self {
+        Self::Floating
+    }
+}
+impl From<u8> for Gpio0FunctionSelect {
+    fn from(val: u8) -> Self {
+        match val {
+            0 => Self::NmosOpenDrainOutput,
+            1 => Self::UniversalInput,
+            2 => Self::LowNoiseLdoOutput,
+            4 => Self::AdcInput,
+            5 => Self::OutputLow,
+            _ => Self::default(),
+        }
+    }
+}
+impl From<Gpio0FunctionSelect> for u8 {
+    fn from(val: Gpio0FunctionSelect) -> Self {
+        match val {
+            Gpio0FunctionSelect::NmosOpenDrainOutput => 0,
+            Gpio0FunctionSelect::UniversalInput => 1,
+            Gpio0FunctionSelect::LowNoiseLdoOutput => 2,
+            Gpio0FunctionSelect::AdcInput => 4,
+            Gpio0FunctionSelect::OutputLow => 5,
+            Gpio0FunctionSelect::Floating => 6,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Gpio1FunctionSelect {
+    ///NMOS Open-Drain Output.
+    NmosOpenDrainOutput = 0,
+    ///Universal Input.
+    UniversalInput = 1,
+    ///PWM1 Output.
+    Pwm1Output = 2,
+    ///ADC Input.
+    AdcInput = 4,
+    ///Output Driven Low.
+    OutputLow = 5,
+    ///Floating (High-Impedance).
+    Floating = 6,
+}
+impl Default for Gpio1FunctionSelect {
+    fn default() -> Self {
+        Self::Floating
+    }
+}
+impl From<u8> for Gpio1FunctionSelect {
+    fn from(val: u8) -> Self {
+        match val {
+            0 => Self::NmosOpenDrainOutput,
+            1 => Self::UniversalInput,
+            2 => Self::Pwm1Output,
+            4 => Self::AdcInput,
+            5 => Self::OutputLow,
+            _ => Self::default(),
+        }
+    }
+}
+impl From<Gpio1FunctionSelect> for u8 {
+    fn from(val: Gpio1FunctionSelect) -> Self {
+        match val {
+            Gpio1FunctionSelect::NmosOpenDrainOutput => 0,
+            Gpio1FunctionSelect::UniversalInput => 1,
+            Gpio1FunctionSelect::Pwm1Output => 2,
+            Gpio1FunctionSelect::AdcInput => 4,
+            Gpio1FunctionSelect::OutputLow => 5,
+            Gpio1FunctionSelect::Floating => 6,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Gpio2FunctionSelect {
+    ///NMOS Open-Drain Output.
+    NmosOpenDrainOutput = 0,
+    ///Universal Input.
+    UniversalInput = 1,
+    ///PWM2 Output.
+    Pwm2Output = 2,
+    ///ADC Input.
+    AdcInput = 4,
+    ///Output Driven Low.
+    OutputLow = 5,
+    ///Floating (High-Impedance).
+    Floating = 6,
+}
+impl Default for Gpio2FunctionSelect {
+    fn default() -> Self {
+        Self::Floating
+    }
+}
+impl From<u8> for Gpio2FunctionSelect {
+    fn from(val: u8) -> Self {
+        match val {
+            0 => Self::NmosOpenDrainOutput,
+            1 => Self::UniversalInput,
+            2 => Self::Pwm2Output,
+            4 => Self::AdcInput,
+            5 => Self::OutputLow,
+            _ => Self::default(),
+        }
+    }
+}
+impl From<Gpio2FunctionSelect> for u8 {
+    fn from(val: Gpio2FunctionSelect) -> Self {
+        match val {
+            Gpio2FunctionSelect::NmosOpenDrainOutput => 0,
+            Gpio2FunctionSelect::UniversalInput => 1,
+            Gpio2FunctionSelect::Pwm2Output => 2,
+            Gpio2FunctionSelect::AdcInput => 4,
+            Gpio2FunctionSelect::OutputLow => 5,
+            Gpio2FunctionSelect::Floating => 6,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Gpio4FunctionSetting {
+    ///External Charge Control.
+    ExternalChargeControl = 0,
+    ///NMOS Open-Drain Output.
+    NmosOpenDrainOutput = 1,
+    ///Universal Input.
+    UniversalInput = 2,
+}
+impl core::convert::TryFrom<u8> for Gpio4FunctionSetting {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::ExternalChargeControl),
+            1 => Ok(Self::NmosOpenDrainOutput),
+            2 => Ok(Self::UniversalInput),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "Gpio4FunctionSetting",
+                })
+            }
+        }
+    }
+}
+impl From<Gpio4FunctionSetting> for u8 {
+    fn from(val: Gpio4FunctionSetting) -> Self {
+        match val {
+            Gpio4FunctionSetting::ExternalChargeControl => 0,
+            Gpio4FunctionSetting::NmosOpenDrainOutput => 1,
+            Gpio4FunctionSetting::UniversalInput => 2,
+        }
+    }
+}
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum Gpio3FunctionSetting {
+    ///External Charge Control.
+    ExternalChargeControl = 0,
+    ///NMOS Open-Drain Output.
+    NmosOpenDrainOutput = 1,
+    ///Universal Input.
+    UniversalInput = 2,
+    ///ADC Input.
+    AdcInput = 3,
+}
+impl core::convert::TryFrom<u8> for Gpio3FunctionSetting {
+    type Error = ::device_driver::ConversionError<u8>;
+    fn try_from(val: u8) -> Result<Self, Self::Error> {
+        match val {
+            0 => Ok(Self::ExternalChargeControl),
+            1 => Ok(Self::NmosOpenDrainOutput),
+            2 => Ok(Self::UniversalInput),
+            3 => Ok(Self::AdcInput),
+            val => {
+                Err(::device_driver::ConversionError {
+                    source: val,
+                    target: "Gpio3FunctionSetting",
+                })
+            }
+        }
+    }
+}
+impl From<Gpio3FunctionSetting> for u8 {
+    fn from(val: Gpio3FunctionSetting) -> Self {
+        match val {
+            Gpio3FunctionSetting::ExternalChargeControl => 0,
+            Gpio3FunctionSetting::NmosOpenDrainOutput => 1,
+            Gpio3FunctionSetting::UniversalInput => 2,
+            Gpio3FunctionSetting::AdcInput => 3,
         }
     }
 }

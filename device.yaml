@@ -999,3 +999,296 @@ Gpio1AdcIrqFallingThreshold: # REG87H
       end: 8 # 8 bits
       description: "Raw 8-bit setting for the GPIO1 ADC IRQ falling edge threshold. 1 LSB = 8mV."
 
+TimerControl: # REG8AH
+  type: register
+  address: 0x8A
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default: Timer disabled, timeout flag clear.
+  description: "Controls an internal timer, sets its duration, and indicates timeout status."
+  fields:
+    timeout_flag: # Read to check status, write 1 to this bit position to clear.
+      base: bool
+      start: 7
+      description: "Timer timeout status flag (true: timed out, false: not timed out or cleared). Write 1 to clear this flag (while preserving other bits)."
+    duration_minutes:
+      base: uint
+      start: 0
+      end: 7 # 7 bits (0-6)
+      description: "Timer duration in minutes (0-127). Writing 0 disables the timer."
+
+VbusSrpControl: # REG8BH
+  type: register
+  address: 0x8B
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default: VBUS valid threshold 4.0V, all detection/SRP features disabled.
+  description: "Controls VBUS pin monitoring for Session Request Protocol (SRP) related functions, including valid voltage threshold and SRP feature enables."
+  fields:
+    # Bits 7-6 are reserved.
+    vbus_valid_threshold:
+      base: uint
+      start: 4
+      end: 6 # 2 bits
+      description: "Threshold voltage for considering VBUS as valid."
+      conversion:
+        name: VbusValidThresholdValue
+        V4_00: { value: 0b00, description: "4.00V threshold." } # Default
+        V4_15: { value: 0b01, description: "4.15V threshold." }
+        V4_45: { value: 0b10, description: "4.45V threshold." }
+        V4_55: { value: 0b11, description: "4.55V threshold." }
+    vbus_valid_detection_enable:
+      base: bool
+      start: 3
+      description: "VBUS Valid detection function (true: enabled, false: disabled)."
+    vbus_session_detection_enable:
+      base: bool
+      start: 2
+      description: "VBUS Session detection function (true: enabled, false: disabled)."
+    vbus_discharge_enable:
+      base: bool
+      start: 1
+      description: "Enable VBUS discharge path (true: enabled, false: disabled)."
+    vbus_charge_srp_enable: # SRP-specific charge enable
+      base: bool
+      start: 0
+      description: "Enable VBUS charge path for SRP (true: enabled, false: disabled)."
+
+OverTempShutdownControl: # REG8FH
+  type: register
+  address: 0x8F
+  size_bits: 8
+  access: RW
+  reset_value: 0x01 # Datasheet default. Bit 2 (Internal OT Shutdown) is '0' from this.
+  description: "Controls the AXP192 internal over-temperature shutdown function. Other bits are reserved."
+  fields:
+    # Bits 7-3 are reserved.
+    internal_over_temp_shutdown_enable:
+      base: bool
+      start: 2
+      description: "AXP192 internal over-temperature shutdown function (true: enabled, device shuts down on OT; false: disabled)." # Default is false (0) from 0x01
+    # Bits 1-0 are reserved.
+
+Gpio0Control: # REG90H
+  type: register
+  address: 0x90
+  size_bits: 8
+  access: RW
+  reset_value: 0x07 # Default: GPIO0 function set to Floating (High-Z).
+  description: "Configures the function of the GPIO0 pin."
+  fields:
+    # Bits 7-3 are reserved.
+    function_select: # Renamed from gpio0_function for brevity
+      base: uint
+      start: 0
+      end: 3 # 3 bits (0, 1, 2)
+      description: "Selects the operating mode for the GPIO0 pin."
+      conversion:
+        name: Gpio0FunctionSelect
+        NmosOpenDrainOutput: { value: 0b000, description: "NMOS Open-Drain Output." }
+        UniversalInput:      { value: 0b001, description: "Universal Input." }
+        LowNoiseLdoOutput:   { value: 0b010, description: "Low Noise LDO (LDOIO0) Output." }
+        # 0b011 is Reserved - will map to Floating
+        AdcInput:            { value: 0b100, description: "ADC Input." }
+        OutputLow:           { value: 0b101, description: "Output Driven Low." }
+        # 0b110 and 0b111 are Floating
+        Floating:            { value: "default", description: "Floating (High-Impedance)." }
+
+Gpio0LdoVoltageSetting: # REG91H
+  type: register
+  address: 0x91
+  size_bits: 8
+  access: RW
+  reset_value: 0xA0 # Default: LDOIO0 voltage set to 2.8V.
+  description: "Sets the output voltage for GPIO0 when it is configured in Low Noise LDO (LDOIO0) mode (via REG90H)."
+  fields:
+    voltage_setting_raw: # Bits 7-4
+      base: uint
+      start: 4
+      end: 8 # 4 bits
+      description: "Raw 4-bit setting for LDOIO0 output voltage (1.8V to 3.3V, 100mV/step). Active when GPIO0 is in LDO mode."
+    # Bits 3-0 are reserved.
+
+Gpio1Control: # REG92H
+  type: register
+  address: 0x92
+  size_bits: 8
+  access: RW
+  reset_value: 0x07 # Default: GPIO1 function set to Floating (High-Z).
+  description: "Configures the function of the GPIO1 pin."
+  fields:
+    # Bits 7-3 are reserved.
+    function_select:
+      base: uint
+      start: 0
+      end: 3 # 3 bits
+      description: "Selects the operating mode for the GPIO1 pin."
+      conversion:
+        name: Gpio1FunctionSelect
+        NmosOpenDrainOutput: { value: 0b000, description: "NMOS Open-Drain Output." }
+        UniversalInput:      { value: 0b001, description: "Universal Input." }
+        Pwm1Output:          { value: 0b010, description: "PWM1 Output." }
+        # 0b011 is Reserved - will map to Floating
+        AdcInput:            { value: 0b100, description: "ADC Input." }
+        OutputLow:           { value: 0b101, description: "Output Driven Low." }
+        # 0b110 and 0b111 (POR default) are Floating
+        Floating:            { value: "default", description: "Floating (High-Impedance)." }
+
+Gpio2Control: # REG93H
+  type: register
+  address: 0x93
+  size_bits: 8
+  access: RW
+  reset_value: 0x07 # Default: GPIO2 function set to Floating (High-Z).
+  description: "Configures the function of the GPIO2 pin."
+  fields:
+    # Bits 7-3 are reserved.
+    function_select:
+      base: uint
+      start: 0
+      end: 3 # 3 bits
+      description: "Selects the operating mode for the GPIO2 pin."
+      conversion:
+        name: Gpio2FunctionSelect
+        NmosOpenDrainOutput: { value: 0b000, description: "NMOS Open-Drain Output." }
+        UniversalInput:      { value: 0b001, description: "Universal Input." }
+        Pwm2Output:          { value: 0b010, description: "PWM2 Output." }
+        # 0b011 is Reserved - will map to Floating
+        AdcInput:            { value: 0b100, description: "ADC Input." }
+        OutputLow:           { value: 0b101, description: "Output Driven Low." }
+        # 0b110 and 0b111 (POR default) are Floating
+        Floating:            { value: "default", description: "Floating (High-Impedance)." }
+
+Gpio0To2SignalStatusAndControl: # REG94H
+  type: register
+  address: 0x94
+  size_bits: 8
+  access: RW # Register is R/W to allow setting output bits
+  reset_value: 0x00 # Default state for readable/writable bits
+  description: |
+    Monitors input status for GPIO0-GPIO2 and controls their output levels
+    when configured as NMOS open-drain or output low.
+  fields:
+    # Bit 7 is reserved.
+    gpio2_input_status:
+      base: bool
+      start: 6
+      access: RO # Read-Only field
+      description: "Current input level of GPIO2 (true: high, false: low)."
+    gpio1_input_status:
+      base: bool
+      start: 5
+      access: RO # Read-Only field
+      description: "Current input level of GPIO1 (true: high, false: low)."
+    gpio0_input_status:
+      base: bool
+      start: 4
+      access: RO # Read-Only field
+      description: "Current input level of GPIO0 (true: high, false: low)."
+    # Bit 3 is reserved.
+    gpio2_output_set_floating: # True to set floating, false to set low (when in output mode)
+      base: bool
+      start: 2
+      access: RW # Writable, reading might not reflect actual if input mode
+      description: "GPIO2 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO2 is in an output mode."
+    gpio1_output_set_floating:
+      base: bool
+      start: 1
+      access: RW
+      description: "GPIO1 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO1 is in an output mode."
+    gpio0_output_set_floating:
+      base: bool
+      start: 0
+      access: RW
+      description: "GPIO0 output level control (true: set output floating/NMOS off, false: set output low/NMOS on). Effective when GPIO0 is in an output mode."
+
+Gpio3And4FunctionControl: # REG95H
+  type: register
+  address: 0x95
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default: GPIO3/4 not in GPIO mode defined by bits 3-0; if enabled, default to ExtChargeControl.
+  description: "Configures the function for GPIO3 and GPIO4 pins, and enables their GPIO mode."
+  fields:
+    gpio3_and_4_mode_enable: # Bit 7
+      base: bool
+      start: 7
+      description: "Enable GPIO mode for GPIO3 and GPIO4 as set by their respective function_select fields (true: GPIO mode, false: alternative function/disabled)."
+    # Bits 6-4 are reserved.
+    gpio4_function_select:
+      base: uint
+      start: 2
+      end: 4 # 2 bits (2,3)
+      description: "Selects function for GPIO4 when gpio3_and_4_mode_enable is true."
+      try_conversion:
+        name: Gpio4FunctionSetting
+        ExternalChargeControl: { value: 0b00, description: "External Charge Control." } # Default raw
+        NmosOpenDrainOutput:   { value: 0b01, description: "NMOS Open-Drain Output." }
+        UniversalInput:        { value: 0b10, description: "Universal Input." }
+    gpio3_function_select:
+      base: uint
+      start: 0
+      end: 2 # 2 bits (0,1)
+      description: "Selects function for GPIO3 when gpio3_and_4_mode_enable is true."
+      conversion:
+        name: Gpio3FunctionSetting
+        ExternalChargeControl: { value: 0b00, description: "External Charge Control." } # Default raw
+        NmosOpenDrainOutput:   { value: 0b01, description: "NMOS Open-Drain Output." }
+        UniversalInput:        { value: 0b10, description: "Universal Input." }
+        AdcInput:              { value: 0b11, description: "ADC Input." }
+
+Gpio3And4SignalStatusAndControl: # REG96H
+  type: register
+  address: 0x96
+  size_bits: 8
+  access: RW
+  reset_value: 0x00
+  description: |
+    Monitors input status for GPIO3-GPIO4 and controls their output levels
+    when configured as NMOS open-drain or output low.
+  fields:
+    # Bits 7-6 are reserved.
+    gpio4_input_status:
+      base: bool
+      start: 5
+      access: RO
+      description: "Current input level of GPIO4 (true: high, false: low)."
+    gpio3_input_status:
+      base: bool
+      start: 4
+      access: RO
+      description: "Current input level of GPIO3 (true: high, false: low)."
+    # Bits 3-2 are reserved.
+    gpio4_output_set_floating:
+      base: bool
+      start: 1
+      access: RW # Writable
+      description: "GPIO4 output level control (true: set output floating/NMOS off, false: set output low/NMOS on)."
+    gpio3_output_set_floating:
+      base: bool
+      start: 0
+      access: RW # Writable
+      description: "GPIO3 output level control (true: set output floating/NMOS off, false: set output low/NMOS on)."
+
+Gpio0To2PulldownControl: # REG97H
+  type: register
+  address: 0x97
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default: All GPIO0-2 pull-downs disabled.
+  description: "Controls internal pull-down resistors for GPIO0, GPIO1, and GPIO2 when they are configured as inputs."
+  fields:
+    # Bits 7-3 are reserved.
+    gpio2_pulldown_enable:
+      base: bool
+      start: 2
+      description: "GPIO2 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO2 is an input."
+    gpio1_pulldown_enable:
+      base: bool
+      start: 1
+      description: "GPIO1 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO1 is an input."
+    gpio0_pulldown_enable:
+      base: bool
+      start: 0
+      description: "GPIO0 internal pull-down resistor (true: enabled, false: disabled). Effective when GPIO0 is an input."
+
