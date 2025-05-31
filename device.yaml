@@ -558,3 +558,222 @@ ChargeControl2: # REG34H
         Hours9: { value: 0b10, description: "9 hours timeout." }
         Hours10: { value: 0b11, description: "10 hours timeout." }
 
+BackupBatteryChargeControl: # REG35H
+  type: register
+  address: 0x35
+  size_bits: 8
+  access: RW
+  reset_value: 0x22 # Default: Charge OFF, Target 3.0V, Current 200uA.
+  description: "Controls the charging parameters for the backup battery (RTC battery)."
+  fields:
+    backup_charge_enable:
+      base: bool
+      start: 7
+      description: "Backup battery charging function (true: enabled, false: disabled)." # Default: false
+    backup_target_voltage:
+      base: uint
+      start: 5
+      end: 7 # 2 bits (5, 6)
+      description: "Target voltage for backup battery charging."
+      conversion:
+        name: BackupTargetVoltageValue
+        V3_1:  { value: 0b00, description: "3.1V target." }
+        V3_0:  { value: 0b01, description: "3.0V target." } # Default 
+        V3_0_Alt: { value: 0b10, description: "3.0V target (alternative?)." }
+        V2_5:  { value: 0b11, description: "2.5V target." }
+    # Bits 4-2 are reserved.
+    backup_charge_current:
+      base: uint
+      start: 0
+      end: 2 # 2 bits (0, 1)
+      description: "Charging current for backup battery."
+      conversion:
+        name: BackupChargeCurrentValue
+        UA50:  { value: 0b00, description: "50uA charge current." }
+        UA100: { value: 0b01, description: "100uA charge current." }
+        UA200: { value: 0b10, description: "200uA charge current." } # Default
+        UA400: { value: 0b11, description: "400uA charge current." }
+
+PekKeyParameters: # REG36H
+  type: register
+  address: 0x36
+  size_bits: 8
+  access: RW
+  reset_value: 0x5D # Default: PON=512ms, LongPress=1.5s, AutoOff=ON, PWROK_delay=64ms, POFF=6s.
+  description: "Configures parameters related to the PEK (Power Enable Key/Button) operations."
+  fields:
+    power_on_time:
+      base: uint
+      start: 6
+      end: 8 # 2 bits
+      description: "PEK press duration required for power-on."
+      conversion:
+        name: PekPowerOnTime
+        Ms128: { value: 0b00, description: "128ms" }
+        Ms512: { value: 0b01, description: "512ms" } # Default
+        S1:    { value: 0b10, description: "1 Second" }
+        S2:    { value: 0b11, description: "2 Seconds" }
+    long_press_time:
+      base: uint
+      start: 4
+      end: 6 # 2 bits
+      description: "PEK long press detection time."
+      conversion:
+        name: PekLongPressTime
+        S1_0: { value: 0b00, description: "1.0 Second" }
+        S1_5: { value: 0b01, description: "1.5 Seconds" } # Default
+        S2_0: { value: 0b10, description: "2.0 Seconds" }
+        S2_5: { value: 0b11, description: "2.5 Seconds" }
+    auto_shutdown_if_pek_held_longer_than_shutdown_time:
+      base: bool
+      start: 3
+      description: "Auto-shutdown if PEK is held longer than the configured shutdown time (true: enabled, false: disabled)." # Default: true
+    pwrok_signal_delay:
+      base: uint # Base for enum
+      start: 2
+      end: 3 # 1 bit
+      description: "Delay for the PWROK signal after power-up sequence completion."
+      conversion:
+        name: PwrokSignalDelay
+        Ms32: { value: 0, description: "32ms delay." }
+        Ms64: { value: 1, description: "64ms delay." } # Default
+    shutdown_time:
+      base: uint
+      start: 0
+      end: 2 # 2 bits
+      description: "PEK press duration required for shutdown."
+      conversion:
+        name: PekShutdownTime
+        S4:  { value: 0b00, description: "4 Seconds" }
+        S6:  { value: 0b01, description: "6 Seconds" } # Default
+        S8:  { value: 0b10, description: "8 Seconds" }
+        S10: { value: 0b11, description: "10 Seconds" }
+
+DcDcOperatingFrequency: # REG37H
+  type: register
+  address: 0x37
+  size_bits: 8
+  access: RW
+  reset_value: 0x08 # Default for bits 3-0 is 1000B (decimal 8), which corresponds to 1.5MHz.
+  description: |
+    Sets the operating (switching) frequency for the DC-DC converters.
+    The 4-bit value (bits 0-3) adjusts the frequency around a default of 1.5MHz.
+    The raw value 0b1000 (decimal 8) corresponds to 1.5MHz.
+    Each step away from this default value changes the frequency by approximately 5% of 1.5MHz (75kHz).
+    Range approx 0.9MHz (raw 0) to 2.025MHz (raw 15).
+  fields:
+    # Bits 7-4 are reserved.
+    frequency_setting_raw:
+      base: uint
+      start: 0
+      end: 4 # 4 bits (0-3 inclusive)
+      description: "Raw 4-bit setting for DC-DC switching frequency. 0b1000 = 1.5MHz. Each LSB step is approx. +/- 5% of 1.5MHz."
+
+BatteryChargeLowTempThreshold: # REG38H
+  type: register
+  address: 0x38
+  size_bits: 8
+  access: RW
+  reset_value: 0xA5 # Default 0xA5 (165d) corresponds to a threshold voltage of 2.112V (on NTC pin).
+  description: |
+    Sets the low-temperature threshold (V_LTF_charge) for battery charging, typically read from an NTC thermistor.
+    If the NTC voltage rises above this threshold (indicating low temperature), charging may be suspended or modified.
+    Formula: Threshold Voltage (V) = raw_value * 0.0128.
+    Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
+  fields:
+    threshold_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for the low-temperature charge threshold voltage. See register description for formula."
+
+BatteryChargeHighTempThreshold: # REG39H
+  type: register
+  address: 0x39
+  size_bits: 8
+  access: RW
+  reset_value: 0x1F # Default 0x1F (31d) corresponds to a threshold voltage of approx 0.397V (on NTC pin).
+  description: |
+    Sets the high-temperature threshold (V_HTF_charge) for battery charging, typically read from an NTC thermistor.
+    If the NTC voltage falls below this threshold (indicating high temperature), charging may be suspended or modified.
+    Formula: Threshold Voltage (V) = raw_value * 0.0128.
+    Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
+  fields:
+    threshold_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for the high-temperature charge threshold voltage. See register description for formula."
+
+ApsLowPowerLevel1Setting: # REG3AH
+  type: register
+  address: 0x3A
+  size_bits: 8
+  access: RW
+  reset_value: 0x68 # Default 0x68 (104d) corresponds to V_WARNING1 approx 3.45V.
+  description: |
+    Sets the APS (Average Power Source voltage) low power warning Level 1 threshold.
+    An IRQ may be triggered if APS voltage drops below this level.
+    Formula: V_WARNING1 (V) = 2.8672 + (raw_value * 0.0014 * 4).
+    The raw_value is the 8-bit content of this register.
+  fields:
+    level_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for APS low power Level 1 threshold. See register description for formula."
+
+ApsLowPowerLevel2Setting: # REG3BH
+  type: register
+  address: 0x3B
+  size_bits: 8
+  access: RW
+  reset_value: 0x5F # Default 0x5F (95d) corresponds to V_WARNING2 approx 3.40V.
+  description: |
+    Sets the APS (Average Power Source voltage) low power warning Level 2 threshold.
+    Typically set lower than Level 1. An IRQ may be triggered if APS voltage drops below this level.
+    Formula: V_WARNING2 (V) = 2.8672 + (raw_value * 0.0014 * 4).
+    The raw_value is the 8-bit content of this register.
+  fields:
+    level_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for APS low power Level 2 threshold. See register description for formula."
+
+BatteryDischargeLowTempThreshold: # REG3CH
+  type: register
+  address: 0x3C
+  size_bits: 8
+  access: RW
+  reset_value: 0xFC # Default 0xFC (252d) corresponds to a threshold voltage of approx 3.226V (on NTC pin).
+  description: |
+    Sets the low-temperature threshold (V_LTF_discharge) for battery discharging, typically read from an NTC thermistor.
+    If the NTC voltage rises above this threshold (indicating low temperature), system behavior may be modified.
+    Formula: Threshold Voltage (V) = raw_value * 0.0128.
+    Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
+  fields:
+    threshold_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for the low-temperature discharge threshold voltage. See register description for formula."
+
+BatteryDischargeHighTempThreshold: # REG3DH
+  type: register
+  address: 0x3D
+  size_bits: 8
+  access: RW
+  reset_value: 0x16 # Default 0x16 (22d) corresponds to a threshold voltage of approx 0.282V (on NTC pin).
+  description: |
+    Sets the high-temperature threshold (V_HTF_discharge) for battery discharging, typically read from an NTC thermistor.
+    If the NTC voltage falls below this threshold (indicating high temperature), system behavior may be modified.
+    Formula: Threshold Voltage (V) = raw_value * 0.0128.
+    Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
+  fields:
+    threshold_setting_raw:
+      base: uint
+      start: 0
+      end: 8 # 8 bits
+      description: "Raw 8-bit setting for the high-temperature discharge threshold voltage. See register description for formula."
+
