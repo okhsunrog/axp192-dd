@@ -240,3 +240,24 @@ DcDc2VoltageSetting: # REG23H
       start: 0
       end: 6 # 6 bits (0 to 5 inclusive)
       description: "Raw 6-bit value for DC-DC2 output voltage setting. See register description for conversion formula."
+
+DcDc2VrcParameter: # REG25H
+  type: register
+  address: 0x25
+  size_bits: 8
+  access: RW
+  reset_value: 0x00 # Default: VRC enabled (bit 2=0), Rise slope 1.6mV/us (bit 0=0)
+  description: |
+    Configures parameters for DC-DC2 Dynamic Voltage Scaling / Voltage Ramp Control (VRC),
+    including VRC enable state and voltage rise slope.
+  fields:
+    # Bits 7-3 are reserved.
+    vrc_disabled: # Naming reflects the bit's meaning: true if VRC is disabled
+      base: bool
+      start: 2
+      description: "DC-DC2 VRC (Voltage Ramp Control) disable control (true: VRC disabled, false: VRC enabled). Note inverted logic."
+    # Bit 1 is reserved.
+    vrc_rise_slope_is_0_8mv_us: # Naming reflects the bit's meaning for true state
+      base: bool
+      start: 0
+      description: "DC-DC2 VRC voltage rise slope (true: 0.8mV/us (25mV/31.25us), false: 1.6mV/us (25mV/15.625us))."
