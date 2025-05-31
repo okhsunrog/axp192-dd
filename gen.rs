@@ -144,6 +144,16 @@ impl<I> Device<I> {
         callback(157 + 0 * 0, "pwm_2_duty_cycle_setting_y_2", reg.into());
         let reg = self.nrsto_gpio_5_control().read()?;
         callback(158 + 0 * 0, "nrsto_gpio_5_control", reg.into());
+        let reg = self.irq_enable_control_1().read()?;
+        callback(64 + 0 * 0, "irq_enable_control_1", reg.into());
+        let reg = self.irq_enable_control_2().read()?;
+        callback(65 + 0 * 0, "irq_enable_control_2", reg.into());
+        let reg = self.irq_enable_control_3().read()?;
+        callback(66 + 0 * 0, "irq_enable_control_3", reg.into());
+        let reg = self.irq_enable_control_4().read()?;
+        callback(67 + 0 * 0, "irq_enable_control_4", reg.into());
+        let reg = self.irq_enable_control_5().read()?;
+        callback(74 + 0 * 0, "irq_enable_control_5", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -276,6 +286,16 @@ impl<I> Device<I> {
         callback(157 + 0 * 0, "pwm_2_duty_cycle_setting_y_2", reg.into());
         let reg = self.nrsto_gpio_5_control().read_async().await?;
         callback(158 + 0 * 0, "nrsto_gpio_5_control", reg.into());
+        let reg = self.irq_enable_control_1().read_async().await?;
+        callback(64 + 0 * 0, "irq_enable_control_1", reg.into());
+        let reg = self.irq_enable_control_2().read_async().await?;
+        callback(65 + 0 * 0, "irq_enable_control_2", reg.into());
+        let reg = self.irq_enable_control_3().read_async().await?;
+        callback(66 + 0 * 0, "irq_enable_control_3", reg.into());
+        let reg = self.irq_enable_control_4().read_async().await?;
+        callback(67 + 0 * 0, "irq_enable_control_4", reg.into());
+        let reg = self.irq_enable_control_5().read_async().await?;
+        callback(74 + 0 * 0, "irq_enable_control_5", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1454,6 +1474,101 @@ impl<I> Device<I> {
             field_sets::NrstoGpio5Control,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::NrstoGpio5Control::new)
+    }
+    ///Interrupt Enable Control Register 1 (ACIN and VBUS related IRQs).
+    pub fn irq_enable_control_1(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqEnableControl1,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 64;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqEnableControl1,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqEnableControl1::new)
+    }
+    ///Interrupt Enable Control Register 2 (Battery and Charge related IRQs).
+    pub fn irq_enable_control_2(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqEnableControl2,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 65;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqEnableControl2,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqEnableControl2::new)
+    }
+    ///Interrupt Enable Control Register 3 (IC Temp, Charge Current, DCDC VLow, PEK IRQs).
+    pub fn irq_enable_control_3(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqEnableControl3,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 66;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqEnableControl3,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqEnableControl3::new)
+    }
+    ///Interrupt Enable Control Register 4 (N_OE and VBUS session/status related IRQs, APS Low Voltage).
+    pub fn irq_enable_control_4(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqEnableControl4,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 67;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqEnableControl4,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqEnableControl4::new)
+    }
+    ///Interrupt Enable Control Register 5 (Timer and GPIO Input Edge Trigger IRQs).
+    pub fn irq_enable_control_5(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::IrqEnableControl5,
+        ::device_driver::RW,
+    > {
+        let address = self.base_address + 74;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::IrqEnableControl5,
+            ::device_driver::RW,
+        >::new(self.interface(), address as u8, field_sets::IrqEnableControl5::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -10173,6 +10288,1635 @@ pub mod field_sets {
             self
         }
     }
+    ///Interrupt Enable Control Register 1 (ACIN and VBUS related IRQs).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqEnableControl1 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqEnableControl1 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqEnableControl1 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [216] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `acin_over_voltage_irq_enable` field of the register.
+        ///
+        ///ACIN over-voltage interrupt.
+        pub fn acin_over_voltage_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `acin_insertion_irq_enable` field of the register.
+        ///
+        ///ACIN insertion detection interrupt.
+        pub fn acin_insertion_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `acin_removal_irq_enable` field of the register.
+        ///
+        ///ACIN removal detection interrupt.
+        pub fn acin_removal_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_over_voltage_irq_enable` field of the register.
+        ///
+        ///VBUS over-voltage interrupt.
+        pub fn vbus_over_voltage_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_insertion_irq_enable` field of the register.
+        ///
+        ///VBUS insertion detection interrupt.
+        pub fn vbus_insertion_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_removal_irq_enable` field of the register.
+        ///
+        ///VBUS removal detection interrupt.
+        pub fn vbus_removal_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_less_than_vhold_irq_enable` field of the register.
+        ///
+        ///VBUS voltage less than VHOLD interrupt.
+        pub fn vbus_less_than_vhold_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Write the `acin_over_voltage_irq_enable` field of the register.
+        ///
+        ///ACIN over-voltage interrupt.
+        pub fn set_acin_over_voltage_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `acin_insertion_irq_enable` field of the register.
+        ///
+        ///ACIN insertion detection interrupt.
+        pub fn set_acin_insertion_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `acin_removal_irq_enable` field of the register.
+        ///
+        ///ACIN removal detection interrupt.
+        pub fn set_acin_removal_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_over_voltage_irq_enable` field of the register.
+        ///
+        ///VBUS over-voltage interrupt.
+        pub fn set_vbus_over_voltage_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_insertion_irq_enable` field of the register.
+        ///
+        ///VBUS insertion detection interrupt.
+        pub fn set_vbus_insertion_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_removal_irq_enable` field of the register.
+        ///
+        ///VBUS removal detection interrupt.
+        pub fn set_vbus_removal_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_less_than_vhold_irq_enable` field of the register.
+        ///
+        ///VBUS voltage less than VHOLD interrupt.
+        pub fn set_vbus_less_than_vhold_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqEnableControl1 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqEnableControl1> for [u8; 1] {
+        fn from(val: IrqEnableControl1) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqEnableControl1 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqEnableControl1");
+            {
+                d.field(
+                    "acin_over_voltage_irq_enable",
+                    &self.acin_over_voltage_irq_enable(),
+                );
+            }
+            {
+                d.field("acin_insertion_irq_enable", &self.acin_insertion_irq_enable());
+            }
+            {
+                d.field("acin_removal_irq_enable", &self.acin_removal_irq_enable());
+            }
+            {
+                d.field(
+                    "vbus_over_voltage_irq_enable",
+                    &self.vbus_over_voltage_irq_enable(),
+                );
+            }
+            {
+                d.field("vbus_insertion_irq_enable", &self.vbus_insertion_irq_enable());
+            }
+            {
+                d.field("vbus_removal_irq_enable", &self.vbus_removal_irq_enable());
+            }
+            {
+                d.field(
+                    "vbus_less_than_vhold_irq_enable",
+                    &self.vbus_less_than_vhold_irq_enable(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqEnableControl1 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqEnableControl1 { ");
+            defmt::write!(
+                f,
+                "acin_over_voltage_irq_enable: {=bool}, ",
+                &self.acin_over_voltage_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "acin_insertion_irq_enable: {=bool}, ",
+                &self.acin_insertion_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "acin_removal_irq_enable: {=bool}, ",
+                &self.acin_removal_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_over_voltage_irq_enable: {=bool}, ",
+                &self.vbus_over_voltage_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_insertion_irq_enable: {=bool}, ",
+                &self.vbus_insertion_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_removal_irq_enable: {=bool}, ",
+                &self.vbus_removal_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_less_than_vhold_irq_enable: {=bool}, ",
+                &self.vbus_less_than_vhold_irq_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqEnableControl1 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqEnableControl1 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqEnableControl1 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqEnableControl1 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqEnableControl1 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqEnableControl1 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqEnableControl1 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Enable Control Register 2 (Battery and Charge related IRQs).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqEnableControl2 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqEnableControl2 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqEnableControl2 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [255] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `battery_insertion_irq_enable` field of the register.
+        ///
+        ///Battery insertion interrupt.
+        pub fn battery_insertion_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `battery_removal_irq_enable` field of the register.
+        ///
+        ///Battery removal interrupt.
+        pub fn battery_removal_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `battery_activation_mode_entry_irq_enable` field of the register.
+        ///
+        ///Battery enters activation mode interrupt.
+        pub fn battery_activation_mode_entry_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `battery_activation_mode_exit_irq_enable` field of the register.
+        ///
+        ///Battery exits activation mode interrupt.
+        pub fn battery_activation_mode_exit_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `charging_irq_enable` field of the register.
+        ///
+        ///Charging started interrupt.
+        pub fn charging_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `charge_done_irq_enable` field of the register.
+        ///
+        ///Charge completion interrupt.
+        pub fn charge_done_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `battery_over_temp_irq_enable` field of the register.
+        ///
+        ///Battery over-temperature interrupt.
+        pub fn battery_over_temp_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `battery_under_temp_irq_enable` field of the register.
+        ///
+        ///Battery under-temperature interrupt.
+        pub fn battery_under_temp_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `battery_insertion_irq_enable` field of the register.
+        ///
+        ///Battery insertion interrupt.
+        pub fn set_battery_insertion_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `battery_removal_irq_enable` field of the register.
+        ///
+        ///Battery removal interrupt.
+        pub fn set_battery_removal_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `battery_activation_mode_entry_irq_enable` field of the register.
+        ///
+        ///Battery enters activation mode interrupt.
+        pub fn set_battery_activation_mode_entry_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `battery_activation_mode_exit_irq_enable` field of the register.
+        ///
+        ///Battery exits activation mode interrupt.
+        pub fn set_battery_activation_mode_exit_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `charging_irq_enable` field of the register.
+        ///
+        ///Charging started interrupt.
+        pub fn set_charging_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `charge_done_irq_enable` field of the register.
+        ///
+        ///Charge completion interrupt.
+        pub fn set_charge_done_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `battery_over_temp_irq_enable` field of the register.
+        ///
+        ///Battery over-temperature interrupt.
+        pub fn set_battery_over_temp_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `battery_under_temp_irq_enable` field of the register.
+        ///
+        ///Battery under-temperature interrupt.
+        pub fn set_battery_under_temp_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqEnableControl2 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqEnableControl2> for [u8; 1] {
+        fn from(val: IrqEnableControl2) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqEnableControl2 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqEnableControl2");
+            {
+                d.field(
+                    "battery_insertion_irq_enable",
+                    &self.battery_insertion_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "battery_removal_irq_enable",
+                    &self.battery_removal_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "battery_activation_mode_entry_irq_enable",
+                    &self.battery_activation_mode_entry_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "battery_activation_mode_exit_irq_enable",
+                    &self.battery_activation_mode_exit_irq_enable(),
+                );
+            }
+            {
+                d.field("charging_irq_enable", &self.charging_irq_enable());
+            }
+            {
+                d.field("charge_done_irq_enable", &self.charge_done_irq_enable());
+            }
+            {
+                d.field(
+                    "battery_over_temp_irq_enable",
+                    &self.battery_over_temp_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "battery_under_temp_irq_enable",
+                    &self.battery_under_temp_irq_enable(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqEnableControl2 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqEnableControl2 { ");
+            defmt::write!(
+                f,
+                "battery_insertion_irq_enable: {=bool}, ",
+                &self.battery_insertion_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "battery_removal_irq_enable: {=bool}, ",
+                &self.battery_removal_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "battery_activation_mode_entry_irq_enable: {=bool}, ",
+                &self.battery_activation_mode_entry_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "battery_activation_mode_exit_irq_enable: {=bool}, ",
+                &self.battery_activation_mode_exit_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "charging_irq_enable: {=bool}, ",
+                &self.charging_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "charge_done_irq_enable: {=bool}, ",
+                &self.charge_done_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "battery_over_temp_irq_enable: {=bool}, ",
+                &self.battery_over_temp_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "battery_under_temp_irq_enable: {=bool}, ",
+                &self.battery_under_temp_irq_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqEnableControl2 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqEnableControl2 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqEnableControl2 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqEnableControl2 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqEnableControl2 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqEnableControl2 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqEnableControl2 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Enable Control Register 3 (IC Temp, Charge Current, DCDC VLow, PEK IRQs).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqEnableControl3 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqEnableControl3 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqEnableControl3 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [59] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `internal_over_temp_irq_enable` field of the register.
+        ///
+        ///IC internal over-temperature interrupt.
+        pub fn internal_over_temp_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `charge_current_insufficient_irq_enable` field of the register.
+        ///
+        ///Charging current insufficient interrupt.
+        pub fn charge_current_insufficient_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `dcdc_1_voltage_low_irq_enable` field of the register.
+        ///
+        ///DC-DC1 output voltage low interrupt.
+        pub fn dcdc_1_voltage_low_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `dcdc_2_voltage_low_irq_enable` field of the register.
+        ///
+        ///DC-DC2 output voltage low interrupt.
+        pub fn dcdc_2_voltage_low_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `dcdc_3_voltage_low_irq_enable` field of the register.
+        ///
+        ///DC-DC3 output voltage low interrupt.
+        pub fn dcdc_3_voltage_low_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `pek_short_press_irq_enable` field of the register.
+        ///
+        ///PEK (Power Key) short press interrupt.
+        pub fn pek_short_press_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `pek_long_press_irq_enable` field of the register.
+        ///
+        ///PEK (Power Key) long press interrupt.
+        pub fn pek_long_press_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `internal_over_temp_irq_enable` field of the register.
+        ///
+        ///IC internal over-temperature interrupt.
+        pub fn set_internal_over_temp_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `charge_current_insufficient_irq_enable` field of the register.
+        ///
+        ///Charging current insufficient interrupt.
+        pub fn set_charge_current_insufficient_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `dcdc_1_voltage_low_irq_enable` field of the register.
+        ///
+        ///DC-DC1 output voltage low interrupt.
+        pub fn set_dcdc_1_voltage_low_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `dcdc_2_voltage_low_irq_enable` field of the register.
+        ///
+        ///DC-DC2 output voltage low interrupt.
+        pub fn set_dcdc_2_voltage_low_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `dcdc_3_voltage_low_irq_enable` field of the register.
+        ///
+        ///DC-DC3 output voltage low interrupt.
+        pub fn set_dcdc_3_voltage_low_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `pek_short_press_irq_enable` field of the register.
+        ///
+        ///PEK (Power Key) short press interrupt.
+        pub fn set_pek_short_press_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `pek_long_press_irq_enable` field of the register.
+        ///
+        ///PEK (Power Key) long press interrupt.
+        pub fn set_pek_long_press_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqEnableControl3 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqEnableControl3> for [u8; 1] {
+        fn from(val: IrqEnableControl3) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqEnableControl3 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqEnableControl3");
+            {
+                d.field(
+                    "internal_over_temp_irq_enable",
+                    &self.internal_over_temp_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "charge_current_insufficient_irq_enable",
+                    &self.charge_current_insufficient_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "dcdc_1_voltage_low_irq_enable",
+                    &self.dcdc_1_voltage_low_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "dcdc_2_voltage_low_irq_enable",
+                    &self.dcdc_2_voltage_low_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "dcdc_3_voltage_low_irq_enable",
+                    &self.dcdc_3_voltage_low_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "pek_short_press_irq_enable",
+                    &self.pek_short_press_irq_enable(),
+                );
+            }
+            {
+                d.field("pek_long_press_irq_enable", &self.pek_long_press_irq_enable());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqEnableControl3 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqEnableControl3 { ");
+            defmt::write!(
+                f,
+                "internal_over_temp_irq_enable: {=bool}, ",
+                &self.internal_over_temp_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "charge_current_insufficient_irq_enable: {=bool}, ",
+                &self.charge_current_insufficient_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "dcdc_1_voltage_low_irq_enable: {=bool}, ",
+                &self.dcdc_1_voltage_low_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "dcdc_2_voltage_low_irq_enable: {=bool}, ",
+                &self.dcdc_2_voltage_low_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "dcdc_3_voltage_low_irq_enable: {=bool}, ",
+                &self.dcdc_3_voltage_low_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "pek_short_press_irq_enable: {=bool}, ",
+                &self.pek_short_press_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "pek_long_press_irq_enable: {=bool}, ",
+                &self.pek_long_press_irq_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqEnableControl3 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqEnableControl3 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqEnableControl3 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqEnableControl3 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqEnableControl3 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqEnableControl3 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqEnableControl3 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Enable Control Register 4 (N_OE and VBUS session/status related IRQs, APS Low Voltage).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqEnableControl4 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqEnableControl4 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqEnableControl4 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [193] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `n_oe_power_on_irq_enable` field of the register.
+        ///
+        ///N_OE Power-on event interrupt.
+        pub fn n_oe_power_on_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `n_oe_power_off_irq_enable` field of the register.
+        ///
+        ///N_OE Power-off event interrupt.
+        pub fn n_oe_power_off_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 6, 7)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_valid_irq_enable` field of the register.
+        ///
+        ///VBUS valid event interrupt.
+        pub fn vbus_valid_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 5, 6)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_invalid_irq_enable` field of the register.
+        ///
+        ///VBUS invalid event interrupt.
+        pub fn vbus_invalid_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 4, 5)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_session_ab_irq_enable` field of the register.
+        ///
+        ///VBUS Session A/B valid event interrupt.
+        pub fn vbus_session_ab_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 3, 4)
+            };
+            raw > 0
+        }
+        ///Read the `vbus_session_end_irq_enable` field of the register.
+        ///
+        ///VBUS Session End event interrupt.
+        pub fn vbus_session_end_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `aps_low_voltage_level_2_irq_enable` field of the register.
+        ///
+        ///APS low voltage (Warning Level 2) interrupt.
+        pub fn aps_low_voltage_level_2_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `n_oe_power_on_irq_enable` field of the register.
+        ///
+        ///N_OE Power-on event interrupt.
+        pub fn set_n_oe_power_on_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `n_oe_power_off_irq_enable` field of the register.
+        ///
+        ///N_OE Power-off event interrupt.
+        pub fn set_n_oe_power_off_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 6, 7, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_valid_irq_enable` field of the register.
+        ///
+        ///VBUS valid event interrupt.
+        pub fn set_vbus_valid_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 5, 6, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_invalid_irq_enable` field of the register.
+        ///
+        ///VBUS invalid event interrupt.
+        pub fn set_vbus_invalid_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 4, 5, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_session_ab_irq_enable` field of the register.
+        ///
+        ///VBUS Session A/B valid event interrupt.
+        pub fn set_vbus_session_ab_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 3, 4, &mut self.bits)
+            };
+        }
+        ///Write the `vbus_session_end_irq_enable` field of the register.
+        ///
+        ///VBUS Session End event interrupt.
+        pub fn set_vbus_session_end_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `aps_low_voltage_level_2_irq_enable` field of the register.
+        ///
+        ///APS low voltage (Warning Level 2) interrupt.
+        pub fn set_aps_low_voltage_level_2_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqEnableControl4 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqEnableControl4> for [u8; 1] {
+        fn from(val: IrqEnableControl4) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqEnableControl4 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqEnableControl4");
+            {
+                d.field("n_oe_power_on_irq_enable", &self.n_oe_power_on_irq_enable());
+            }
+            {
+                d.field("n_oe_power_off_irq_enable", &self.n_oe_power_off_irq_enable());
+            }
+            {
+                d.field("vbus_valid_irq_enable", &self.vbus_valid_irq_enable());
+            }
+            {
+                d.field("vbus_invalid_irq_enable", &self.vbus_invalid_irq_enable());
+            }
+            {
+                d.field(
+                    "vbus_session_ab_irq_enable",
+                    &self.vbus_session_ab_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "vbus_session_end_irq_enable",
+                    &self.vbus_session_end_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "aps_low_voltage_level_2_irq_enable",
+                    &self.aps_low_voltage_level_2_irq_enable(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqEnableControl4 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqEnableControl4 { ");
+            defmt::write!(
+                f,
+                "n_oe_power_on_irq_enable: {=bool}, ",
+                &self.n_oe_power_on_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "n_oe_power_off_irq_enable: {=bool}, ",
+                &self.n_oe_power_off_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_valid_irq_enable: {=bool}, ",
+                &self.vbus_valid_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_invalid_irq_enable: {=bool}, ",
+                &self.vbus_invalid_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_session_ab_irq_enable: {=bool}, ",
+                &self.vbus_session_ab_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "vbus_session_end_irq_enable: {=bool}, ",
+                &self.vbus_session_end_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "aps_low_voltage_level_2_irq_enable: {=bool}, ",
+                &self.aps_low_voltage_level_2_irq_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqEnableControl4 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqEnableControl4 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqEnableControl4 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqEnableControl4 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqEnableControl4 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqEnableControl4 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqEnableControl4 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Interrupt Enable Control Register 5 (Timer and GPIO Input Edge Trigger IRQs).
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct IrqEnableControl5 {
+        /// The internal bits
+        bits: [u8; 1],
+    }
+    impl ::device_driver::FieldSet for IrqEnableControl5 {
+        const SIZE_BITS: u32 = 8;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl IrqEnableControl5 {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 1] }
+        }
+        ///Read the `timer_timeout_irq_enable` field of the register.
+        ///
+        ///Timer timeout interrupt.
+        pub fn timer_timeout_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 7, 8)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_2_input_edge_trigger_irq_enable` field of the register.
+        ///
+        ///GPIO2 input edge trigger interrupt.
+        pub fn gpio_2_input_edge_trigger_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 2, 3)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_1_input_edge_trigger_irq_enable` field of the register.
+        ///
+        ///GPIO1 input edge trigger interrupt.
+        pub fn gpio_1_input_edge_trigger_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 1, 2)
+            };
+            raw > 0
+        }
+        ///Read the `gpio_0_input_edge_trigger_irq_enable` field of the register.
+        ///
+        ///GPIO0 input edge trigger interrupt.
+        pub fn gpio_0_input_edge_trigger_irq_enable(&self) -> bool {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 1)
+            };
+            raw > 0
+        }
+        ///Write the `timer_timeout_irq_enable` field of the register.
+        ///
+        ///Timer timeout interrupt.
+        pub fn set_timer_timeout_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 7, 8, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_2_input_edge_trigger_irq_enable` field of the register.
+        ///
+        ///GPIO2 input edge trigger interrupt.
+        pub fn set_gpio_2_input_edge_trigger_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 2, 3, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_1_input_edge_trigger_irq_enable` field of the register.
+        ///
+        ///GPIO1 input edge trigger interrupt.
+        pub fn set_gpio_1_input_edge_trigger_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 1, 2, &mut self.bits)
+            };
+        }
+        ///Write the `gpio_0_input_edge_trigger_irq_enable` field of the register.
+        ///
+        ///GPIO0 input edge trigger interrupt.
+        pub fn set_gpio_0_input_edge_trigger_irq_enable(&mut self, value: bool) {
+            let raw = value as _;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u8,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 1, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 1]> for IrqEnableControl5 {
+        fn from(bits: [u8; 1]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<IrqEnableControl5> for [u8; 1] {
+        fn from(val: IrqEnableControl5) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for IrqEnableControl5 {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("IrqEnableControl5");
+            {
+                d.field("timer_timeout_irq_enable", &self.timer_timeout_irq_enable());
+            }
+            {
+                d.field(
+                    "gpio_2_input_edge_trigger_irq_enable",
+                    &self.gpio_2_input_edge_trigger_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_1_input_edge_trigger_irq_enable",
+                    &self.gpio_1_input_edge_trigger_irq_enable(),
+                );
+            }
+            {
+                d.field(
+                    "gpio_0_input_edge_trigger_irq_enable",
+                    &self.gpio_0_input_edge_trigger_irq_enable(),
+                );
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for IrqEnableControl5 {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "IrqEnableControl5 { ");
+            defmt::write!(
+                f,
+                "timer_timeout_irq_enable: {=bool}, ",
+                &self.timer_timeout_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "gpio_2_input_edge_trigger_irq_enable: {=bool}, ",
+                &self.gpio_2_input_edge_trigger_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "gpio_1_input_edge_trigger_irq_enable: {=bool}, ",
+                &self.gpio_1_input_edge_trigger_irq_enable(),
+            );
+            defmt::write!(
+                f,
+                "gpio_0_input_edge_trigger_irq_enable: {=bool}, ",
+                &self.gpio_0_input_edge_trigger_irq_enable(),
+            );
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for IrqEnableControl5 {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for IrqEnableControl5 {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for IrqEnableControl5 {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for IrqEnableControl5 {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for IrqEnableControl5 {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for IrqEnableControl5 {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for IrqEnableControl5 {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -10313,6 +12057,16 @@ pub mod field_sets {
         ///Configures the N_RSTO/GPIO5 pin function. It can operate as N_RSTO (LDO1 status monitor)
         ///or as a general-purpose I/O pin (GPIO5) with configurable direction and output state.
         NrstoGpio5Control(NrstoGpio5Control),
+        ///Interrupt Enable Control Register 1 (ACIN and VBUS related IRQs).
+        IrqEnableControl1(IrqEnableControl1),
+        ///Interrupt Enable Control Register 2 (Battery and Charge related IRQs).
+        IrqEnableControl2(IrqEnableControl2),
+        ///Interrupt Enable Control Register 3 (IC Temp, Charge Current, DCDC VLow, PEK IRQs).
+        IrqEnableControl3(IrqEnableControl3),
+        ///Interrupt Enable Control Register 4 (N_OE and VBUS session/status related IRQs, APS Low Voltage).
+        IrqEnableControl4(IrqEnableControl4),
+        ///Interrupt Enable Control Register 5 (Timer and GPIO Input Edge Trigger IRQs).
+        IrqEnableControl5(IrqEnableControl5),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -10373,6 +12127,11 @@ pub mod field_sets {
                 Self::Pwm1DutyCycleSettingY1(val) => core::fmt::Debug::fmt(val, f),
                 Self::Pwm1DutyCycleSettingY2(val) => core::fmt::Debug::fmt(val, f),
                 Self::NrstoGpio5Control(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqEnableControl1(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqEnableControl2(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqEnableControl3(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqEnableControl4(val) => core::fmt::Debug::fmt(val, f),
+                Self::IrqEnableControl5(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -10437,6 +12196,11 @@ pub mod field_sets {
                 Self::Pwm1DutyCycleSettingY1(val) => defmt::Format::format(val, f),
                 Self::Pwm1DutyCycleSettingY2(val) => defmt::Format::format(val, f),
                 Self::NrstoGpio5Control(val) => defmt::Format::format(val, f),
+                Self::IrqEnableControl1(val) => defmt::Format::format(val, f),
+                Self::IrqEnableControl2(val) => defmt::Format::format(val, f),
+                Self::IrqEnableControl3(val) => defmt::Format::format(val, f),
+                Self::IrqEnableControl4(val) => defmt::Format::format(val, f),
+                Self::IrqEnableControl5(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -10668,6 +12432,31 @@ pub mod field_sets {
     impl From<NrstoGpio5Control> for FieldSetValue {
         fn from(val: NrstoGpio5Control) -> Self {
             Self::NrstoGpio5Control(val)
+        }
+    }
+    impl From<IrqEnableControl1> for FieldSetValue {
+        fn from(val: IrqEnableControl1) -> Self {
+            Self::IrqEnableControl1(val)
+        }
+    }
+    impl From<IrqEnableControl2> for FieldSetValue {
+        fn from(val: IrqEnableControl2) -> Self {
+            Self::IrqEnableControl2(val)
+        }
+    }
+    impl From<IrqEnableControl3> for FieldSetValue {
+        fn from(val: IrqEnableControl3) -> Self {
+            Self::IrqEnableControl3(val)
+        }
+    }
+    impl From<IrqEnableControl4> for FieldSetValue {
+        fn from(val: IrqEnableControl4) -> Self {
+            Self::IrqEnableControl4(val)
+        }
+    }
+    impl From<IrqEnableControl5> for FieldSetValue {
+        fn from(val: IrqEnableControl5) -> Self {
+            Self::IrqEnableControl5(val)
         }
     }
 }
