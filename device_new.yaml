@@ -311,3 +311,37 @@ Ldo2And3VoltageSetting: # REG28H
       start: 0 # Bits 3-0
       end: 4   # 4 bits
       description: "Raw 4-bit setting for LDO3 output voltage (1.8V to 3.3V, 100mV/step)."
+
+VbusIpsoutPathManagement: # REG30H
+  type: register
+  address: 0x30
+  size_bits: 8
+  access: RW
+  reset_value: 0x60 # Default: N_VBUSEN path control, VHOLD limit enabled, VHOLD=4.4V, Current limit off.
+  description: |
+    Manages the VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
+  fields:
+    path_control_by_n_vbusen_pin:
+      base: bool
+      start: 7
+      description: "VBUS-IPSOUT path selection control (true: path open regardless of N_VBUSEN, false: path controlled by N_VBUSEN pin)."
+    vhold_voltage_limit_enabled: # Note: Datasheet REG30H[6] is '1' for limit enabled
+      base: bool
+      start: 6
+      description: "VBUS VHOLD voltage limiting control (true: limit enabled, false: no limit)."
+    vhold_voltage_setting_raw:
+      base: uint
+      start: 3
+      end: 6 # 3 bits (3, 4, 5)
+      description: |
+        VHOLD voltage setting (000:4.0V, 001:4.1V, 010:4.2V, 011:4.3V, 100:4.4V, 101:4.5V, 110:4.6V, 111:4.7V).
+        Raw value.
+    # Bit 2 is reserved.
+    vbus_current_limit_enabled:
+      base: bool
+      start: 1
+      description: "VBUS current limit control (true: enabled, false: disabled)."
+    vbus_current_limit_is_100ma: # true if 100mA, false if 500mA (when enabled)
+      base: bool
+      start: 0
+      description: "VBUS current limit selection when enabled (true: 100mA, false: 500mA)."
