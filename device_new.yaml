@@ -343,3 +343,29 @@ VbusIpsoutPathManagement: # REG30H
       base: bool
       start: 0
       description: "VBUS current limit selection when enabled (true: 100mA, false: 500mA)."
+
+ShutdownVoltageSetting: # REG31H
+  type: register
+  address: 0x31
+  size_bits: 8
+  access: RW
+  reset_value: 0x03 # Default on M5StickC Plus: VOFF=2.9V, Sleep PWRON wakeup disabled.
+  description: |
+    Sets the VOFF (shutdown) voltage threshold and controls the PWRON short-press wakeup
+    functionality when the device is in sleep mode.
+    VOFF (bits 0-2) sets shutdown voltage: 000=2.6V ... 011(default)=2.9V ... 111=3.3V (100mV/step).
+    SleepWakeupEnable (bit 3): Setting to 'true' enables wakeup, but this bit auto-clears.
+  fields:
+    # Bits 7-4 are reserved.
+    sleep_pwron_short_press_wakeup_enable:
+      base: bool
+      start: 3
+      description: "Enable PWRON short press to wake from sleep (true: enabled, false: disabled). Note: This bit auto-clears to 0 after being written as 1, requires re-setting before each sleep entry if wakeup is desired."
+    voff_shutdown_voltage_setting_raw:
+      base: uint
+      start: 0
+      end: 3 # 3 bits (0, 1, 2)
+      description: |
+        Raw 3-bit value for VOFF (shutdown) voltage setting.
+        Mapping: 000=2.6V, 001=2.7V, 010=2.8V, 011=2.9V (default), 100=3.0V, 101=3.1V, 110=3.2V, 111=3.3V.
+
