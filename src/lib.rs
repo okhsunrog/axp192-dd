@@ -1,32 +1,23 @@
 // src/lib.rs
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 
-// If fmt.rs defines exported macros, it should be early.
-// If it's just for `format_args!` used locally, its exact position is less critical.
 #[macro_use]
 pub(crate) mod fmt;
 
 use thiserror::Error;
 
-// HAL trait aliases for clarity
 #[cfg(feature = "blocking")]
 use embedded_hal::i2c::I2c as HalI2c;
 #[cfg(feature = "async")]
 use embedded_hal_async::i2c::I2c as HalAsyncI2c;
 
-// Conditionally import the correct bisync attribute macro
 #[cfg(all(feature = "async", not(feature = "blocking")))]
 use bisync::asynchronous::bisync;
 #[cfg(all(feature = "blocking", not(feature = "async")))]
 use bisync::synchronous::bisync;
-// If both or neither are selected, bisync won't be in scope, leading to errors.
-// Your Cargo.toml should ideally enforce mutual exclusivity or have a default.
 
-// --- Generated Device Code ---
-// This creates AxpLowLevel struct and all associated enums from device.yaml
 device_driver::create_device!(device_name: AxpLowLevel, manifest: "device.yaml");
 
-// --- Public Error Type ---
 #[derive(Debug, Error)]
 pub enum AxpError<I2cErr> {
     #[error("I2C error")]
@@ -51,19 +42,33 @@ impl<I2cErr> defmt::Format for AxpError<I2cErr> {
     }
 }
 
-// --- AxpInterface (I2C HAL Abstraction) ---
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum DcId {
+    Dcdc1,
+    Dcdc3,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum LdoId {
+    Ldo2,
+    Ldo3,
+}
+
 pub struct AxpInterface<I2CBus> {
     i2c_bus: I2CBus,
     device_address: u8,
 }
-
 impl<I2CBus> AxpInterface<I2CBus> {
     pub fn new(i2c_bus: I2CBus, device_address: u8) -> Self {
-        Self { i2c_bus, device_address }
+        Self {
+            i2c_bus,
+            device_address,
+        }
     }
 }
 
-// --- Synchronous RegisterInterface Implementation ---
 #[cfg(feature = "blocking")]
 impl<I2CBus, E> device_driver::RegisterInterface for AxpInterface<I2CBus>
 where
@@ -72,19 +77,31 @@ where
 {
     type AddressType = u8;
     type Error = AxpError<E>;
-
-    fn read_register(&mut self, address: u8, _size_bits: u32, data: &mut [u8]) -> Result<(), Self::Error> {
-        self.i2c_bus.write_read(self.device_address, &[address], data).map_err(AxpError::I2c)
+    fn read_register(
+        &mut self,
+        address: u8,
+        _size_bits: u32,
+        data: &mut [u8],
+    ) -> Result<(), Self::Error> {
+        self.i2c_bus
+            .write_read(self.device_address, &[address], data)
+            .map_err(AxpError::I2c)
     }
-
-    fn write_register(&mut self, address: u8, _size_bits: u32, data: &[u8]) -> Result<(), Self::Error> {
-        let mut buffer = [0u8; 5]; 
+    fn write_register(
+        &mut self,
+        address: u8,
+        _size_bits: u32,
+        data: &[u8],
+    ) -> Result<(), Self::Error> {
+        let mut buffer = [0u8; 5];
         if (1 + data.len()) > buffer.len() {
             return Err(AxpError::NotSupported("Write data length exceeds buffer"));
         }
         buffer[0] = address;
         buffer[1..1 + data.len()].copy_from_slice(data);
-        self.i2c_bus.write(self.device_address, &buffer[..1 + data.len()]).map_err(AxpError::I2c)
+        self.i2c_bus
+            .write(self.device_address, &buffer[..1 + data.len()])
+            .map_err(AxpError::I2c)
     }
 }
 
@@ -96,42 +113,56 @@ where
 {
     type AddressType = u8;
     type Error = AxpError<E>;
-
-    // Remove explicit 'a lifetime here
-    async fn read_register(&mut self, address: u8, _size_bits: u32, data: &mut [u8]) -> Result<(), Self::Error> {
-        self.i2c_bus.write_read(self.device_address, &[address], data).await.map_err(AxpError::I2c)
+    async fn read_register(
+        &mut self,
+        address: u8,
+        _size_bits: u32,
+        data: &mut [u8],
+    ) -> Result<(), Self::Error> {
+        self.i2c_bus
+            .write_read(self.device_address, &[address], data)
+            .await
+            .map_err(AxpError::I2c)
     }
-
-    // Remove explicit 'a lifetime here
-    async fn write_register(&mut self, address: u8, _size_bits: u32, data: &[u8]) -> Result<(), Self::Error> {
+    async fn write_register(
+        &mut self,
+        address: u8,
+        _size_bits: u32,
+        data: &[u8],
+    ) -> Result<(), Self::Error> {
         let mut buffer = [0u8; 5];
         if (1 + data.len()) > buffer.len() {
             return Err(AxpError::NotSupported("Write data length exceeds buffer"));
         }
         buffer[0] = address;
         buffer[1..1 + data.len()].copy_from_slice(data);
-        self.i2c_bus.write(self.device_address, &buffer[..1 + data.len()]).await.map_err(AxpError::I2c)
+        self.i2c_bus
+            .write(self.device_address, &buffer[..1 + data.len()])
+            .await
+            .map_err(AxpError::I2c)
     }
 }
 
-// --- Main Driver Struct ---
-// We need to define the struct differently based on the feature to satisfy trait bounds
 #[cfg(feature = "blocking")]
-pub struct Axp192<I2CImpl: device_driver::RegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>, I2CBusErr: core::fmt::Debug = <I2CImpl as device_driver::RegisterInterface>::Error> {
+pub struct Axp192<
+    I2CImpl: device_driver::RegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>,
+    I2CBusErr: core::fmt::Debug = <I2CImpl as device_driver::RegisterInterface>::Error,
+> {
     pub ll: AxpLowLevel<I2CImpl>,
-    _marker: core::marker::PhantomData<I2CBusErr>, // To use I2CBusErr in struct definition
+    _marker: core::marker::PhantomData<I2CBusErr>,
 }
 
 #[cfg(feature = "async")]
-pub struct Axp192<I2CImpl: device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>, I2CBusErr: core::fmt::Debug = <I2CImpl as device_driver::AsyncRegisterInterface>::Error> {
+pub struct Axp192<
+    I2CImpl: device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>,
+    I2CBusErr: core::fmt::Debug = <I2CImpl as device_driver::AsyncRegisterInterface>::Error,
+> {
     pub ll: AxpLowLevel<I2CImpl>,
-    _marker: core::marker::PhantomData<I2CBusErr>, // To use I2CBusErr in struct definition
+    _marker: core::marker::PhantomData<I2CBusErr>,
 }
 
-
-// --- Constructor(s) ---
 #[cfg(feature = "blocking")]
-impl<I2CBus, E> Axp192<AxpInterface<I2CBus>, E> // Add E here
+impl<I2CBus, E> Axp192<AxpInterface<I2CBus>, E>
 where
     I2CBus: HalI2c<Error = E>,
     E: core::fmt::Debug,
@@ -145,7 +176,7 @@ where
 }
 
 #[cfg(feature = "async")]
-impl<I2CBus, E> Axp192<AxpInterface<I2CBus>, E> // Add E here
+impl<I2CBus, E> Axp192<AxpInterface<I2CBus>, E>
 where
     I2CBus: HalAsyncI2c<Error = E>,
     E: core::fmt::Debug,
@@ -158,34 +189,96 @@ where
     }
 }
 
-// --- Trait alias for CurrentAxpDriverInterface ---
-// This will be used in the `impl` block for high-level methods
 #[cfg(feature = "blocking")]
-pub trait CurrentAxpDriverInterface<E>: device_driver::RegisterInterface<AddressType = u8, Error = AxpError<E>> {} // Added pub
-#[cfg(feature = "blocking")]
-impl<T, E> CurrentAxpDriverInterface<E> for T where T: device_driver::RegisterInterface<AddressType = u8, Error = AxpError<E>>, E: core::fmt::Debug {}
-
-#[cfg(feature = "async")]
-pub trait CurrentAxpDriverInterface<E>: device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<E>> {} // Added pub
-#[cfg(feature = "async")]
-impl<T, E> CurrentAxpDriverInterface<E> for T where T: device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<E>>, E: core::fmt::Debug {}
-
-// --- High-Level API Implementation (Initially Empty) ---
-impl<I2CImpl, I2CBusErr> Axp192<I2CImpl, I2CBusErr> // Add I2CBusErr here
-where
-    I2CImpl: CurrentAxpDriverInterface<I2CBusErr>, // Use the alias
-    I2CBusErr: core::fmt::Debug,
+pub trait CurrentAxpDriverInterface<E>:
+    device_driver::RegisterInterface<AddressType = u8, Error = AxpError<E>>
 {
-    // We will add high-level methods here one by one.
-    // For example:
-    // #[bisync]
-    // pub async fn get_chip_id(&mut self) -> Result<u8, AxpError<I2CBusErr>> {
-    //     let status = self.ll.chip_id().read_fieldset().await?; // Assuming ChipId register exists
-    //     Ok(status.value()) // Assuming a value field
-    // }
+}
+#[cfg(feature = "blocking")]
+impl<T, E> CurrentAxpDriverInterface<E> for T
+where
+    T: device_driver::RegisterInterface<AddressType = u8, Error = AxpError<E>>,
+    E: core::fmt::Debug,
+{
 }
 
-// Ensure features are mutually exclusive in Cargo.toml or provide a default
+#[cfg(feature = "async")]
+pub trait CurrentAxpDriverInterface<E>:
+    device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<E>>
+{
+}
+#[cfg(feature = "async")]
+impl<T, E> CurrentAxpDriverInterface<E> for T
+where
+    T: device_driver::AsyncRegisterInterface<AddressType = u8, Error = AxpError<E>>,
+    E: core::fmt::Debug,
+{
+}
+
+impl<I2CImpl, I2CBusErr> Axp192<I2CImpl, I2CBusErr>
+where
+    I2CImpl: CurrentAxpDriverInterface<I2CBusErr>,
+    I2CBusErr: core::fmt::Debug,
+{
+    #[bisync(async_suffix = "async")]
+    pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let adc_data_fieldset = self.ll.battery_voltage_adc().read().await?; // Changed to .read()
+        Ok(adc_data_fieldset.value_raw() as f32 * 1.1)
+    }
+
+    #[bisync(async_suffix = "async")]
+    pub async fn is_charging(&mut self) -> Result<bool, AxpError<I2CBusErr>> {
+        let status_fieldset = self.ll.power_status().read().await?; // Changed to .read()
+        // Assuming the generated enum is directly accessible via AxpLowLevel
+        Ok(status_fieldset.battery_flow() == BatteryFlowDirection::Charging)
+    }
+
+    #[bisync(async_suffix = "async")]
+    pub async fn set_dcdc_enable(
+        &mut self,
+        dc: DcId,
+        enable: bool,
+    ) -> Result<(), AxpError<I2CBusErr>> {
+        self.ll
+            .power_output_control()
+            .modify(|r| {
+                // Changed to .modify()
+                match dc {
+                    DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
+                    DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
+                }
+            })
+            .await
+    }
+
+    #[bisync(async_suffix = "async")]
+    pub async fn set_dcdc_voltage(
+        &mut self,
+        dc: DcId,
+        voltage_mv: u16,
+    ) -> Result<(), AxpError<I2CBusErr>> {
+        if !(700..=3500).contains(&voltage_mv) {
+            return Err(AxpError::InvalidVoltage(voltage_mv));
+        }
+        let raw_setting = ((voltage_mv.saturating_sub(700)) / 25) as u8;
+
+        match dc {
+            DcId::Dcdc1 => {
+                self.ll
+                    .dc_dc_1_voltage_setting() // Changed to snake_case
+                    .modify(|r| r.set_voltage_setting(raw_setting)) // Changed to .modify()
+                    .await
+            }
+            DcId::Dcdc3 => {
+                self.ll
+                    .dc_dc_3_voltage_setting() // Changed to snake_case
+                    .modify(|r| r.set_voltage_setting(raw_setting)) // Changed to .modify()
+                    .await
+            }
+        }
+    }
+}
+
 #[cfg(all(feature = "async", feature = "blocking"))]
 compile_error!("Features 'async' and 'blocking' should be mutually exclusive.");
 
