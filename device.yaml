@@ -1916,3 +1916,68 @@ BatteryInstantaneousPowerAdc: # REG70H, REG71H, REG72H combined
       start: 0
       end: 24 # Defines a 24-bit field
       description: "Raw 24-bit battery instantaneous power ADC reading. See register description for conversion formula to mW or uW."
+
+BatteryVoltageAdc: # REG78H & REG79H combined
+  type: register
+  address: 0x78 # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    Battery Voltage ADC Data. This is a 12-bit value.
+    The value is formed by (REG78H_byte << 4) | (REG79H_byte & 0x0F).
+    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.1.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit battery voltage ADC reading. Multiply by 1.1 to get mV. Assumes REG79H[7:4] are zero/ignored."
+
+BatteryChargeCurrentAdc: # REG7AH & REG7BH combined
+  type: register
+  address: 0x7A # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    Battery Charge Current ADC Data. This is a 13-bit value.
+    The value is formed by (REG7AH_byte << 5) | (REG7BH_byte & 0x1F).
+    Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 13 # Defines a 13-bit field
+      description: "Raw 13-bit battery charge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7BH[7:5] are zero/ignored."
+
+BatteryDischargeCurrentAdc: # REG7CH & REG7DH combined
+  type: register
+  address: 0x7C # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    Battery Discharge Current ADC Data. This is a 13-bit value.
+    The value is formed by (REG7CH_byte << 5) | (REG7DH_byte & 0x1F).
+    Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 13 # Defines a 13-bit field
+      description: "Raw 13-bit battery discharge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7DH[7:5] are zero/ignored."
+
+ApsVoltageAdc: # REG7EH & REG7FH combined
+  type: register
+  address: 0x7E # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    APS (Average Power Source) Voltage ADC Data. This is a 12-bit value.
+    The value is formed by (REG7EH_byte << 4) | (REG7FH_byte & 0x0F).
+    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.4.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit APS voltage ADC reading. Multiply by 1.4 to get mV. Assumes REG7FH[7:4] are zero/ignored."
+

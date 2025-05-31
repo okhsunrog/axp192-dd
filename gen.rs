@@ -186,6 +186,14 @@ impl<I> Device<I> {
         callback(100 + 3 * 2, "gpio_voltage_adc[3]", reg.into());
         let reg = self.battery_instantaneous_power_adc().read()?;
         callback(112 + 0 * 0, "battery_instantaneous_power_adc", reg.into());
+        let reg = self.battery_voltage_adc().read()?;
+        callback(120 + 0 * 0, "battery_voltage_adc", reg.into());
+        let reg = self.battery_charge_current_adc().read()?;
+        callback(122 + 0 * 0, "battery_charge_current_adc", reg.into());
+        let reg = self.battery_discharge_current_adc().read()?;
+        callback(124 + 0 * 0, "battery_discharge_current_adc", reg.into());
+        let reg = self.aps_voltage_adc().read()?;
+        callback(126 + 0 * 0, "aps_voltage_adc", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -360,6 +368,14 @@ impl<I> Device<I> {
         callback(100 + 3 * 2, "gpio_voltage_adc[3]", reg.into());
         let reg = self.battery_instantaneous_power_adc().read_async().await?;
         callback(112 + 0 * 0, "battery_instantaneous_power_adc", reg.into());
+        let reg = self.battery_voltage_adc().read_async().await?;
+        callback(120 + 0 * 0, "battery_voltage_adc", reg.into());
+        let reg = self.battery_charge_current_adc().read_async().await?;
+        callback(122 + 0 * 0, "battery_charge_current_adc", reg.into());
+        let reg = self.battery_discharge_current_adc().read_async().await?;
+        callback(124 + 0 * 0, "battery_discharge_current_adc", reg.into());
+        let reg = self.aps_voltage_adc().read_async().await?;
+        callback(126 + 0 * 0, "aps_voltage_adc", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1910,6 +1926,94 @@ impl<I> Device<I> {
             address as u8,
             field_sets::BatteryInstantaneousPowerAdc::new,
         )
+    }
+    ///Battery Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG78H_byte << 4) | (REG79H_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.1.
+    pub fn battery_voltage_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BatteryVoltageAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 120;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BatteryVoltageAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::BatteryVoltageAdc::new)
+    }
+    ///Battery Charge Current ADC Data. This is a 13-bit value.
+    ///The value is formed by (REG7AH_byte << 5) | (REG7BH_byte & 0x1F).
+    ///Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+    pub fn battery_charge_current_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BatteryChargeCurrentAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 122;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BatteryChargeCurrentAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::BatteryChargeCurrentAdc::new)
+    }
+    ///Battery Discharge Current ADC Data. This is a 13-bit value.
+    ///The value is formed by (REG7CH_byte << 5) | (REG7DH_byte & 0x1F).
+    ///Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+    pub fn battery_discharge_current_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::BatteryDischargeCurrentAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 124;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::BatteryDischargeCurrentAdc,
+            ::device_driver::RO,
+        >::new(
+            self.interface(),
+            address as u8,
+            field_sets::BatteryDischargeCurrentAdc::new,
+        )
+    }
+    ///APS (Average Power Source) Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG7EH_byte << 4) | (REG7FH_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.4.
+    pub fn aps_voltage_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::ApsVoltageAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 126;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::ApsVoltageAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::ApsVoltageAdc::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -14959,6 +15063,534 @@ pub mod field_sets {
             self
         }
     }
+    ///Battery Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG78H_byte << 4) | (REG79H_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.1.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BatteryVoltageAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for BatteryVoltageAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BatteryVoltageAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit battery voltage ADC reading. Multiply by 1.1 to get mV. Assumes REG79H[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit battery voltage ADC reading. Multiply by 1.1 to get mV. Assumes REG79H[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for BatteryVoltageAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BatteryVoltageAdc> for [u8; 2] {
+        fn from(val: BatteryVoltageAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BatteryVoltageAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BatteryVoltageAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BatteryVoltageAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BatteryVoltageAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for BatteryVoltageAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BatteryVoltageAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BatteryVoltageAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BatteryVoltageAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BatteryVoltageAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BatteryVoltageAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BatteryVoltageAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Battery Charge Current ADC Data. This is a 13-bit value.
+    ///The value is formed by (REG7AH_byte << 5) | (REG7BH_byte & 0x1F).
+    ///Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BatteryChargeCurrentAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for BatteryChargeCurrentAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BatteryChargeCurrentAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 13-bit battery charge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7BH[7:5] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 13)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 13-bit battery charge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7BH[7:5] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 13, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for BatteryChargeCurrentAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BatteryChargeCurrentAdc> for [u8; 2] {
+        fn from(val: BatteryChargeCurrentAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BatteryChargeCurrentAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BatteryChargeCurrentAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BatteryChargeCurrentAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BatteryChargeCurrentAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for BatteryChargeCurrentAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BatteryChargeCurrentAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BatteryChargeCurrentAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BatteryChargeCurrentAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BatteryChargeCurrentAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BatteryChargeCurrentAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BatteryChargeCurrentAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Battery Discharge Current ADC Data. This is a 13-bit value.
+    ///The value is formed by (REG7CH_byte << 5) | (REG7DH_byte & 0x1F).
+    ///Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct BatteryDischargeCurrentAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for BatteryDischargeCurrentAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl BatteryDischargeCurrentAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 13-bit battery discharge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7DH[7:5] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 13)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 13-bit battery discharge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7DH[7:5] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 13, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for BatteryDischargeCurrentAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<BatteryDischargeCurrentAdc> for [u8; 2] {
+        fn from(val: BatteryDischargeCurrentAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for BatteryDischargeCurrentAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("BatteryDischargeCurrentAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for BatteryDischargeCurrentAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "BatteryDischargeCurrentAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for BatteryDischargeCurrentAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for BatteryDischargeCurrentAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for BatteryDischargeCurrentAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for BatteryDischargeCurrentAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for BatteryDischargeCurrentAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for BatteryDischargeCurrentAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for BatteryDischargeCurrentAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///APS (Average Power Source) Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG7EH_byte << 4) | (REG7FH_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.4.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct ApsVoltageAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for ApsVoltageAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl ApsVoltageAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit APS voltage ADC reading. Multiply by 1.4 to get mV. Assumes REG7FH[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit APS voltage ADC reading. Multiply by 1.4 to get mV. Assumes REG7FH[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for ApsVoltageAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<ApsVoltageAdc> for [u8; 2] {
+        fn from(val: ApsVoltageAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for ApsVoltageAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("ApsVoltageAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for ApsVoltageAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "ApsVoltageAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for ApsVoltageAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for ApsVoltageAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for ApsVoltageAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for ApsVoltageAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for ApsVoltageAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for ApsVoltageAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for ApsVoltageAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -15155,6 +15787,22 @@ pub mod field_sets {
         ///This simplifies to: Power (mW) = raw_24bit_adc_value * 0.00055.
         ///Or, Power (uW) = raw_24bit_adc_value * 0.55.
         BatteryInstantaneousPowerAdc(BatteryInstantaneousPowerAdc),
+        ///Battery Voltage ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG78H_byte << 4) | (REG79H_byte & 0x0F).
+        ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.1.
+        BatteryVoltageAdc(BatteryVoltageAdc),
+        ///Battery Charge Current ADC Data. This is a 13-bit value.
+        ///The value is formed by (REG7AH_byte << 5) | (REG7BH_byte & 0x1F).
+        ///Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+        BatteryChargeCurrentAdc(BatteryChargeCurrentAdc),
+        ///Battery Discharge Current ADC Data. This is a 13-bit value.
+        ///The value is formed by (REG7CH_byte << 5) | (REG7DH_byte & 0x1F).
+        ///Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+        BatteryDischargeCurrentAdc(BatteryDischargeCurrentAdc),
+        ///APS (Average Power Source) Voltage ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG7EH_byte << 4) | (REG7FH_byte & 0x0F).
+        ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.4.
+        ApsVoltageAdc(ApsVoltageAdc),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -15233,6 +15881,10 @@ pub mod field_sets {
                 Self::TsPinAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::GpioVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::BatteryInstantaneousPowerAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::BatteryVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::BatteryChargeCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::BatteryDischargeCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::ApsVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -15315,6 +15967,10 @@ pub mod field_sets {
                 Self::TsPinAdc(val) => defmt::Format::format(val, f),
                 Self::GpioVoltageAdc(val) => defmt::Format::format(val, f),
                 Self::BatteryInstantaneousPowerAdc(val) => defmt::Format::format(val, f),
+                Self::BatteryVoltageAdc(val) => defmt::Format::format(val, f),
+                Self::BatteryChargeCurrentAdc(val) => defmt::Format::format(val, f),
+                Self::BatteryDischargeCurrentAdc(val) => defmt::Format::format(val, f),
+                Self::ApsVoltageAdc(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -15636,6 +16292,26 @@ pub mod field_sets {
     impl From<BatteryInstantaneousPowerAdc> for FieldSetValue {
         fn from(val: BatteryInstantaneousPowerAdc) -> Self {
             Self::BatteryInstantaneousPowerAdc(val)
+        }
+    }
+    impl From<BatteryVoltageAdc> for FieldSetValue {
+        fn from(val: BatteryVoltageAdc) -> Self {
+            Self::BatteryVoltageAdc(val)
+        }
+    }
+    impl From<BatteryChargeCurrentAdc> for FieldSetValue {
+        fn from(val: BatteryChargeCurrentAdc) -> Self {
+            Self::BatteryChargeCurrentAdc(val)
+        }
+    }
+    impl From<BatteryDischargeCurrentAdc> for FieldSetValue {
+        fn from(val: BatteryDischargeCurrentAdc) -> Self {
+            Self::BatteryDischargeCurrentAdc(val)
+        }
+    }
+    impl From<ApsVoltageAdc> for FieldSetValue {
+        fn from(val: ApsVoltageAdc) -> Self {
+            Self::ApsVoltageAdc(val)
         }
     }
 }
