@@ -3,1867 +3,436 @@ config:
   default_byte_order: BE
   defmt_feature: "defmt"
 
-# --- Power Control Registers (0x00 - 0x3D) ---
+# --- Power Control Registers (0x00 - 0x3F, some are reserved) ---
 PowerStatus: # REG00H
   type: register
   address: 0x00
   size_bits: 8
   access: RO
   description: |
-    Input power status register.
-    Indicates the presence and usability of ACIN and VBUS, along with other power-related statuses.
-    Refer to AXP192 datasheet page 32 for full details.
+    Indicates the input power source status (ACIN, VBUS), battery current direction,
+    and other power-related conditions.
   fields:
     acin_present:
       base: bool
       start: 7
-      description: "ACIN presence (1: present)"
+      description: "ACIN physical presence status (true: voltage detected, false: no voltage detected)."
     acin_usable:
       base: bool
       start: 6
-      description: "ACIN usable (1: usable)"
+      description: "ACIN usability status (true: ACIN voltage is valid for system use, false: ACIN voltage is not valid/sufficient)."
     vbus_present:
       base: bool
       start: 5
-      description: "VBUS presence (1: present)"
+      description: "VBUS physical presence status (true: voltage detected, false: no voltage detected)."
     vbus_usable:
       base: bool
       start: 4
-      description: "VBUS usable (1: usable)"
-    vbus_path_used_when_vbus_lt_vhold:
+      description: "VBUS usability status (true: VBUS voltage is valid for system use, false: VBUS voltage is not valid/sufficient)."
+    vbus_voltage_above_vhold_when_connected:
       base: bool
       start: 3
-      description: "VBUS input path status when VBUS < VHOLD (0: not selected, 1: selected)"
-    battery_current_direction:
+      description: "Indicates if VBUS voltage was greater than VHOLD when VBUS was connected (true: VBUS > VHOLD, false: VBUS <= VHOLD or not applicable)."
+    battery_is_charging:
       base: bool
       start: 2
-      description: "Battery current (0: Discharging, 1: Charging)"
-    boot_source_acin_vbus:
+      description: "Battery current direction (true: Battery is Charging, false: Battery is Discharging)."
+    acin_and_vbus_inputs_shorted_on_pcb:
       base: bool
       start: 1
-      description: "Boot source (0: from Battery, 1: from ACIN/VBUS)"
-    acin_vbus_short_circuit_indication:
+      description: "Indicates if ACIN and VBUS inputs are short-circuited on the PCB (true: short-circuited detected, false: no short-circuit)."
+    boot_source_was_acin_or_vbus:
       base: bool
       start: 0
-      description: "ACIN/VBUS short circuit indication (0: No, 1: Yes)"
+      description: "Indicates if the boot-up power source was ACIN or VBUS (true: boot from ACIN/VBUS, false: boot from Battery or other)."
 
-ChargeStatus:
+ChargeStatus: # REG01H
   type: register
   address: 0x01
   size_bits: 8
   access: RO
   description: |
-    Power mode and charging status register.
-    Indicates over-temperature, charging status, battery presence, and other charging-related statuses.
-    Refer to AXP192 datasheet page 33 for full details.
+    Indicates various operational modes and charging statuses, including AXP192 temperature,
+    battery presence, and charging progress.
   fields:
-    over_temperature_indication:
+    axp192_over_temperature:
       base: bool
       start: 7
-      description: "AXP192 over-temperature (1: Yes)"
-    battery_charging_indication:
+      description: "AXP192 over-temperature status (true: over-temperature, false: normal temperature)."
+    charging_in_progress:
       base: bool
       start: 6
-      description: "Battery is charging (1: Yes)"
-    battery_present_status:
+      description: "Charging progress status (true: charging is in progress, false: not charging or charge complete)."
+    battery_connected:
       base: bool
       start: 5
-      description: "Battery presence status (0: No battery, 1: Battery connected)"
-    battery_activation_mode_indication:
+      description: "Battery connection status (true: battery is connected, false: no battery connected)."
+    # Bit 4 is reserved.
+    battery_in_activation_mode:
       base: bool
       start: 3
-      description: "Battery in activation mode (1: Yes)"
-    charge_current_low_indication:
+      description: "Battery activation mode status (true: battery is in activation mode, false: not in activation mode)."
+    charge_current_less_than_expected:
       base: bool
       start: 2
-      description: "Charge current less than expected (1: Yes)"
-    axp192_startup_mode:
+      description: "Indicates if actual charging current is less than the set/expected current (true: actual < expected, false: actual >= expected)."
+    axp192_startup_mode_is_b:
       base: bool
       start: 1
-      description: "AXP192 startup mode (0: Mode A, 1: Mode B)"
+      description: "AXP192 startup mode (true: Mode B, false: Mode A)."
+    # Bit 0 is reserved.
 
-OtgVbusStatus:
+OtgVbusStatus: # REG04H (Corrected from 02H based on summary table)
   type: register
   address: 0x04
   size_bits: 8
   access: RO
-  description: |
-    OTG VBUS status register.
-    Indicates VBUS status for OTG functionality.
-    Refer to AXP192 datasheet for full details.
+  description: "Indicates the status of VBUS when operating in USB OTG (On-The-Go) mode."
   fields:
-    otg_vbus_valid:
+    # Bits 7-3 are reserved.
+    vbus_is_valid:
       base: bool
-      start: 7
-      description: "OTG VBUS valid (1: valid)"
-    session_ab_valid:
+      start: 2
+      description: "VBUS validity status in OTG mode (true: VBUS is valid, false: VBUS is not valid)."
+    vbus_session_ab_is_valid:
       base: bool
-      start: 5
-      description: "VBUS session A/B valid (1: valid)"
+      start: 1
+      description: "VBUS Session A/B validity status (true: Session A/B is valid, false: Session A/B is not valid)."
+    vbus_session_ended:
+      base: bool
+      start: 0
+      description: "VBUS Session End status (true: Session has ended, false: Session is ongoing or not started)."
 
-DataBuffer0:
+DataBuffer0: # REG06H
   type: register
   address: 0x06
   size_bits: 8
   access: RW
+  reset_value: 0xF0
   description: |
-    Data buffer 0 for system data storage.
-    Used for temporary data storage, e.g., system ID.
-    Refer to AXP192 datasheet for details.
+    General purpose data buffer for system data storage.
+    Note: Retained as long as any AXP192 power source is present (not affected by host on/off).
   fields:
-    data:
+    value:
       base: uint
       start: 0
       end: 8
-      description: "8-bit data buffer"
+      description: "8-bit data value."
 
-DataBuffer1:
-  type: register
-  address: 0x07
-  size_bits: 8
-  access: RW
-  description: |
-    Data buffer 1 for system data storage.
-    Used for temporary data storage, e.g., system ID.
-  fields:
-    data:
-      base: uint
-      start: 0
-      end: 8
-      description: "8-bit data buffer"
+DataBuffer1: # REG07H
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x07
+    reset_value: 0x0F
 
-DataBuffer2:
-  type: register
-  address: 0x08
-  size_bits: 8
-  access: RW
-  description: |
-    Data buffer 2 for system data storage.
-    Used for temporary data storage, e.g., system ID.
-  fields:
-    data:
-      base: uint
-      start: 0
-      end: 8
-      description: "8-bit data buffer"
+DataBuffer2: # REG08H
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x08
+    reset_value: 0x00
 
-DataBuffer3:
-  type: register
-  address: 0x09
-  size_bits: 8
-  access: RW
-  description: |
-    Data buffer 3 for system data storage.
-    Used for temporary data storage, e.g., system ID.
-  fields:
-    data:
-      base: uint
-      start: 0
-      end: 8
-      description: "8-bit data buffer"
+DataBuffer3: # REG09H
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x09
+    reset_value: 0xFF
 
-DataBuffer4:
-  type: register
-  address: 0x0A
-  size_bits: 8
-  access: RW
-  description: |
-    Data buffer 4 for system data storage.
-    Used for temporary data storage, e.g., system ID.
-  fields:
-    data:
-      base: uint
-      start: 0
-      end: 8
-      description: "8-bit data buffer"
+DataBuffer4: # REG0AH
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x0A
+    reset_value: 0x00
 
-DataBuffer5:
-  type: register
-  address: 0x0B
-  size_bits: 8
-  access: RW
-  description: |
-    Data buffer 5 for system data storage.
-    Used for temporary data storage, e.g., system ID.
-  fields:
-    data:
-      base: uint
-      start: 0
-      end: 8
-      description: "8-bit data buffer"
+DataBuffer5: # REG0BH
+  type: ref
+  target: DataBuffer0
+  override:
+    type: register
+    address: 0x0B
+    reset_value: 0x00
 
-ExtenDcdc2Control:
+ExtenDcDc2Control: # REG10H
   type: register
   address: 0x10
   size_bits: 8
   access: RW
+  reset_value: 0x05 # Default on M5StickC Plus: EXTEN ON, DCDC2 ON
   description: |
-    EXTEN and DC-DC2 enable control register.
-    Controls the enable switches for EXTEN and DC-DC2 outputs.
-    Refer to AXP192 datasheet page 34 for details.
+    Controls the output enable state for the EXTEN pin and the DC-DC2 converter.
   fields:
-    exten_enable:
+    # Bits 7-3 are reserved.
+    exten_output_enable:
       base: bool
-      start: 6
-      description: "EXTEN output enable switch (1: enable)"
-    dcdc2_enable:
+      start: 2
+      description: "EXTEN pin output switch control (true: enabled/on, false: disabled/off)."
+    # Bit 1 is reserved.
+    dcdc2_output_enable:
       base: bool
-      start: 4
-      description: "DC-DC2 output enable switch (1: enable)"
+      start: 0
+      description: "DC-DC2 converter output switch control (true: enabled/on, false: disabled/off)."
 
-Dcdc13Ldo23Control:
+PowerOutputControl: # REG12H
   type: register
   address: 0x12
   size_bits: 8
   access: RW
+  reset_value: 0x5F # Default on M5StickC Plus: All outputs are ON.
   description: |
-    Power output control for DC-DC1/3 and LDO2/3.
-    Also includes alternative control bits for DC-DC2/EXTEN.
-    Refer to AXP192 datasheet page 34 for details.
+    Controls output enable for DC-DC1, DC-DC3, LDO2, LDO3, and provides alternative controls for EXTEN and DC-DC2.
+    IMPORTANT: REG12H bit 6 (exten_output_enable) is linked to REG10H bit 2.
+                 REG12H bit 4 (dcdc2_output_enable) is linked to REG10H bit 0.
+                 These pairs control the same underlying hardware function.
   fields:
-    dcdc1_enable:
-      base: bool
-      start: 7
-      description: "DC-DC1 output enable (1: enable)"
-    dcdc3_enable:
+    # Bit 7 is reserved.
+    exten_output_enable:
       base: bool
       start: 6
-      description: "DC-DC3 output enable (1: enable)"
-    ldo2_enable:
-      base: bool
-      start: 5
-      description: "LDO2 output enable (1: enable)"
-    ldo3_enable:
+      description: "EXTEN pin output switch control (true: enabled, false: disabled). Linked to REG10H[2]."
+    # Bit 5 is reserved.
+    dcdc2_output_enable:
       base: bool
       start: 4
-      description: "LDO3 output enable (1: enable)"
-    dcdc2_enable_alt:
+      description: "DC-DC2 converter output switch control (true: enabled, false: disabled). Linked to REG10H[0]."
+    ldo3_output_enable:
       base: bool
       start: 3
-      description: "DC-DC2 enable (alternative bit, prefer 0x10)"
-    exten_enable_alt:
+      description: "LDO3 output switch control (true: enabled, false: disabled)."
+    ldo2_output_enable:
+      base: bool
+      start: 2
+      description: "LDO2 output switch control (true: enabled, false: disabled)."
+    dcdc3_output_enable:
       base: bool
       start: 1
-      description: "EXTEN enable (alternative bit, prefer 0x10)"
+      description: "DC-DC3 converter output switch control (true: enabled, false: disabled)."
+    dcdc1_output_enable:
+      base: bool
+      start: 0
+      description: "DC-DC1 converter output switch control (true: enabled, false: disabled)."
 
-Dcdc2Voltage:
+DcDc2VoltageSetting: # REG23H
   type: register
   address: 0x23
   size_bits: 8
   access: RW
+  reset_value: 0x16 # Default 0x16 (bits 5-0 = 010110B = 22d) corresponds to 1.25V.
   description: |
-    DC-DC2 output voltage setting (0.7-2.275V, 25mV/step).
-    Bit 7 may select high voltage range on some variants (check datasheet).
-    Refer to AXP192 datasheet page 35 for details.
+    Sets the output voltage for the DC-DC2 converter.
+    Formula: Output Voltage (V) = 0.7 + (voltage_setting_raw * 0.025).
+    Effective range for voltage_setting_raw (bits 0-5): 0-63.
+    Resulting voltage range: 0.7V to 2.275V, in 25mV steps.
   fields:
-    high_voltage_range:
-      base: bool
-      start: 7
-      description: "High voltage range select (1: high range, check datasheet)"
-    setting:
+    # Bits 7-6 are reserved.
+    voltage_setting_raw:
       base: uint
       start: 0
-      end: 7
-      description: "Voltage setting (0-63 or 0-127 steps, 25mV/step)"
+      end: 6 # 6 bits (0 to 5 inclusive)
+      description: "Raw 6-bit value for DC-DC2 output voltage setting. See register description for conversion formula."
 
-Dcdc2Slope:
+DcDc2VrcParameter: # REG25H
   type: register
   address: 0x25
   size_bits: 8
   access: RW
+  reset_value: 0x00 # Default: VRC enabled (bit 2=0), Rise slope 1.6mV/us (bit 0=0)
   description: |
-    DC-DC2 Voltage Ramp Control (VRC) slope control.
-    Configures the slew rate for DC-DC2 voltage changes.
-    Refer to AXP192 datasheet for details.
+    Configures parameters for DC-DC2 Dynamic Voltage Scaling / Voltage Ramp Control (VRC),
+    including VRC enable state and voltage rise slope.
   fields:
-    slope:
-      base: uint
+    # Bits 7-3 are reserved.
+    vrc_disabled: # Naming reflects the bit's meaning: true if VRC is disabled
+      base: bool
+      start: 2
+      description: "DC-DC2 VRC (Voltage Ramp Control) disable control (true: VRC disabled, false: VRC enabled). Note inverted logic."
+    # Bit 1 is reserved.
+    vrc_rise_slope_is_0_8mv_us: # Naming reflects the bit's meaning for true state
+      base: bool
       start: 0
-      end: 8
-      description: "VRC slope control setting"
+      description: "DC-DC2 VRC voltage rise slope (true: 0.8mV/us (25mV/31.25us), false: 1.6mV/us (25mV/15.625us))."
 
-Dcdc1Voltage:
+DcDc1VoltageSetting: # REG26H
   type: register
   address: 0x26
   size_bits: 8
   access: RW
+  reset_value: 0x68 # Default 0x68 (bits 6-0 = 1101000B = 104d) corresponds to 3.3V.
   description: |
-    DC-DC1 output voltage setting (0.7-3.5V, 25mV/step).
-    Refer to AXP192 datasheet page 35 for details.
+    Sets the output voltage for the DC-DC converter.
+    Formula: Output Voltage (V) = 0.7 + (voltage_setting_raw * 0.025).
+    Effective range for voltage_setting_raw (bits 0-6): 0-112 (decimal).
+    Resulting voltage range: 0.7V to 3.5V, in 25mV steps.
+    Values for voltage_setting_raw from 113 to 127 may be reserved or have undefined behavior.
   fields:
-    setting:
+    # Bit 7 is reserved.
+    voltage_setting_raw:
       base: uint
       start: 0
-      end: 7
-      description: "Voltage setting (0-112 steps, 25mV/step)"
+      end: 7 # 7 bits (0 to 6 inclusive)
+      description: "Raw 7-bit value for DC-DC1 output voltage setting. See register description for conversion formula and valid range."
 
-Dcdc3Voltage:
-  type: register
-  address: 0x27
-  size_bits: 8
-  access: RW
-  description: |
-    DC-DC3 output voltage setting (0.7-3.5V, 25mV/step).
-    Refer to AXP192 datasheet page 35 for details.
-  fields:
-    setting:
-      base: uint
-      start: 0
-      end: 7
-      description: "Voltage setting (0-112 steps, 25mV/step)"
+DcDc3VoltageSetting: # REG27H
+  type: ref
+  target: DcDc1VoltageSetting
+  override:
+    type: register
+    address: 0x27
+    reset_value: 0x48 # Default 0x48 (72d) corresponds to 2.5V for DC-DC3.
 
-Ldo23Voltage:
+Ldo2And3VoltageSetting: # REG28H
   type: register
   address: 0x28
   size_bits: 8
   access: RW
-  reset_value: 0xCF
+  reset_value: 0xCF # Default: LDO2=3.0V (1100B), LDO3=3.3V (1111B)
   description: |
-    LDO2 and LDO3 output voltage configurations (1.8-3.3V, 100mV/step).
-    Refer to AXP192 datasheet page 36 for details.
+    Sets the output voltage for both LDO2 and LDO3.
+    LDO2 (bits 7-4): Formula: V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
+    LDO3 (bits 3-0): Formula: V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
   fields:
-    ldo2_voltage:
+    ldo2_voltage_setting_raw:
       base: uint
-      start: 4
-      end: 8
-      description: "LDO2 voltage (0x0-0xF -> 1.8V-3.3V)"
-    ldo3_voltage:
+      start: 4 # Bits 7-4
+      end: 8   # 4 bits
+      description: "Raw 4-bit setting for LDO2 output voltage (1.8V to 3.3V, 100mV/step)."
+    ldo3_voltage_setting_raw:
       base: uint
-      start: 0
-      end: 4
-      description: "LDO3 voltage (0x0-0xF -> 1.8V-3.3V)"
+      start: 0 # Bits 3-0
+      end: 4   # 4 bits
+      description: "Raw 4-bit setting for LDO3 output voltage (1.8V to 3.3V, 100mV/step)."
 
-VbusIpsoutChannel:
+VbusIpsoutPathManagement: # REG30H
   type: register
   address: 0x30
   size_bits: 8
   access: RW
+  reset_value: 0x80 # Default on M5StickC Plus: Path Forced Open (ignores N_VBUSEN),
+                     # VHOLD limit OFF, VHOLD setting defaults to 4.0V (if enabled),
+                     # VBUS current limit OFF (defaults to 500mA if enabled).
   description: |
-    VBUS-IPSOUT path control and VBUS current limit.
-    Configures VBUS path selection and current limits.
-    Refer to AXP192 datasheet page 36 for details.
+    Manages the VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
   fields:
-    vbus_ipsout_path_select_override:
+    path_control_by_n_vbusen_pin:
       base: bool
       start: 7
-      description: "VBUS path select override (0: N_VBUSEN pin, 1: always selected)"
-    vbus_current_limit:
+      description: "VBUS-IPSOUT path selection control (true: path open regardless of N_VBUSEN, false: path controlled by N_VBUSEN pin)."
+    vhold_voltage_limit_enabled: # Note: Datasheet REG30H[6] is '1' for limit enabled
       base: bool
       start: 6
-      description: "VBUS current limit (0: 900mA, 1: 500mA)"
-    vhold_voltage_setting:
+      description: "VBUS VHOLD voltage limiting control (true: limit enabled, false: no limit)."
+    vhold_voltage_setting_raw:
       base: uint
+      start: 3
+      end: 6 # 3 bits (3, 4, 5)
+      description: |
+        VHOLD voltage setting (000:4.0V, 001:4.1V, 010:4.2V, 011:4.3V, 100:4.4V, 101:4.5V, 110:4.6V, 111:4.7V).
+        Raw value.
+    # Bit 2 is reserved.
+    vbus_current_limit_enabled:
+      base: bool
+      start: 1
+      description: "VBUS current limit control (true: enabled, false: disabled)."
+    vbus_current_limit_is_100ma: # true if 100mA, false if 500mA (when enabled)
+      base: bool
       start: 0
-      end: 6
-      description: "VHOLD voltage setting for VBUS (when VBUS not present)"
+      description: "VBUS current limit selection when enabled (true: 100mA, false: 500mA)."
 
-ShutdownVoltage:
+ShutdownVoltageSetting: # REG31H
   type: register
   address: 0x31
   size_bits: 8
   access: RW
+  reset_value: 0x03 # Default on M5StickC Plus: VOFF=2.9V, Sleep PWRON wakeup disabled.
   description: |
-    Voff shutdown voltage and PEK function control.
-    Sets the shutdown voltage threshold and power-on function.
-    Refer to AXP192 datasheet page 37 for details.
+    Sets the VOFF (shutdown) voltage threshold and controls the PWRON short-press wakeup
+    functionality when the device is in sleep mode.
+    VOFF (bits 0-2) sets shutdown voltage: 000=2.6V ... 011(default)=2.9V ... 111=3.3V (100mV/step).
+    SleepWakeupEnable (bit 3): Setting to 'true' enables wakeup, but this bit auto-clears.
   fields:
-    voff_shutdown_voltage:
-      base: uint
-      start: 5
-      end: 8
-      description: "Shutdown voltage setting (2.6V-3.3V)"
-    pek_function_select:
-      base: uint
+    # Bits 7-4 are reserved.
+    sleep_pwron_short_press_wakeup_enable:
+      base: bool
       start: 3
-      end: 5
-      description: "Power-on function select"
+      description: "Enable PWRON short press to wake from sleep (true: enabled, false: disabled). Note: This bit auto-clears to 0 after being written as 1, requires re-setting before each sleep entry if wakeup is desired."
+    voff_shutdown_voltage_setting_raw:
+      base: uint
+      start: 0
+      end: 3 # 3 bits (0, 1, 2)
+      description: |
+        Raw 3-bit value for VOFF (shutdown) voltage setting.
+        Mapping: 000=2.6V, 001=2.7V, 010=2.8V, 011=2.9V (default), 100=3.0V, 101=3.1V, 110=3.2V, 111=3.3V.
 
-ShutdownBatteryChgledControl:
+ShutdownBatChgLedControl: # REG32H
   type: register
   address: 0x32
   size_bits: 8
   access: RW
+  reset_value: 0x46 # Default: Bat mon ON, CHGLED by charge func (default high-Z if by reg), N_OE delay 2S.
   description: |
-    Shutdown behavior and CHGLED control.
-    Configures shutdown timing and CHGLED pin behavior.
-    Refer to AXP192 datasheet page 37 for details.
+    Controls system shutdown (Mode A), battery detection enable, CHGLED pin function and control source,
+    and the N_OE low-to-high shutdown delay.
   fields:
-    shutdown_timing:
-      base: uint
-      start: 6
-      end: 8
-      description: "Shutdown timing options"
-    shutdown_enable:
+    request_shutdown_mode_a: # Writing true to this bit initiates shutdown
       base: bool
-      start: 5
-      description: "Shutdown function enable (1: enable)"
-    chgled_control_mode:
+      start: 7
+      description: "Initiate AXP192 shutdown in Mode A (true: request shutdown, false: no action). Writing true turns off outputs."
+    battery_monitoring_enable:
+      base: bool
+      start: 6
+      description: "Battery monitoring function (true: enabled, false: disabled)."
+    chgled_pin_function_setting_raw: # Bits 5-4
       base: uint
-      start: 2
-      end: 4
-      description: "CHGLED pin control mode"
+      start: 4
+      end: 6 # 2 bits
+      description: |
+        CHGLED pin function when controlled by this register (chgled_pin_control_by_register is true).
+        Raw value: 00=High-Z, 01=1Hz blink (25% duty), 10=4Hz blink (25% duty), 11=Output Low.
+    chgled_pin_control_by_register: # Bit 3
+      base: bool
+      start: 3
+      description: "CHGLED pin control source (true: controlled by chgled_pin_function_setting_raw, false: controlled by charging function)."
+    # Bit 2 is reserved.
+    n_oe_shutdown_delay_setting_raw: # Bits 1-0
+      base: uint
+      start: 0
+      end: 2 # 2 bits
+      description: "Shutdown delay after N_OE goes from low to high. Raw value: 00=0.5S, 01=1S, 10=2S, 11=3S."
 
-ChargeControl1:
+ChargeControl1: # REG33H
   type: register
   address: 0x33
   size_bits: 8
   access: RW
-  reset_value: 0xC8
+  reset_value: 0xC8 # Default: Charging ON, Target 4.2V, End at 10% current, Current 780mA.
   description: |
-    Charging control: enable, target voltage, end current, charge current.
-    Refer to AXP192 datasheet page 37 for details.
+    Controls primary charging parameters including enable state, target voltage,
+    charge termination current threshold, and internal path charge current.
   fields:
     charge_enable:
       base: bool
       start: 7
-      description: "Charging function enable (0: Disable, 1: Enable)"
-    target_voltage:
+      description: "Master charging function enable (true: enabled, false: disabled)."
+    charge_target_voltage_setting_raw: # Bits 6-5
       base: uint
       start: 5
-      end: 7
-      conversion:
-        name: ChargeTargetVoltage
-        V4_10: 0b00
-        V4_15: 0b01
-        V4_20: 0b10
-        V4_36: 0b11
-      description: "Target voltage (00: 4.1V, 01: 4.15V, 10: 4.2V, 11: 4.36V)"
-    end_charge_current_select:
+      end: 7 # 2 bits
+      description: "Charging target voltage. Raw: 00=4.1V, 01=4.15V, 10=4.2V (default), 11=4.36V."
+    charge_end_current_threshold_is_15_percent: # Bit 4
       base: bool
       start: 4
-      description: "End charge current (0: 10% of charge current, 1: 15%)"
-    current:
+      description: "Charge termination current threshold (true: 15% of set charge current, false: 10% of set charge current (default))."
+    internal_charge_current_setting_raw: # Bits 3-0
       base: uint
       start: 0
-      end: 4
-      description: "Charge current (0000: 100mA .. 1111: 1320mA)"
-
-ChargeControl2:
-  type: register
-  address: 0x34
-  size_bits: 8
-  access: RW
-  description: |
-    Charging control: pre-charge time, constant current timeout.
-    Configures charging timeouts and thresholds.
-    Refer to AXP192 datasheet page 37 for details.
-  fields:
-    constant_current_timeout:
-      base: uint
-      start: 6
-      end: 8
-      description: "Constant current charging timeout setting"
-
-BatteryChargeControl:
-  type: register
-  address: 0x35
-  size_bits: 8
-  access: RW
-  description: |
-    Backup battery charging control and other battery features.
-    Configures backup battery charging parameters.
-    Refer to AXP192 datasheet page 38 for details.
-  fields:
-    backup_battery_charge_enable:
-      base: bool
-      start: 7
-      description: "Backup battery charging enable (1: enable)"
-    backup_battery_target_voltage:
-      base: uint
-      start: 5
-      end: 7
-      description: "Backup battery target voltage (2.5V, 3.0V, 3.1V)"
-    backup_battery_charge_current:
-      base: uint
-      start: 2
-      end: 4
-      description: "Backup battery charge current setting"
-
-PekSettings:
-  type: register
-  address: 0x36
-  size_bits: 8
-  access: RW
-  reset_value: 0x5D
-  description: |
-    PEK button parameters: boot time, long press, auto-shutdown, PWROK delay, shutdown duration.
-    Refer to AXP192 datasheet page 38 for details.
-  fields:
-    boot_time:
-      base: uint
-      start: 6
-      end: 8
-      conversion:
-        name: PekBootTime
-        S128ms: 0b00
-        S512ms: 0b01
-        S1: 0b10
-        S2: 0b11
-      description: "Boot time (00: 128ms, 01: 512ms, 10: 1s, 11: 2s)"
-    long_press_time:
-      base: uint
-      start: 4
-      end: 6
-      conversion:
-        name: PekLongPressTime
-        Ms1000: 0b00
-        Ms1500: 0b01
-        Ms2000: 0b10
-        Ms2500: 0b11
-      description: "Long press time (00: 1s, 01: 1.5s, 10: 2s, 11: 2.5s)"
-    auto_shutdown_on_long_press_enable:
-      base: bool
-      start: 3
-      description: "Auto shutdown if PEK press > shutdown duration (0: Disable, 1: Enable)"
-    pwrok_signal_delay_after_power_on:
-      base: bool
-      start: 2
-      description: "PWROK signal delay after power-on (0: 32ms, 1: 64ms)"
-    shutdown_duration:
-      base: uint
-      start: 0
-      end: 2
-      conversion:
-        name: PekShutdownDuration
-        S4: 0b00
-        S6: 0b01
-        S8: 0b10
-        S10: 0b11
-      description: "Shutdown duration setting (00: 4s, 01: 6s, 10: 8s, 11: 10s)"
-
-DcdcFrequency:
-  type: register
-  address: 0x37
-  size_bits: 8
-  access: RW
-  description: |
-    DC-DC converter working frequency setting.
-    Configures the switching frequency for DC-DC converters.
-    Refer to AXP192 datasheet for details.
-  fields:
-    frequency:
-      base: uint
-      start: 0
-      end: 8
-      description: "DC-DC switching frequency setting"
-
-BatteryChargeLowTemp:
-  type: register
-  address: 0x38
-  size_bits: 8
-  access: RW
-  description: |
-    Battery charge low temperature threshold.
-    Sets the low temperature limit for battery charging.
-    Refer to AXP192 datasheet for details.
-  fields:
-    threshold:
-      base: uint
-      start: 0
-      end: 8
-      description: "Low temperature threshold for charging"
-
-BatteryChargeHighTemp:
-  type: register
-  address: 0x39
-  size_bits: 8
-  access: RW
-  description: |
-    Battery charge high temperature threshold.
-    Sets the high temperature limit for battery charging.
-    Refer to AXP192 datasheet for details.
-  fields:
-    threshold:
-      base: uint
-      start: 0
-      end: 8
-      description: "High temperature threshold for charging"
-
-ApsLowPower1:
-  type: register
-  address: 0x3A
-  size_bits: 8
-  access: RW
-  description: |
-    APS low power level 1 setting.
-    Configures the first low power warning level for APS voltage.
-    Refer to AXP192 datasheet for details.
-  fields:
-    level:
-      base: uint
-      start: 0
-      end: 8
-      description: "APS low power level 1 threshold"
-
-ApsLowPower2:
-  type: register
-  address: 0x3B
-  size_bits: 8
-  access: RW
-  description: |
-    APS low power level 2 setting.
-    Configures the second low power warning level for APS voltage.
-    Refer to AXP192 datasheet for details.
-  fields:
-    level:
-      base: uint
-      start: 0
-      end: 8
-      description: "APS low power level 2 threshold"
-
-BatteryDischargeLowTemp:
-  type: register
-  address: 0x3C
-  size_bits: 8
-  access: RW
-  description: |
-    Battery discharge low temperature threshold.
-    Sets the low temperature limit for battery discharge.
-    Refer to AXP192 datasheet for details.
-  fields:
-    threshold:
-      base: uint
-      start: 0
-      end: 8
-      description: "Low temperature threshold for discharge"
-
-BatteryDischargeHighTemp:
-  type: register
-  address: 0x3D
-  size_bits: 8
-  access: RW
-  description: |
-    Battery discharge high temperature threshold.
-    Sets the high temperature limit for battery discharge.
-    Refer to AXP192 datasheet for details.
-  fields:
-    threshold:
-      base: uint
-      start: 0
-      end: 8
-      description: "High temperature threshold for discharge"
-
-# --- ADC and System Control (0x80 - 0x8F) ---
-DcdcMode:
-  type: register
-  address: 0x80
-  size_bits: 8
-  access: RW
-  description: |
-    DC-DC converter working mode control.
-    Sets Auto or PWM mode for DC-DC converters.
-    Refer to AXP192 datasheet for details.
-  fields:
-    mode:
-      base: uint
-      start: 0
-      end: 8
-      description: "DC-DC mode setting (Auto/PWM)"
-
-AdcEnable1:
-  type: register
-  address: 0x82
-  size_bits: 8
-  access: RW
-  description: |
-    ADC enable control 1.
-    Enables ADC measurements for various parameters.
-    Refer to AXP192 datasheet page 39 for details.
-  fields:
-    battery_voltage_adc_enable:
-      base: bool
-      start: 7
-      description: "Battery voltage ADC enable (1: enable)"
-    battery_current_adc_enable:
-      base: bool
-      start: 6
-      description: "Battery current ADC enable (1: enable)"
-    acin_voltage_adc_enable:
-      base: bool
-      start: 5
-      description: "ACIN voltage ADC enable (1: enable)"
-    acin_current_adc_enable:
-      base: bool
-      start: 4
-      description: "ACIN current ADC enable (1: enable)"
-    vbus_voltage_adc_enable:
-      base: bool
-      start: 3
-      description: "VBUS voltage ADC enable (1: enable)"
-    vbus_current_adc_enable:
-      base: bool
-      start: 2
-      description: "VBUS current ADC enable (1: enable)"
-    aps_voltage_adc_enable:
-      base: bool
-      start: 1
-      description: "APS voltage ADC enable (1: enable)"
-    ts_pin_adc_enable:
-      base: bool
-      start: 0
-      description: "TS pin ADC enable (1: enable)"
-
-AdcEnable2:
-  type: register
-  address: 0x83
-  size_bits: 8
-  access: RW
-  description: |
-    ADC enable control 2.
-    Enables ADC for GPIO pins and internal temperature.
-    Refer to AXP192 datasheet page 39 for details.
-  fields:
-    gpio0_adc_enable:
-      base: bool
-      start: 7
-      description: "GPIO0 ADC enable (1: enable)"
-    gpio1_adc_enable:
-      base: bool
-      start: 6
-      description: "GPIO1 ADC enable (1: enable)"
-    gpio2_adc_enable:
-      base: bool
-      start: 5
-      description: "GPIO2 ADC enable (1: enable)"
-    gpio3_adc_enable:
-      base: bool
-      start: 4
-      description: "GPIO3 ADC enable (1: enable)"
-
-AdcRateTsPin:
-  type: register
-  address: 0x84
-  size_bits: 8
-  access: RW
-  description: |
-    ADC sample rate and TS pin control.
-    Configures ADC sampling frequency and TS pin behavior.
-    Refer to AXP192 datasheet for details.
-  fields:
-    rate:
-      base: uint
-      start: 0
-      end: 8
-      description: "ADC sample rate and TS pin settings"
-
-Gpio30InputRange:
-  type: register
-  address: 0x85
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0-3 ADC input range control.
-    Sets the input voltage range for GPIO ADC measurements.
-    Refer to AXP192 datasheet for details.
-  fields:
-    range:
-      base: uint
-      start: 0
-      end: 8
-      description: "GPIO0-3 ADC input range setting"
-
-Gpio0AdcIrqRising:
-  type: register
-  address: 0x86
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0 ADC IRQ rising edge threshold.
-    Sets the voltage threshold for GPIO0 ADC rising edge interrupt.
-    Refer to AXP192 datasheet for details.
-  fields:
-    threshold:
-      base: uint
-      start: 0
-      end: 8
-      description: "GPIO0 ADC rising edge threshold"
-
-Gpio0AdcIrqFalling:
-  type: register
-  address: 0x87
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0 ADC IRQ falling edge threshold.
-    Sets the voltage threshold for GPIO0 ADC falling edge interrupt.
-    Refer to AXP192 datasheet for details.
-  fields:
-    threshold:
-      base: uint
-      start: 0
-      end: 8
-      description: "GPIO0 ADC falling edge threshold"
-
-TimerControl:
-  type: register
-  address: 0x8A
-  size_bits: 8
-  access: RW
-  description: |
-    Timer control register.
-    Configures the internal timer for timeout interrupts.
-    Refer to AXP192 datasheet page 39 for details.
-  fields:
-    timer:
-      base: uint
-      start: 0
-      end: 8
-      description: "Timer configuration"
-
-VbusMonitor:
-  type: register
-  address: 0x8B
-  size_bits: 8
-  access: RW
-  description: |
-    VBUS monitor register.
-    Configures healthy voltage range for VBUS monitoring.
-    Refer to AXP192 datasheet for details.
-  fields:
-    monitor:
-      base: uint
-      start: 0
-      end: 8
-      description: "VBUS monitoring settings"
-
-TempShutdownControl:
-  type: register
-  address: 0x8F
-  size_bits: 8
-  access: RW
-  description: |
-    Over-temperature shutdown control.
-    Configures thresholds for over-temperature protection.
-    Refer to AXP192 datasheet for details.
-  fields:
-    shutdown:
-      base: uint
-      start: 0
-      end: 8
-      description: "Over-temperature shutdown settings"
-
-# --- GPIO Control Registers (0x90 - 0x9E) ---
-Gpio0Control:
-  type: register
-  address: 0x90
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0 function control.
-    Configures GPIO0 as NMOS-OD, input, LDO, ADC, or other modes.
-    Refer to AXP192 datasheet page 40 for details.
-  fields:
-    mode:
-      base: uint
-      start: 0
-      end: 3
-      try_conversion:
-        name: Gpio0Mode
-        NmosOd:
-          value: 0
-          description: NMOS Open-Drain output
-        Input:
-          value: 1
-          description: General input
-        Ldo:
-          value: 2
-          description: LDO output (LDOIO0)
-        Adc:
-          value: 4
-          description: ADC input
-        Low:
-          value: 5
-          description: Low output
-        Float:
-          value: 6
-          description: Floating state
-        Invalid:
-          value: catch_all
-          description: Invalid or reserved value
-      description: GPIO0 function configuration
-
-Gpio0Ldoio0Voltage:
-  type: register
-  address: 0x91
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0 LDO (LDOIO0) output voltage setting.
-    Configures the output voltage for GPIO0 when in LDO mode (1.8-3.3V).
-    Refer to AXP192 datasheet page 40 for details.
-  fields:
-    voltage_setting:
-      base: uint
-      start: 4
-      end: 8
-      description: "LDOIO0 voltage setting (1.8-3.3V, 100mV/step)"
-
-Gpio1Control:
-  type: register
-  address: 0x92
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO1 function control.
-    Configures GPIO1 as NMOS-OD, input, PWM, ADC, or other modes.
-    Refer to AXP192 datasheet page 41 for details.
-  fields:
-    mode:
-      base: uint
-      start: 0
-      end: 3
-      try_conversion:
-        name: Gpio1Mode
-        NmosOd:
-          value: 0
-          description: NMOS Open-Drain output
-        Input:
-          value: 1
-          description: General input
-        Pwm1:
-          value: 2
-          description: PWM1 output
-        Adc:
-          value: 4
-          description: ADC input
-        Low:
-          value: 5
-          description: Low output (CHGLED)
-        Float:
-          value: 6
-          description: Floating state
-        Invalid:
-          value: catch_all
-          description: Invalid or reserved value
-      description: GPIO1 function configuration
-
-Gpio2Control:
-  type: register
-  address: 0x93
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO2 function control.
-    Configures GPIO2 as NMOS-OD, input, PWM, ADC, or other modes.
-    Refer to AXP192 datasheet page 41 for details.
-  fields:
-    mode:
-      base: uint
-      start: 0
-      end: 3
-      try_conversion:
-        name: Gpio2Mode
-        NmosOd:
-          value: 0
-          description: NMOS Open-Drain output
-        Input:
-          value: 1
-          description: General input
-        Pwm2:
-          value: 2
-          description: PWM2 output
-        Adc:
-          value: 4
-          description: ADC input
-        Low:
-          value: 5
-          description: Low output
-        Float:
-          value: 6
-          description: Floating state
-        Invalid:
-          value: catch_all
-          description: Invalid or reserved value
-      description: GPIO2 function configuration
-
-Gpio20SignalStatus:
-  type: register
-  address: 0x94
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0-2 signal status and output control.
-    Reads input status or sets output levels for GPIO0-2.
-    Refer to AXP192 datasheet page 42 for details.
-  fields:
-    gpio0_out_level:
-      base: bool
-      start: 7
-      description: "GPIO0 output level (1: high)"
-    gpio1_out_level:
-      base: bool
-      start: 6
-      description: "GPIO1 output level (1: high)"
-    gpio2_out_level:
-      base: bool
-      start: 5
-      description: "GPIO2 output level (1: high)"
-
-Gpio43FunctionControl:
-  type: register
-  address: 0x95
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO3/4 function control.
-    Configures GPIO3 and GPIO4 as external charge, NMOS-OD, input, or ADC (GPIO3 only).
-    Refer to AXP192 datasheet page 42 for details.
-  fields:
-    enable_gpio34_control:
-      base: bool
-      start: 7
-      description: "Enable GPIO3/4 control (1: enable)"
-    gpio4_mode:
-      base: uint
-      start: 3
-      end: 5
-      try_conversion:
-        name: Gpio4Mode
-        ExtChg:
-          value: 0
-          description: External charge control
-        NmosOd:
-          value: 1
-          description: NMOS Open-Drain output
-        Input:
-          value: 2
-          description: General input
-        Invalid:
-          value: catch_all
-          description: Invalid or reserved value
-      description: GPIO4 function configuration
-    gpio3_mode:
-      base: uint
-      start: 1
-      end: 3
-      conversion:
-        name: Gpio3Mode
-        ExtChg:
-          value: 0
-          description: External charge control
-        NmosOd:
-          value: 1
-          description: NMOS Open-Drain output
-        Input:
-          value: 2
-          description: General input
-        Adc:
-          value: 3
-          description: ADC input
-      description: GPIO3 function configuration
-
-Gpio43SignalStatus:
-  type: register
-  address: 0x96
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO3/4 signal status and output control.
-    Reads input status or sets output levels for GPIO3/4.
-    Refer to AXP192 datasheet page 43 for details.
-  fields:
-    gpio3_out_level:
-      base: bool
-      start: 7
-      description: "GPIO3 output level (1: high)"
-    gpio4_out_level:
-      base: bool
-      start: 6
-      description: "GPIO4 output level (1: high)"
-
-Gpio20PulldownControl:
-  type: register
-  address: 0x97
-  size_bits: 8
-  access: RW
-  description: |
-    GPIO0-2 pulldown resistor control.
-    Enables or disables pulldown resistors for GPIO0-2.
-    Refer to AXP192 datasheet page 43 for details.
-  fields:
-    pulldown:
-      base: uint
-      start: 0
-      end: 8
-      description: "GPIO0-2 pulldown resistor settings"
-
-Pwm1Frequency:
-  type: register
-  address: 0x98
-  size_bits: 8
-  access: RW
-  description: |
-    PWM1 frequency setting.
-    Configures the frequency for PWM1 output.
-    Refer to AXP192 datasheet page 44 for details.
-  fields:
-    frequency:
-      base: uint
-      start: 0
-      end: 8
-      description: "PWM1 frequency setting"
-
-Pwm1DutyCycle:
-  type: register
-  address: 0x99
-  size_bits: 16
-  access: RW
-  byte_order: BE
-  description: |
-    PWM1 duty cycle configuration.
-    Sets the 10-bit duty cycle for PWM1 output, where bits [15:8] are the MSBs (from register 0x99) and bits [7:6] are the LSBs (from register 0x9A, bits 7:6).
-    The duty cycle is calculated as Y2/Y1, where Y1 is the 8-bit value from 0x99 and Y2 is the 2-bit value from 0x9A[7:6].
-    Refer to AXP192 datasheet page 44 for details.
-  fields:
-    duty_cycle:
-      base: uint
-      start: 6
-      end: 16
-      description: "10-bit PWM1 duty cycle value (bits 15:6 in LSB0 order)"
-
-Pwm2Frequency:
-  type: register
-  address: 0x9B
-  size_bits: 8
-  access: RW
-  description: |
-    PWM2 frequency setting.
-    Configures the frequency for PWM2 output.
-    Refer to AXP192 datasheet page 47 for details.
-  fields:
-    frequency:
-      base: uint
-      start: 0
-      end: 8
-      description: "PWM2 frequency setting"
-
-Pwm2DutyCycle:
-  type: register
-  address: 0x9C
-  size_bits: 16
-  access: RW
-  byte_order: BE
-  description: |
-    PWM2 duty cycle configuration.
-    Sets the 10-bit duty cycle for PWM2 output, where bits [15:8] are the MSBs (from register 0x9C) and bits [7:6] are the LSBs (from register 0x9D, bits 7:6).
-    The duty cycle is calculated as Y2/Y1, where Y1 is the 8-bit value from 0x9C and Y2 is the 2-bit value from 0x9D[7:6].
-    Refer to AXP192 datasheet page 47 for details.
-  fields:
-    duty_cycle:
-      base: uint
-      start: 6
-      end: 16
-      description: "10-bit PWM2 duty cycle value (bits 15:6 in LSB0 order)"
-
-NRstoGpio5Control:
-  type: register
-  address: 0x9E
-  size_bits: 8
-  access: RW
-  description: |
-    N_RSTO (Reset Out) / GPIO5 control.
-    Configures N_RSTO as reset output or GPIO5.
-    Refer to AXP192 datasheet page 47 for details.
-  fields:
-    function:
-      base: bool
-      start: 7
-      description: "N_RSTO function (0: N_RSTO, 1: GPIO5)"
-    gpio5_mode:
-      base: bool
-      start: 6
-      description: "GPIO5 mode (0: NMOS open-drain, 1: input)"
-    gpio5_output:
-      base: bool
-      start: 5
-      description: "GPIO5 output level (0: low, 1: float)"
-    gpio5_input_status:
-      base: bool
-      start: 4
-      description: "GPIO5 input status (0: low, 1: high)"
-
-# --- Interrupt Control Registers (0x40 - 0x4D) ---
-EnableControl1:
-  type: register
-  address: 0x40
-  size_bits: 8
-  access: RW
-  description: |
-    Interrupt Enable Control 1.
-    Enables interrupts for ACIN and VBUS events.
-    Refer to AXP192 datasheet page 48 for details.
-  fields:
-    acin_over_voltage_irq_en:
-      base: bool
-      start: 7
-      description: "ACIN over-voltage IRQ enable"
-    acin_connect_irq_en:
-      base: bool
-      start: 6
-      description: "ACIN connect IRQ enable"
-    acin_disconnect_irq_en:
-      base: bool
-      start: 5
-      description: "ACIN disconnect IRQ enable"
-    vbus_over_voltage_irq_en:
-      base: bool
-      start: 4
-      description: "VBUS over-voltage IRQ enable"
-    vbus_connect_irq_en:
-      base: bool
-      start: 3
-      description: "VBUS connect IRQ enable"
-    vbus_disconnect_irq_en:
-      base: bool
-      start: 2
-      description: "VBUS disconnect IRQ enable"
-    vbus_low_voltage_irq_en:
-      base: bool
-      start: 1
-      description: "VBUS low voltage IRQ enable"
-
-EnableControl2:
-  type: register
-  address: 0x41
-  size_bits: 8
-  access: RW
-  description: |
-    Interrupt Enable Control 2.
-    Enables interrupts for battery-related events.
-    Refer to AXP192 datasheet page 48 for details.
-  fields:
-    battery_connect_irq_en:
-      base: bool
-      start: 7
-      description: "Battery connect IRQ enable"
-    battery_disconnect_irq_en:
-      base: bool
-      start: 6
-      description: "Battery disconnect IRQ enable"
-    battery_activation_irq_en:
-      base: bool
-      start: 5
-      description: "Battery activation IRQ enable"
-    charging_irq_en:
-      base: bool
-      start: 3
-      description: "Charging IRQ enable"
-    battery_over_temp_irq_en:
-      base: bool
-      start: 1
-      description: "Battery over-temperature IRQ enable"
-    battery_low_temp_irq_en:
-      base: bool
-      start: 0
-      description: "Battery low-temperature IRQ enable"
-
-EnableControl3:
-  type: register
-  address: 0x42
-  size_bits: 8
-  access: RW
-  description: |
-    Interrupt Enable Control 3.
-    Enables interrupts for internal temperature and DC-DC events.
-    Refer to AXP192 datasheet page 48 for details.
-  fields:
-    internal_over_temp_irq_en:
-      base: bool
-      start: 7
-      description: "AXP192 internal over-temperature IRQ enable"
-    dcdc1_low_voltage_irq_en:
-      base: bool
-      start: 5
-      description: "DC-DC1 low voltage IRQ enable"
-    dcdc2_low_voltage_irq_en:
-      base: bool
-      start: 4
-      description: "DC-DC2 low voltage IRQ enable"
-    dcdc3_low_voltage_irq_en:
-      base: bool
-      start: 3
-      description: "DC-DC3 low voltage IRQ enable"
-    short_press_irq_en:
-      base: bool
-      start: 1
-      description: "Short press IRQ enable"
-    long_press_irq_en:
-      base: bool
-      start: 0
-      description: "Long press IRQ enable"
-
-EnableControl4:
-  type: register
-  address: 0x43
-  size_bits: 8
-  access: RW
-  reset_value: 0xC1
-  description: |
-    Interrupt Enable Control 4.
-    Enables interrupts for power-on/off and VBUS session events.
-    Refer to AXP192 datasheet page 49 for details.
-  fields:
-    n_oe_power_on_irq_en:
-      base: bool
-      start: 7
-      description: "N_OE power-on IRQ enable"
-    n_oe_power_off_irq_en:
-      base: bool
-      start: 6
-      description: "N_OE power-off IRQ enable"
-    vbus_valid_irq_en:
-      base: bool
-      start: 5
-      description: "VBUS valid IRQ enable"
-    vbus_invalid_irq_en:
-      base: bool
-      start: 4
-      description: "VBUS invalid IRQ enable"
-    vbus_session_ab_irq_en:
-      base: bool
-      start: 3
-      description: "VBUS session A/B IRQ enable"
-    vbus_session_end_irq_en:
-      base: bool
-      start: 2
-      description: "VBUS session end IRQ enable"
-    aps_low_voltage_irq_en:
-      base: bool
-      start: 0
-      description: "APS low voltage IRQ enable"
-
-EnableControl5:
-  type: register
-  address: 0x4A
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Interrupt Enable Control 5.
-    Enables interrupts for timer and GPIO edge triggers.
-    Refer to AXP192 datasheet page 49 for details.
-  fields:
-    timer_timeout_irq_en:
-      base: bool
-      start: 7
-      description: "Timer timeout IRQ enable"
-    gpio2_edge_trigger_irq_en:
-      base: bool
-      start: 2
-      description: "GPIO2 edge trigger IRQ enable"
-    gpio1_edge_trigger_irq_en:
-      base: bool
-      start: 1
-      description: "GPIO1 edge trigger IRQ enable"
-    gpio0_edge_trigger_irq_en:
-      base: bool
-      start: 0
-      description: "GPIO0 edge trigger IRQ enable"
-
-IrqStatus1:
-  type: register
-  address: 0x44
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Interrupt Status 1.
-    Indicates status of ACIN and VBUS interrupts (write 1 to clear).
-    Refer to AXP192 datasheet page 49 for details.
-  fields:
-    acin_over_voltage_irq:
-      base: bool
-      start: 7
-      description: "ACIN over-voltage IRQ status"
-    acin_connect_irq:
-      base: bool
-      start: 6
-      description: "ACIN connect IRQ status"
-    acin_disconnect_irq:
-      base: bool
-      start: 5
-      description: "ACIN disconnect IRQ status"
-    vbus_over_voltage_irq:
-      base: bool
-      start: 4
-      description: "VBUS over-voltage IRQ status"
-    vbus_connect_irq:
-      base: bool
-      start: 3
-      description: "VBUS connect IRQ status"
-    vbus_disconnect_irq:
-      base: bool
-      start: 2
-      description: "VBUS disconnect IRQ status"
-    vbus_low_voltage_irq:
-      base: bool
-      start: 1
-      description: "VBUS low voltage IRQ status"
-
-IrqStatus2:
-  type: register
-  address: 0x45
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Interrupt Status 2.
-    Indicates status of battery-related interrupts (write 1 to clear).
-    Refer to AXP192 datasheet page 50 for details.
-  fields:
-    battery_connect_irq:
-      base: bool
-      start: 7
-      description: "Battery connect IRQ status"
-    battery_disconnect_irq:
-      base: bool
-      start: 6
-      description: "Battery disconnect IRQ status"
-    battery_activation_irq:
-      base: bool
-      start: 5
-      description: "Battery activation IRQ status"
-    battery_exit_activation_irq:
-      base: bool
-      start: 4
-      description: "Battery exit activation mode IRQ status"
-    charging_irq:
-      base: bool
-      start: 3
-      description: "Charging IRQ status"
-    charge_complete_irq:
-      base: bool
-      start: 2
-      description: "Charging complete IRQ status"
-    battery_over_temp_irq:
-      base: bool
-      start: 1
-      description: "Battery over-temperature IRQ status"
-    battery_low_temp_irq:
-      base: bool
-      start: 0
-      description: "Battery low-temperature IRQ status"
-
-IrqStatus3:
-  type: register
-  address: 0x46
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Interrupt Status 3.
-    Indicates status of internal temperature and DC-DC interrupts (write 1 to clear).
-    Refer to AXP192 datasheet page 50 for details.
-  fields:
-    internal_over_temp_irq:
-      base: bool
-      start: 7
-      description: "AXP192 internal over-temperature IRQ status"
-    charge_current_low_irq:
-      base: bool
-      start: 6
-      description: "Charging current less than set value IRQ status"
-    dcdc1_low_voltage_irq:
-      base: bool
-      start: 5
-      description: "DC-DC1 low voltage IRQ status"
-    dcdc2_low_voltage_irq:
-      base: bool
-      start: 4
-      description: "DC-DC2 low voltage IRQ status"
-    dcdc3_low_voltage_irq:
-      base: bool
-      start: 3
-      description: "DC-DC3 low voltage IRQ status"
-    short_press_irq:
-      base: bool
-      start: 1
-      description: "Short press IRQ status"
-    long_press_irq:
-      base: bool
-      start: 0
-      description: "Long press IRQ status"
-
-IrqStatus4:
-  type: register
-  address: 0x47
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Interrupt Status 4.
-    Indicates status of power-on/off and VBUS session interrupts (write 1 to clear).
-    Refer to AXP192 datasheet page 50 for details.
-  fields:
-    n_oe_power_on_irq:
-      base: bool
-      start: 7
-      description: "N_OE power-on IRQ status"
-    n_oe_power_off_irq:
-      base: bool
-      start: 6
-      description: "N_OE power-off IRQ status"
-    vbus_valid_irq:
-      base: bool
-      start: 5
-      description: "VBUS valid IRQ status"
-    vbus_invalid_irq:
-      base: bool
-      start: 4
-      description: "VBUS invalid IRQ status"
-    vbus_session_ab_irq:
-      base: bool
-      start: 3
-      description: "VBUS session A/B IRQ status"
-    vbus_session_end_irq:
-      base: bool
-      start: 2
-      description: "VBUS session end IRQ status"
-    aps_low_voltage_irq:
-      base: bool
-      start: 0
-      description: "APS low voltage IRQ status"
-
-IrqStatus5:
-  type: register
-  address: 0x4D
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Interrupt Status 5.
-    Indicates status of timer and GPIO edge trigger interrupts (write 1 to clear).
-    Refer to AXP192 datasheet page 51 for details.
-  fields:
-    timer_timeout_irq:
-      base: bool
-      start: 7
-      description: "Timer timeout IRQ status"
-    gpio2_edge_trigger_irq:
-      base: bool
-      start: 2
-      description: "GPIO2 edge trigger IRQ status"
-    gpio1_edge_trigger_irq:
-      base: bool
-      start: 1
-      description: "GPIO1 edge trigger IRQ status"
-    gpio0_edge_trigger_irq:
-      base: bool
-      start: 0
-      description: "GPIO0 edge trigger IRQ status"
-
-# --- ADC Data Registers (0x56 - 0x7E) ---
-AcinVoltageAdc:
-  type: register
-  address: 0x56
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    ACIN voltage ADC raw value.
-    Provides the 12-bit ADC measurement of ACIN voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-AcinCurrentAdc:
-  type: register
-  address: 0x58
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    ACIN current ADC raw value.
-    Provides the 12-bit ADC measurement of ACIN current.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-VbusVoltageAdc:
-  type: register
-  address: 0x5A
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    VBUS voltage ADC raw value.
-    Provides the 12-bit ADC measurement of VBUS voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-VbusCurrentAdc:
-  type: register
-  address: 0x5C
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    VBUS current ADC raw value.
-    Provides the 12-bit ADC measurement of VBUS current.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-InternalTemperatureAdc:
-  type: register
-  address: 0x5E
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    Internal temperature ADC raw value.
-    Provides the 12-bit ADC measurement of AXP192 internal temperature.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-TsInputAdc:
-  type: register
-  address: 0x62
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    TS pin ADC raw value.
-    Provides the 12-bit ADC measurement of the TS pin (temperature sensor).
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-Gpio0VoltageAdc:
-  type: register
-  address: 0x64
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    GPIO0 voltage ADC raw value.
-    Provides the 12-bit ADC measurement of GPIO0 voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-Gpio1VoltageAdc:
-  type: register
-  address: 0x66
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    GPIO1 voltage ADC raw value.
-    Provides the 12-bit ADC measurement of GPIO1 voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-Gpio2VoltageAdc:
-  type: register
-  address: 0x68
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    GPIO2 voltage ADC raw value.
-    Provides the 12-bit ADC measurement of GPIO2 voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-Gpio3VoltageAdc:
-  type: register
-  address: 0x6A
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    GPIO3 voltage ADC raw value.
-    Provides the 12-bit ADC measurement of GPIO3 voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-BatteryPowerAdc:
-  type: register
-  address: 0x70
-  size_bits: 24
-  access: RO
-  byte_order: BE
-  reset_value: 0x000000
-  description: |
-    Battery instantaneous power (Pbat=Val*1.1mV*0.5mA/1000).
-    Provides the 23-bit ADC measurement of battery power.
-    Refer to AXP192 datasheet page 32 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 23
-      description: "23-bit ADC raw value"
-
-BatteryVoltageAdc:
-  type: register
-  address: 0x78
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    Battery voltage ADC raw value.
-    Provides the 12-bit ADC measurement of battery voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-ChargeCurrentAdc:
-  type: register
-  address: 0x7A
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    Battery charge current ADC raw value.
-    Provides the 12-bit ADC measurement of charge current.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-DischargeCurrentAdc:
-  type: register
-  address: 0x7C
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    Battery discharge current ADC raw value.
-    Provides the 12-bit ADC measurement of discharge current.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-ApsVoltageAdc:
-  type: register
-  address: 0x7E
-  size_bits: 16
-  access: RO
-  byte_order: BE
-  description: |
-    APS voltage ADC raw value.
-    Provides the 12-bit ADC measurement of APS voltage.
-    Refer to AXP192 datasheet page 45 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 12
-      description: "12-bit ADC raw value"
-
-# --- Coulomb Counter Registers (0xB0 - 0xB8) ---
-ChargeCoulombCounter:
-  type: register
-  address: 0xB0
-  size_bits: 32
-  access: RO
-  byte_order: BE
-  description: |
-    Charge coulomb counter value.
-    Provides the 32-bit measurement of accumulated charge.
-    Refer to AXP192 datasheet page 51 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 32
-      description: "32-bit coulomb counter value"
-
-DischargeCoulombCounter:
-  type: register
-  address: 0xB4
-  size_bits: 32
-  access: RO
-  byte_order: BE
-  description: |
-    Discharge coulomb counter value.
-    Provides the 32-bit measurement of accumulated discharge.
-    Refer to AXP192 datasheet page 51 for details.
-  fields:
-    raw:
-      base: uint
-      start: 0
-      end: 32
-      description: "32-bit coulomb counter value"
-
-CoulombCounterControl:
-  type: register
-  address: 0xB8
-  size_bits: 8
-  access: RW
-  reset_value: 0x00
-  description: |
-    Coulomb counter control.
-    Enables, suspends, or clears the coulomb counter.
-    Refer to AXP192 datasheet page 51 for details.
-  fields:
-    enable:
-      base: bool
-      start: 7
-      description: "Enable coulomb counter (1: enable)"
-    suspend:
-      base: bool
-      start: 6
-      description: "Suspend coulomb counter (1: suspend, self-clearing)"
-    clear:
-      base: bool
-      start: 5
-      description: "Clear coulomb counter (1: clear, self-clearing)"
+      end: 4 # 4 bits
+      description: |
+        Internal path charging current setting. Raw value maps to mA:
+        0000=100, 0001=190, 0010=280, 0011=360, 0100=450, 0101=550, 0110=630, 0111=700,
+        1000=780 (default), 1001=880, 1010=960, 1011=1000, 1100=1080, 1101=1160, 1110=1240, 1111=1320mA.
