@@ -172,6 +172,18 @@ impl<I> Device<I> {
         callback(90 + 0 * 0, "vbus_voltage_adc", reg.into());
         let reg = self.vbus_current_adc().read()?;
         callback(92 + 0 * 0, "vbus_current_adc", reg.into());
+        let reg = self.internal_temperature_adc().read()?;
+        callback(94 + 0 * 0, "internal_temperature_adc", reg.into());
+        let reg = self.ts_pin_adc().read()?;
+        callback(98 + 0 * 0, "ts_pin_adc", reg.into());
+        let reg = self.gpio_voltage_adc(0).read()?;
+        callback(100 + 0 * 2, "gpio_voltage_adc[0]", reg.into());
+        let reg = self.gpio_voltage_adc(1).read()?;
+        callback(100 + 1 * 2, "gpio_voltage_adc[1]", reg.into());
+        let reg = self.gpio_voltage_adc(2).read()?;
+        callback(100 + 2 * 2, "gpio_voltage_adc[2]", reg.into());
+        let reg = self.gpio_voltage_adc(3).read()?;
+        callback(100 + 3 * 2, "gpio_voltage_adc[3]", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -332,6 +344,18 @@ impl<I> Device<I> {
         callback(90 + 0 * 0, "vbus_voltage_adc", reg.into());
         let reg = self.vbus_current_adc().read_async().await?;
         callback(92 + 0 * 0, "vbus_current_adc", reg.into());
+        let reg = self.internal_temperature_adc().read_async().await?;
+        callback(94 + 0 * 0, "internal_temperature_adc", reg.into());
+        let reg = self.ts_pin_adc().read_async().await?;
+        callback(98 + 0 * 0, "ts_pin_adc", reg.into());
+        let reg = self.gpio_voltage_adc(0).read_async().await?;
+        callback(100 + 0 * 2, "gpio_voltage_adc[0]", reg.into());
+        let reg = self.gpio_voltage_adc(1).read_async().await?;
+        callback(100 + 1 * 2, "gpio_voltage_adc[1]", reg.into());
+        let reg = self.gpio_voltage_adc(2).read_async().await?;
+        callback(100 + 2 * 2, "gpio_voltage_adc[2]", reg.into());
+        let reg = self.gpio_voltage_adc(3).read_async().await?;
+        callback(100 + 3 * 2, "gpio_voltage_adc[3]", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1784,6 +1808,77 @@ impl<I> Device<I> {
             field_sets::VbusCurrentAdc,
             ::device_driver::RO,
         >::new(self.interface(), address as u8, field_sets::VbusCurrentAdc::new)
+    }
+    ///AXP192 Internal Temperature ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG5EH_byte << 4) | (REG5FH_byte & 0x0F).
+    ///Formula for conversion: Temperature (°C) = (raw_12bit_adc_value * 0.1) - 144.7.
+    pub fn internal_temperature_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::InternalTemperatureAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 94;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::InternalTemperatureAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::InternalTemperatureAdc::new)
+    }
+    ///TS (Temperature Sense) Pin ADC Data. This is a 12-bit value representing the voltage at the TS pin.
+    ///The value is formed by (REG62H_byte << 4) | (REG63H_byte & 0x0F).
+    ///Formula for TS pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.8.
+    ///This voltage is typically from an NTC thermistor circuit for battery temperature monitoring.
+    pub fn ts_pin_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::TsPinAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 98;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::TsPinAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::TsPinAdc::new)
+    }
+    ///Reads the 12-bit ADC value for a GPIO pin (indexed 0-3 for GPIO0-GPIO3).
+    ///The value is formed by (MSB_byte_of_pair << 4) | (LSB_byte_of_pair & 0x0F).
+    ///Formula for pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.5.
+    ///The measurable voltage input range for each GPIO ADC is set in REG85H.
+    ///
+    /// Valid index range: 0..4
+    pub fn gpio_voltage_adc(
+        &mut self,
+        index: usize,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::GpioVoltageAdc,
+        ::device_driver::RO,
+    > {
+        let address = {
+            assert!(index < 4);
+            self.base_address + 100 + index as u8 * 2
+        };
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::GpioVoltageAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::GpioVoltageAdc::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -14301,6 +14396,404 @@ pub mod field_sets {
             self
         }
     }
+    ///AXP192 Internal Temperature ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG5EH_byte << 4) | (REG5FH_byte & 0x0F).
+    ///Formula for conversion: Temperature (°C) = (raw_12bit_adc_value * 0.1) - 144.7.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct InternalTemperatureAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for InternalTemperatureAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl InternalTemperatureAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit internal temperature ADC reading. Use formula (RAW * 0.1) - 144.7 to get °C. Assumes REG5FH[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit internal temperature ADC reading. Use formula (RAW * 0.1) - 144.7 to get °C. Assumes REG5FH[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for InternalTemperatureAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<InternalTemperatureAdc> for [u8; 2] {
+        fn from(val: InternalTemperatureAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for InternalTemperatureAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("InternalTemperatureAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for InternalTemperatureAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "InternalTemperatureAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for InternalTemperatureAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for InternalTemperatureAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for InternalTemperatureAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for InternalTemperatureAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for InternalTemperatureAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for InternalTemperatureAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for InternalTemperatureAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///TS (Temperature Sense) Pin ADC Data. This is a 12-bit value representing the voltage at the TS pin.
+    ///The value is formed by (REG62H_byte << 4) | (REG63H_byte & 0x0F).
+    ///Formula for TS pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.8.
+    ///This voltage is typically from an NTC thermistor circuit for battery temperature monitoring.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct TsPinAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for TsPinAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl TsPinAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit TS pin ADC reading. Multiply by 0.8 to get mV. Assumes REG63H[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit TS pin ADC reading. Multiply by 0.8 to get mV. Assumes REG63H[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for TsPinAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<TsPinAdc> for [u8; 2] {
+        fn from(val: TsPinAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for TsPinAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("TsPinAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for TsPinAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "TsPinAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for TsPinAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for TsPinAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for TsPinAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for TsPinAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for TsPinAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for TsPinAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for TsPinAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///Reads the 12-bit ADC value for a GPIO pin (indexed 0-3 for GPIO0-GPIO3).
+    ///The value is formed by (MSB_byte_of_pair << 4) | (LSB_byte_of_pair & 0x0F).
+    ///Formula for pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.5.
+    ///The measurable voltage input range for each GPIO ADC is set in REG85H.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct GpioVoltageAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for GpioVoltageAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl GpioVoltageAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit GPIO voltage ADC reading. Multiply by 0.5 to get mV.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit GPIO voltage ADC reading. Multiply by 0.5 to get mV.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for GpioVoltageAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<GpioVoltageAdc> for [u8; 2] {
+        fn from(val: GpioVoltageAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for GpioVoltageAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("GpioVoltageAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for GpioVoltageAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "GpioVoltageAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for GpioVoltageAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for GpioVoltageAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for GpioVoltageAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for GpioVoltageAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for GpioVoltageAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for GpioVoltageAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for GpioVoltageAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -14477,6 +14970,20 @@ pub mod field_sets {
         ///The value is formed by (REG5CH_byte << 4) | (REG5DH_byte & 0x0F).
         ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.375.
         VbusCurrentAdc(VbusCurrentAdc),
+        ///AXP192 Internal Temperature ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG5EH_byte << 4) | (REG5FH_byte & 0x0F).
+        ///Formula for conversion: Temperature (°C) = (raw_12bit_adc_value * 0.1) - 144.7.
+        InternalTemperatureAdc(InternalTemperatureAdc),
+        ///TS (Temperature Sense) Pin ADC Data. This is a 12-bit value representing the voltage at the TS pin.
+        ///The value is formed by (REG62H_byte << 4) | (REG63H_byte & 0x0F).
+        ///Formula for TS pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.8.
+        ///This voltage is typically from an NTC thermistor circuit for battery temperature monitoring.
+        TsPinAdc(TsPinAdc),
+        ///Reads the 12-bit ADC value for a GPIO pin (indexed 0-3 for GPIO0-GPIO3).
+        ///The value is formed by (MSB_byte_of_pair << 4) | (LSB_byte_of_pair & 0x0F).
+        ///Formula for pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.5.
+        ///The measurable voltage input range for each GPIO ADC is set in REG85H.
+        GpioVoltageAdc(GpioVoltageAdc),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -14551,6 +15058,9 @@ pub mod field_sets {
                 Self::AcinCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::VbusVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
                 Self::VbusCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::InternalTemperatureAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::TsPinAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::GpioVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -14629,6 +15139,9 @@ pub mod field_sets {
                 Self::AcinCurrentAdc(val) => defmt::Format::format(val, f),
                 Self::VbusVoltageAdc(val) => defmt::Format::format(val, f),
                 Self::VbusCurrentAdc(val) => defmt::Format::format(val, f),
+                Self::InternalTemperatureAdc(val) => defmt::Format::format(val, f),
+                Self::TsPinAdc(val) => defmt::Format::format(val, f),
+                Self::GpioVoltageAdc(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -14930,6 +15443,21 @@ pub mod field_sets {
     impl From<VbusCurrentAdc> for FieldSetValue {
         fn from(val: VbusCurrentAdc) -> Self {
             Self::VbusCurrentAdc(val)
+        }
+    }
+    impl From<InternalTemperatureAdc> for FieldSetValue {
+        fn from(val: InternalTemperatureAdc) -> Self {
+            Self::InternalTemperatureAdc(val)
+        }
+    }
+    impl From<TsPinAdc> for FieldSetValue {
+        fn from(val: TsPinAdc) -> Self {
+            Self::TsPinAdc(val)
+        }
+    }
+    impl From<GpioVoltageAdc> for FieldSetValue {
+        fn from(val: GpioVoltageAdc) -> Self {
+            Self::GpioVoltageAdc(val)
         }
     }
 }

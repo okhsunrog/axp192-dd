@@ -1843,3 +1843,57 @@ VbusCurrentAdc: # REG5CH & REG5DH combined
       start: 0
       end: 12 # Defines a 12-bit field
       description: "Raw 12-bit VBUS current ADC reading. Multiply by 0.375 to get mA. Assumes REG5DH[7:4] are zero/ignored."
+
+InternalTemperatureAdc: # REG5EH & REG5FH combined
+  type: register
+  address: 0x5E # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    AXP192 Internal Temperature ADC Data. This is a 12-bit value.
+    The value is formed by (REG5EH_byte << 4) | (REG5FH_byte & 0x0F).
+    Formula for conversion: Temperature (°C) = (raw_12bit_adc_value * 0.1) - 144.7.
+  fields:
+    value_raw:
+      base: uint # The raw ADC value is an unsigned integer
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit internal temperature ADC reading. Use formula (RAW * 0.1) - 144.7 to get °C. Assumes REG5FH[7:4] are zero/ignored."
+
+TsPinAdc: # REG62H & REG63H combined
+  type: register
+  address: 0x62 # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    TS (Temperature Sense) Pin ADC Data. This is a 12-bit value representing the voltage at the TS pin.
+    The value is formed by (REG62H_byte << 4) | (REG63H_byte & 0x0F).
+    Formula for TS pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.8.
+    This voltage is typically from an NTC thermistor circuit for battery temperature monitoring.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit TS pin ADC reading. Multiply by 0.8 to get mV. Assumes REG63H[7:4] are zero/ignored."
+
+GpioVoltageAdc: # This will be the base name for the repeated access, REG64H-REG6BH
+  type: register
+  address: 0x64 # Starting address for GPIO0 ADC
+  size_bits: 16 # Each logical ADC reading spans 2 physical bytes
+  access: RO
+  repeat:
+    count: 4  # For GPIO0, GPIO1, GPIO2, GPIO3
+    stride: 2 # Each pair starts 2 bytes after the previous (0x64, 0x66, 0x68, 0x6A)
+  description: |
+    Reads the 12-bit ADC value for a GPIO pin (indexed 0-3 for GPIO0-GPIO3).
+    The value is formed by (MSB_byte_of_pair << 4) | (LSB_byte_of_pair & 0x0F).
+    Formula for pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.5.
+    The measurable voltage input range for each GPIO ADC is set in REG85H.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field within the 16-bit read window
+      description: "Raw 12-bit GPIO voltage ADC reading. Multiply by 0.5 to get mV."
+
