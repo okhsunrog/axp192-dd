@@ -3,7 +3,6 @@ config:
   default_byte_order: BE
   defmt_feature: "defmt"
 
-# --- Power Control Registers (0x00 - 0x3F, some are reserved) ---
 PowerStatus: # REG00H
   type: register
   address: 0x00
@@ -777,3 +776,34 @@ BatteryDischargeHighTempThreshold: # REG3DH
       end: 8 # 8 bits
       description: "Raw 8-bit setting for the high-temperature discharge threshold voltage. See register description for formula."
 
+DcDcOperatingMode: # REG80H
+  type: register
+  address: 0x80
+  size_bits: 8
+  access: RW
+  reset_value: 0xE0 # Default: All DC-DCs in PFM/PWM Auto Switching mode.
+  description: "Selects the operating mode (PFM/PWM Auto or Fixed PWM) for DC-DC1, DC-DC2, and DC-DC3."
+  fields:
+    # Bits 7-4 are reserved.
+    dcdc1_operating_mode:
+      base: uint
+      start: 3
+      end: 4   # 1 bit
+      description: "DC-DC1 operating mode."
+      conversion:
+        name: DcDcModeSelection
+        AutoPfmPwm: { value: 0, description: "Automatic PFM/PWM switching." } # Default
+        FixedPwm:   { value: 1, description: "Fixed PWM mode." }
+    dcdc2_operating_mode:
+      base: uint
+      start: 2
+      end: 3   # 1 bit
+      description: "DC-DC2 operating mode."
+      conversion: "DcDcModeSelection"
+    dcdc3_operating_mode:
+      base: uint
+      start: 1
+      end: 2   # 1 bit
+      description: "DC-DC3 operating mode."
+      conversion: "DcDcModeSelection"
+    # Bit 0 is reserved.
