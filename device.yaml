@@ -1774,3 +1774,72 @@ IrqStatus5: # REG4DH
       base: bool
       start: 0
       description: "GPIO0 input edge trigger IRQ status. Write 1 to clear."
+
+AcinVoltageAdc: # REG56H & REG57H combined
+  type: register
+  address: 0x56 # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers (0x56 and 0x57)
+  access: RO
+  description: |
+    ACIN Voltage ADC Data. This is a 12-bit value.
+    The value is formed by (REG56H_byte << 4) | (REG57H_byte & 0x0F).
+    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+  fields:
+    # With default_byte_order: BE and default_bit_order: LSB0,
+    # the tool reads [byte_at_0x56, byte_at_0x57] into an internal buffer.
+    # byte_at_0x56 contains ADC bits 11 down to 4.
+    # byte_at_0x57 contains ADC bits 3 down to 0 (in its lower nibble).
+    # A 12-bit field from start:0, end:12 should correctly extract this.
+    value_raw:
+      base: uint
+      start: 0  # Start at the LSB of the conceptual 12-bit value within the 16-bit window
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit ACIN voltage ADC reading. Multiply by 1.7 to get mV. Note: This field assumes REG57H[7:4] are zero or ignored for the 12-bit value composition."
+
+AcinCurrentAdc: # REG58H & REG59H combined
+  type: register
+  address: 0x58 # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    ACIN Current ADC Data. This is a 12-bit value.
+    The value is formed by (REG58H_byte << 4) | (REG59H_byte & 0x0F).
+    Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.625.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit ACIN current ADC reading. Multiply by 0.625 to get mA. Assumes REG59H[7:4] are zero/ignored."
+
+VbusVoltageAdc: # REG5AH & REG5BH combined
+  type: register
+  address: 0x5A # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    VBUS Voltage ADC Data. This is a 12-bit value.
+    The value is formed by (REG5AH_byte << 4) | (REG5BH_byte & 0x0F).
+    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit VBUS voltage ADC reading. Multiply by 1.7 to get mV. Assumes REG5BH[7:4] are zero/ignored."
+
+VbusCurrentAdc: # REG5CH & REG5DH combined
+  type: register
+  address: 0x5C # Starting address of the pair
+  size_bits: 16 # Logical size to cover both hardware registers
+  access: RO
+  description: |
+    VBUS Current ADC Data. This is a 12-bit value.
+    The value is formed by (REG5CH_byte << 4) | (REG5DH_byte & 0x0F).
+    Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.375.
+  fields:
+    value_raw:
+      base: uint
+      start: 0
+      end: 12 # Defines a 12-bit field
+      description: "Raw 12-bit VBUS current ADC reading. Multiply by 0.375 to get mA. Assumes REG5DH[7:4] are zero/ignored."

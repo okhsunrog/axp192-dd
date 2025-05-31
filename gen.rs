@@ -164,6 +164,14 @@ impl<I> Device<I> {
         callback(71 + 0 * 0, "irq_status_4", reg.into());
         let reg = self.irq_status_5().read()?;
         callback(77 + 0 * 0, "irq_status_5", reg.into());
+        let reg = self.acin_voltage_adc().read()?;
+        callback(86 + 0 * 0, "acin_voltage_adc", reg.into());
+        let reg = self.acin_current_adc().read()?;
+        callback(88 + 0 * 0, "acin_current_adc", reg.into());
+        let reg = self.vbus_voltage_adc().read()?;
+        callback(90 + 0 * 0, "vbus_voltage_adc", reg.into());
+        let reg = self.vbus_current_adc().read()?;
+        callback(92 + 0 * 0, "vbus_current_adc", reg.into());
         Ok(())
     }
     /// Read all readable register values in this block from the device.
@@ -316,6 +324,14 @@ impl<I> Device<I> {
         callback(71 + 0 * 0, "irq_status_4", reg.into());
         let reg = self.irq_status_5().read_async().await?;
         callback(77 + 0 * 0, "irq_status_5", reg.into());
+        let reg = self.acin_voltage_adc().read_async().await?;
+        callback(86 + 0 * 0, "acin_voltage_adc", reg.into());
+        let reg = self.acin_current_adc().read_async().await?;
+        callback(88 + 0 * 0, "acin_current_adc", reg.into());
+        let reg = self.vbus_voltage_adc().read_async().await?;
+        callback(90 + 0 * 0, "vbus_voltage_adc", reg.into());
+        let reg = self.vbus_current_adc().read_async().await?;
+        callback(92 + 0 * 0, "vbus_current_adc", reg.into());
         Ok(())
     }
     ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -1684,6 +1700,90 @@ impl<I> Device<I> {
             field_sets::IrqStatus5,
             ::device_driver::RW,
         >::new(self.interface(), address as u8, field_sets::IrqStatus5::new)
+    }
+    ///ACIN Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG56H_byte << 4) | (REG57H_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+    pub fn acin_voltage_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::AcinVoltageAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 86;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::AcinVoltageAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::AcinVoltageAdc::new)
+    }
+    ///ACIN Current ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG58H_byte << 4) | (REG59H_byte & 0x0F).
+    ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.625.
+    pub fn acin_current_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::AcinCurrentAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 88;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::AcinCurrentAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::AcinCurrentAdc::new)
+    }
+    ///VBUS Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG5AH_byte << 4) | (REG5BH_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+    pub fn vbus_voltage_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::VbusVoltageAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 90;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::VbusVoltageAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::VbusVoltageAdc::new)
+    }
+    ///VBUS Current ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG5CH_byte << 4) | (REG5DH_byte & 0x0F).
+    ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.375.
+    pub fn vbus_current_adc(
+        &mut self,
+    ) -> ::device_driver::RegisterOperation<
+        '_,
+        I,
+        u8,
+        field_sets::VbusCurrentAdc,
+        ::device_driver::RO,
+    > {
+        let address = self.base_address + 92;
+        ::device_driver::RegisterOperation::<
+            '_,
+            I,
+            u8,
+            field_sets::VbusCurrentAdc,
+            ::device_driver::RO,
+        >::new(self.interface(), address as u8, field_sets::VbusCurrentAdc::new)
     }
 }
 /// Module containing the generated fieldsets of the registers and commands
@@ -13673,6 +13773,534 @@ pub mod field_sets {
             self
         }
     }
+    ///ACIN Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG56H_byte << 4) | (REG57H_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct AcinVoltageAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for AcinVoltageAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl AcinVoltageAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit ACIN voltage ADC reading. Multiply by 1.7 to get mV. Note: This field assumes REG57H[7:4] are zero or ignored for the 12-bit value composition.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit ACIN voltage ADC reading. Multiply by 1.7 to get mV. Note: This field assumes REG57H[7:4] are zero or ignored for the 12-bit value composition.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for AcinVoltageAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<AcinVoltageAdc> for [u8; 2] {
+        fn from(val: AcinVoltageAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for AcinVoltageAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("AcinVoltageAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for AcinVoltageAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "AcinVoltageAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for AcinVoltageAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for AcinVoltageAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for AcinVoltageAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for AcinVoltageAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for AcinVoltageAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for AcinVoltageAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for AcinVoltageAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///ACIN Current ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG58H_byte << 4) | (REG59H_byte & 0x0F).
+    ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.625.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct AcinCurrentAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for AcinCurrentAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl AcinCurrentAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit ACIN current ADC reading. Multiply by 0.625 to get mA. Assumes REG59H[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit ACIN current ADC reading. Multiply by 0.625 to get mA. Assumes REG59H[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for AcinCurrentAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<AcinCurrentAdc> for [u8; 2] {
+        fn from(val: AcinCurrentAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for AcinCurrentAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("AcinCurrentAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for AcinCurrentAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "AcinCurrentAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for AcinCurrentAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for AcinCurrentAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for AcinCurrentAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for AcinCurrentAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for AcinCurrentAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for AcinCurrentAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for AcinCurrentAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///VBUS Voltage ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG5AH_byte << 4) | (REG5BH_byte & 0x0F).
+    ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct VbusVoltageAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for VbusVoltageAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl VbusVoltageAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit VBUS voltage ADC reading. Multiply by 1.7 to get mV. Assumes REG5BH[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit VBUS voltage ADC reading. Multiply by 1.7 to get mV. Assumes REG5BH[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for VbusVoltageAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<VbusVoltageAdc> for [u8; 2] {
+        fn from(val: VbusVoltageAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for VbusVoltageAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("VbusVoltageAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for VbusVoltageAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "VbusVoltageAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for VbusVoltageAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for VbusVoltageAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for VbusVoltageAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for VbusVoltageAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for VbusVoltageAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for VbusVoltageAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for VbusVoltageAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
+    ///VBUS Current ADC Data. This is a 12-bit value.
+    ///The value is formed by (REG5CH_byte << 4) | (REG5DH_byte & 0x0F).
+    ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.375.
+    #[derive(Copy, Clone, Eq, PartialEq)]
+    pub struct VbusCurrentAdc {
+        /// The internal bits
+        bits: [u8; 2],
+    }
+    impl ::device_driver::FieldSet for VbusCurrentAdc {
+        const SIZE_BITS: u32 = 16;
+        fn new_with_zero() -> Self {
+            Self::new_zero()
+        }
+        fn get_inner_buffer(&self) -> &[u8] {
+            &self.bits
+        }
+        fn get_inner_buffer_mut(&mut self) -> &mut [u8] {
+            &mut self.bits
+        }
+    }
+    impl VbusCurrentAdc {
+        /// Create a new instance, loaded with the reset value (if any)
+        pub const fn new() -> Self {
+            Self { bits: [0, 0] }
+        }
+        /// Create a new instance, loaded with all zeroes
+        pub const fn new_zero() -> Self {
+            Self { bits: [0; 2] }
+        }
+        ///Read the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit VBUS current ADC reading. Multiply by 0.375 to get mA. Assumes REG5DH[7:4] are zero/ignored.
+        pub fn value_raw(&self) -> u16 {
+            let raw = unsafe {
+                ::device_driver::ops::load_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(&self.bits, 0, 12)
+            };
+            raw
+        }
+        ///Write the `value_raw` field of the register.
+        ///
+        ///Raw 12-bit VBUS current ADC reading. Multiply by 0.375 to get mA. Assumes REG5DH[7:4] are zero/ignored.
+        pub fn set_value_raw(&mut self, value: u16) {
+            let raw = value;
+            unsafe {
+                ::device_driver::ops::store_lsb0::<
+                    u16,
+                    ::device_driver::ops::BE,
+                >(raw, 0, 12, &mut self.bits)
+            };
+        }
+    }
+    impl From<[u8; 2]> for VbusCurrentAdc {
+        fn from(bits: [u8; 2]) -> Self {
+            Self { bits }
+        }
+    }
+    impl From<VbusCurrentAdc> for [u8; 2] {
+        fn from(val: VbusCurrentAdc) -> Self {
+            val.bits
+        }
+    }
+    impl core::fmt::Debug for VbusCurrentAdc {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+            let mut d = f.debug_struct("VbusCurrentAdc");
+            {
+                d.field("value_raw", &self.value_raw());
+            }
+            d.finish()
+        }
+    }
+    #[cfg(feature = "defmt")]
+    impl defmt::Format for VbusCurrentAdc {
+        fn format(&self, f: defmt::Formatter) {
+            defmt::write!(f, "VbusCurrentAdc { ");
+            defmt::write!(f, "value_raw: {=u16}, ", &self.value_raw());
+            defmt::write!(f, "}");
+        }
+    }
+    impl core::ops::BitAnd for VbusCurrentAdc {
+        type Output = Self;
+        fn bitand(mut self, rhs: Self) -> Self::Output {
+            self &= rhs;
+            self
+        }
+    }
+    impl core::ops::BitAndAssign for VbusCurrentAdc {
+        fn bitand_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l &= *r;
+            }
+        }
+    }
+    impl core::ops::BitOr for VbusCurrentAdc {
+        type Output = Self;
+        fn bitor(mut self, rhs: Self) -> Self::Output {
+            self |= rhs;
+            self
+        }
+    }
+    impl core::ops::BitOrAssign for VbusCurrentAdc {
+        fn bitor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l |= *r;
+            }
+        }
+    }
+    impl core::ops::BitXor for VbusCurrentAdc {
+        type Output = Self;
+        fn bitxor(mut self, rhs: Self) -> Self::Output {
+            self ^= rhs;
+            self
+        }
+    }
+    impl core::ops::BitXorAssign for VbusCurrentAdc {
+        fn bitxor_assign(&mut self, rhs: Self) {
+            for (l, r) in self.bits.iter_mut().zip(&rhs.bits) {
+                *l ^= *r;
+            }
+        }
+    }
+    impl core::ops::Not for VbusCurrentAdc {
+        type Output = Self;
+        fn not(mut self) -> Self::Output {
+            for val in self.bits.iter_mut() {
+                *val = !*val;
+            }
+            self
+        }
+    }
     /// Enum containing all possible field set types
     pub enum FieldSetValue {
         ///Indicates the input power source status (ACIN, VBUS), battery current direction,
@@ -13833,6 +14461,22 @@ pub mod field_sets {
         IrqStatus4(IrqStatus4),
         ///Interrupt Status Register 5. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
         IrqStatus5(IrqStatus5),
+        ///ACIN Voltage ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG56H_byte << 4) | (REG57H_byte & 0x0F).
+        ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+        AcinVoltageAdc(AcinVoltageAdc),
+        ///ACIN Current ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG58H_byte << 4) | (REG59H_byte & 0x0F).
+        ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.625.
+        AcinCurrentAdc(AcinCurrentAdc),
+        ///VBUS Voltage ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG5AH_byte << 4) | (REG5BH_byte & 0x0F).
+        ///Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+        VbusVoltageAdc(VbusVoltageAdc),
+        ///VBUS Current ADC Data. This is a 12-bit value.
+        ///The value is formed by (REG5CH_byte << 4) | (REG5DH_byte & 0x0F).
+        ///Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.375.
+        VbusCurrentAdc(VbusCurrentAdc),
     }
     impl core::fmt::Debug for FieldSetValue {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -13903,6 +14547,10 @@ pub mod field_sets {
                 Self::IrqStatus3(val) => core::fmt::Debug::fmt(val, f),
                 Self::IrqStatus4(val) => core::fmt::Debug::fmt(val, f),
                 Self::IrqStatus5(val) => core::fmt::Debug::fmt(val, f),
+                Self::AcinVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::AcinCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::VbusVoltageAdc(val) => core::fmt::Debug::fmt(val, f),
+                Self::VbusCurrentAdc(val) => core::fmt::Debug::fmt(val, f),
                 _ => unreachable!(),
             }
         }
@@ -13977,6 +14625,10 @@ pub mod field_sets {
                 Self::IrqStatus3(val) => defmt::Format::format(val, f),
                 Self::IrqStatus4(val) => defmt::Format::format(val, f),
                 Self::IrqStatus5(val) => defmt::Format::format(val, f),
+                Self::AcinVoltageAdc(val) => defmt::Format::format(val, f),
+                Self::AcinCurrentAdc(val) => defmt::Format::format(val, f),
+                Self::VbusVoltageAdc(val) => defmt::Format::format(val, f),
+                Self::VbusCurrentAdc(val) => defmt::Format::format(val, f),
             }
         }
     }
@@ -14258,6 +14910,26 @@ pub mod field_sets {
     impl From<IrqStatus5> for FieldSetValue {
         fn from(val: IrqStatus5) -> Self {
             Self::IrqStatus5(val)
+        }
+    }
+    impl From<AcinVoltageAdc> for FieldSetValue {
+        fn from(val: AcinVoltageAdc) -> Self {
+            Self::AcinVoltageAdc(val)
+        }
+    }
+    impl From<AcinCurrentAdc> for FieldSetValue {
+        fn from(val: AcinCurrentAdc) -> Self {
+            Self::AcinCurrentAdc(val)
+        }
+    }
+    impl From<VbusVoltageAdc> for FieldSetValue {
+        fn from(val: VbusVoltageAdc) -> Self {
+            Self::VbusVoltageAdc(val)
+        }
+    }
+    impl From<VbusCurrentAdc> for FieldSetValue {
+        fn from(val: VbusCurrentAdc) -> Self {
+            Self::VbusCurrentAdc(val)
         }
     }
 }
