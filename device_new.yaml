@@ -289,3 +289,25 @@ DcDc3VoltageSetting: # REG27H
     type: register
     address: 0x27
     reset_value: 0x48 # Default 0x48 (72d) corresponds to 2.5V for DC-DC3.
+
+Ldo2And3VoltageSetting: # REG28H
+  type: register
+  address: 0x28
+  size_bits: 8
+  access: RW
+  reset_value: 0xCF # Default: LDO2=3.0V (1100B), LDO3=3.3V (1111B)
+  description: |
+    Sets the output voltage for both LDO2 and LDO3.
+    LDO2 (bits 7-4): Formula: V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
+    LDO3 (bits 3-0): Formula: V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
+  fields:
+    ldo2_voltage_setting_raw:
+      base: uint
+      start: 4 # Bits 7-4
+      end: 8   # 4 bits
+      description: "Raw 4-bit setting for LDO2 output voltage (1.8V to 3.3V, 100mV/step)."
+    ldo3_voltage_setting_raw:
+      base: uint
+      start: 0 # Bits 3-0
+      end: 4   # 4 bits
+      description: "Raw 4-bit setting for LDO3 output voltage (1.8V to 3.3V, 100mV/step)."
