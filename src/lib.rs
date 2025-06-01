@@ -1,4 +1,56 @@
-// src/lib.rs
+//! AXP192 power management chip interface
+//!
+//! This crate provides a driver for the AXP192 power management IC,
+//! built upon the `device-driver` crate for robust, declarative register
+//! definitions via a YAML manifest. It supports both asynchronous (`async`)
+//! and blocking operation through `embedded-hal` and `embedded-hal-async` traits.
+//!
+//! ## Features
+//!
+//! *   **Declarative Register Map:** Full device configuration defined in `device.yaml`.
+//! *   **Async/Await and Blocking Support:** Choose your preferred operational model via feature flags.
+//! *   **Type-Safe API:** High-level functions for common operations (e.g., setting voltages)
+//!     and a generated low-level API (`ll`) for direct register access.
+//! *   **Comprehensive Register Coverage:** Aims to support the full feature set of the AXP192.
+//! *   **`defmt` and `log` Integration:** Optional support for logging and debugging.
+//!
+//! ## Getting Started
+//!
+//! To use the driver, instantiate `Axp192` with your I2C bus implementation:
+//!
+//! ```rust,no_run
+//! # use embedded_hal::i2c::I2c;
+//! # use axp192_dd::{Axp192, DcId}
+//! let i2c_bus = todo!();
+//! let mut axp = Axp192::new(i2c_bus);
+//!
+//! axp.set_dcdc_voltage(DcId::Dcdc1, 3300)?;
+//! # Ok(())
+//! ```
+//!
+//! For a detailed register map, please refer to the `device.yaml` file in the
+//! [repository](https://github.com/okhsunrog/axp192-dd).
+//!
+//! ## Supported Devices
+//!
+//! The AXP192 is found in various embedded devices, including but not limited to:
+//!
+//!  * [M5Stack Core 2](https://docs.m5stack.com/en/core/core2) (including the [Core 2 for
+//!    AWS](https://docs.m5stack.com/en/core/core2_for_aws) variant)
+//!  * [M5Stack Tough](https://docs.m5stack.com/en/core/tough)
+//!  * [M5StickC](https://docs.m5stack.com/en/core/m5stickc)
+//!  * [M5StickC PLUS](https://docs.m5stack.com/en/core/m5stickc_plus)
+//!
+//! ## Warning!
+//!
+//! ***Caution!*** This chip controls power to the microcontroller and other critical
+//! components. Incorrect configuration can potentially damage or brick your device.
+//! Proceed with care and always consult the AXP192 datasheet.
+//!
+//! ## Datasheet
+//!
+//! [AXP192 Datasheet v1.1 (English Draft)](https://github.com/m5stack/M5-Schematic/blob/master/Core/AXP192%20Datasheet_v1.1_en_draft_2211.pdf)
+//!
 #![cfg_attr(not(any(test, feature = "std")), no_std)]
 
 #[macro_use]
