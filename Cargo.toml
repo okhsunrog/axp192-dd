@@ -1,6 +1,6 @@
 [package]
 name = "axp192-dd"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 description = "A driver for the AXP192 power management IC (uses device-driver crate)"
 authors = ["Danila Gornushko <me@okhsunrog.dev>"]
@@ -27,6 +27,9 @@ async = []
 blocking = []
 log = ["dep:log"]
 defmt = ["dep:defmt", "device-driver/defmt-03"]
+
+[package.metadata.docs.rs]
+features = ["async"]
 
 [dev-dependencies]
 embassy-executor = { version = "0.7.0", features = [
