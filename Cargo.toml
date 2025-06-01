@@ -18,7 +18,7 @@ device-driver = { version = "1.0.4", default-features = false, features = ["yaml
 embedded-hal = "1.0.0"
 embedded-hal-async =  "1.0.0"
 thiserror = { version = "2.0.12", default-features = false }
-bisync_suffix_macro = { git = " https://github.com/okhsunrog/bisync_suffix_macro", branch = "main" }
+bisync_suffix_macro = "0.1"
 
 [features]
 default = []

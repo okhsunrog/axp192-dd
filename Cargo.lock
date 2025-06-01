@@ -78,7 +78,8 @@ checksum = "d21f40d350a700f6aa107e45fb26448cf489d34794b2ba4522181dc9f1173af6"
 [[package]]
 name = "bisync_suffix_macro"
 version = "0.1.0"
-source = "git+https://github.com/okhsunrog/bisync_suffix_macro?branch=main#2fd661ff7b246d9c80c95b4f8ae94bec26d90b85"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2510ca67e6d6ed443ec7e8dc89fe583c6e3315f27f743248d2d3d3e750a1130e"
 dependencies = [
  "proc-macro2",
  "quote",
