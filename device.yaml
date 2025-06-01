@@ -40,7 +40,7 @@ PowerStatus: # REG00H
       conversion:
         name: BatteryFlowDirection
         Discharging: { value: 0 }
-        Charging:    { value: 1 }
+        Charging: { value: 1 }
     acin_and_vbus_inputs_shorted_on_pcb:
       base: bool
       start: 1
@@ -266,8 +266,8 @@ DcDc2VrcParameter: # REG25H
       description: "DC-DC2 VRC voltage rise slope."
       conversion:
         name: VrcRiseSlope
-        Slope1_6mV_us: { value: 0, description: "1.6mV/us slope."}
-        Slope0_8mV_us: { value: 1, description: "0.8mV/us slope."}
+        Slope1_6mV_us: { value: 0, description: "1.6mV/us slope." }
+        Slope0_8mV_us: { value: 1, description: "0.8mV/us slope." }
 
 DcDc1VoltageSetting: # REG26H
   type: register
@@ -319,9 +319,10 @@ VbusIpsoutPathManagement: # REG30H
   address: 0x30
   size_bits: 8
   access: RW
-  reset_value: 0x80 # Default on M5StickC Plus: Path Forced Open (ignores N_VBUSEN),
-                    # VHOLD limit OFF, VHOLD setting defaults to 4.0V (if enabled),
-                    # VBUS current limit OFF (defaults to 500mA if enabled).
+  reset_value:
+    0x80 # Default on M5StickC Plus: Path Forced Open (ignores N_VBUSEN),
+    # VHOLD limit OFF, VHOLD setting defaults to 4.0V (if enabled),
+    # VBUS current limit OFF (defaults to 500mA if enabled).
   description: |
     Manages VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
   fields:
@@ -332,8 +333,10 @@ VbusIpsoutPathManagement: # REG30H
       description: "VBUS-IPSOUT path selection control."
       conversion:
         name: VbusPathSelectionControl
-        ControlledByNvbusenPin: { value: 0, description: "Path controlled by N_VBUSEN pin." }
-        ForcedOpen:             { value: 1, description: "Path forced open (ignores N_VBUSEN)." }
+        ControlledByNvbusenPin:
+          { value: 0, description: "Path controlled by N_VBUSEN pin." }
+        ForcedOpen:
+          { value: 1, description: "Path forced open (ignores N_VBUSEN)." }
     vhold_limit_enabled:
       base: bool
       start: 6
@@ -365,8 +368,8 @@ VbusIpsoutPathManagement: # REG30H
       description: "VBUS current limit selection when vbus_current_limit_enabled is true."
       conversion:
         name: VbusCurrentLimitValue
-        Ma500: { value: 0, description: "500mA limit."} # Default
-        Ma100: { value: 1, description: "100mA limit."}
+        Ma500: { value: 0, description: "500mA limit." } # Default
+        Ma100: { value: 1, description: "100mA limit." }
 
 ShutdownVoltageSetting: # REG31H
   type: register
@@ -422,9 +425,9 @@ ShutdownBatChgLedControl: # REG32H
       description: "CHGLED pin function when chgled_control_source is ByRegister."
       conversion:
         name: ChgLedFunctionSetting
-        HighZ:     { value: 0b00, description: "High Impedance." } # Default
-        Blink1Hz:  { value: 0b01, description: "1Hz blink (25% duty)." }
-        Blink4Hz:  { value: 0b10, description: "4Hz blink (25% duty)." }
+        HighZ: { value: 0b00, description: "High Impedance." } # Default
+        Blink1Hz: { value: 0b01, description: "1Hz blink (25% duty)." }
+        Blink4Hz: { value: 0b10, description: "4Hz blink (25% duty)." }
         OutputLow: { value: 0b11, description: "Output Low." }
     chgled_control_source:
       base: uint
@@ -433,8 +436,15 @@ ShutdownBatChgLedControl: # REG32H
       description: "CHGLED pin control source."
       conversion:
         name: ChgLedControlSourceSelect
-        ByChargeLogic:     { value: 0, description: "Controlled by charging function." } # Default
-        ByRegisterSetting: { value: 1, description: "Controlled by this register's chgled_function field." }
+        ByChargeLogic: {
+            value: 0,
+            description: "Controlled by charging function.",
+          } # Default
+        ByRegisterSetting:
+          {
+            value: 1,
+            description: "Controlled by this register's chgled_function field.",
+          }
     # Bit 2 is reserved.
     n_oe_shutdown_delay:
       base: uint
@@ -444,9 +454,9 @@ ShutdownBatChgLedControl: # REG32H
       conversion:
         name: NoeShutdownDelayValue
         Ms500: { value: 0b00, description: "0.5S delay." }
-        S1:    { value: 0b01, description: "1S delay." }
-        S2:    { value: 0b10, description: "2S delay." } # Default
-        S3:    { value: 0b11, description: "3S delay." }
+        S1: { value: 0b01, description: "1S delay." }
+        S2: { value: 0b10, description: "2S delay." } # Default
+        S3: { value: 0b11, description: "3S delay." }
 
 ChargeControl1: # REG33H
   type: register
@@ -479,8 +489,12 @@ ChargeControl1: # REG33H
       description: "Charge termination current threshold."
       conversion:
         name: ChargeEndCurrentThresholdValue
-        Percent10: { value: 0, description: "Terminate at <10% of set current." } # Default
-        Percent15: { value: 1, description: "Terminate at <15% of set current." }
+        Percent10: {
+            value: 0,
+            description: "Terminate at <10% of set current.",
+          } # Default
+        Percent15:
+          { value: 1, description: "Terminate at <15% of set current." }
     charge_current:
       base: uint
       start: 0
@@ -488,17 +502,17 @@ ChargeControl1: # REG33H
       description: "Internal path charging current setting."
       conversion:
         name: ChargeCurrentValue
-        MA100:  { value: 0b0000, description: "100mA" }
-        MA190:  { value: 0b0001, description: "190mA" }
-        MA280:  { value: 0b0010, description: "280mA" }
-        MA360:  { value: 0b0011, description: "360mA" }
-        MA450:  { value: 0b0100, description: "450mA" }
-        MA550:  { value: 0b0101, description: "550mA" }
-        MA630:  { value: 0b0110, description: "630mA" }
-        MA700:  { value: 0b0111, description: "700mA" }
-        MA780:  { value: 0b1000, description: "780mA" } # Default
-        MA880:  { value: 0b1001, description: "880mA" }
-        MA960:  { value: 0b1010, description: "960mA" }
+        MA100: { value: 0b0000, description: "100mA" }
+        MA190: { value: 0b0001, description: "190mA" }
+        MA280: { value: 0b0010, description: "280mA" }
+        MA360: { value: 0b0011, description: "360mA" }
+        MA450: { value: 0b0100, description: "450mA" }
+        MA550: { value: 0b0101, description: "550mA" }
+        MA630: { value: 0b0110, description: "630mA" }
+        MA700: { value: 0b0111, description: "700mA" }
+        MA780: { value: 0b1000, description: "780mA" } # Default
+        MA880: { value: 0b1001, description: "880mA" }
+        MA960: { value: 0b1010, description: "960mA" }
         MA1000: { value: 0b1011, description: "1000mA" }
         MA1080: { value: 0b1100, description: "1080mA" }
         MA1160: { value: 0b1101, description: "1160mA" }
@@ -533,13 +547,13 @@ ChargeControl2: # REG34H
       description: "External path charging current setting (300mA to 1000mA, 100mA/step)."
       conversion:
         name: ExternalPathChargeCurrentValue
-        MA300:  { value: 0b000, description: "300mA" } # Default
-        MA400:  { value: 0b001, description: "400mA" }
-        MA500:  { value: 0b010, description: "500mA" }
-        MA600:  { value: 0b011, description: "600mA" }
-        MA700:  { value: 0b100, description: "700mA" }
-        MA800:  { value: 0b101, description: "800mA" }
-        MA900:  { value: 0b110, description: "900mA" }
+        MA300: { value: 0b000, description: "300mA" } # Default
+        MA400: { value: 0b001, description: "400mA" }
+        MA500: { value: 0b010, description: "500mA" }
+        MA600: { value: 0b011, description: "600mA" }
+        MA700: { value: 0b100, description: "700mA" }
+        MA800: { value: 0b101, description: "800mA" }
+        MA900: { value: 0b110, description: "900mA" }
         MA1000: { value: 0b111, description: "1000mA" }
     external_path_charge_enable:
       base: bool
@@ -576,10 +590,10 @@ BackupBatteryChargeControl: # REG35H
       description: "Target voltage for backup battery charging."
       conversion:
         name: BackupTargetVoltageValue
-        V3_1:  { value: 0b00, description: "3.1V target." }
-        V3_0:  { value: 0b01, description: "3.0V target." } # Default 
+        V3_1: { value: 0b00, description: "3.1V target." }
+        V3_0: { value: 0b01, description: "3.0V target." } # Default
         V3_0_Alt: { value: 0b10, description: "3.0V target (alternative?)." }
-        V2_5:  { value: 0b11, description: "2.5V target." }
+        V2_5: { value: 0b11, description: "2.5V target." }
     # Bits 4-2 are reserved.
     backup_charge_current:
       base: uint
@@ -588,7 +602,7 @@ BackupBatteryChargeControl: # REG35H
       description: "Charging current for backup battery."
       conversion:
         name: BackupChargeCurrentValue
-        UA50:  { value: 0b00, description: "50uA charge current." }
+        UA50: { value: 0b00, description: "50uA charge current." }
         UA100: { value: 0b01, description: "100uA charge current." }
         UA200: { value: 0b10, description: "200uA charge current." } # Default
         UA400: { value: 0b11, description: "400uA charge current." }
@@ -610,8 +624,8 @@ PekKeyParameters: # REG36H
         name: PekPowerOnTime
         Ms128: { value: 0b00, description: "128ms" }
         Ms512: { value: 0b01, description: "512ms" } # Default
-        S1:    { value: 0b10, description: "1 Second" }
-        S2:    { value: 0b11, description: "2 Seconds" }
+        S1: { value: 0b10, description: "1 Second" }
+        S2: { value: 0b11, description: "2 Seconds" }
     long_press_time:
       base: uint
       start: 4
@@ -643,9 +657,9 @@ PekKeyParameters: # REG36H
       description: "PEK press duration required for shutdown."
       conversion:
         name: PekShutdownTime
-        S4:  { value: 0b00, description: "4 Seconds" }
-        S6:  { value: 0b01, description: "6 Seconds" } # Default
-        S8:  { value: 0b10, description: "8 Seconds" }
+        S4: { value: 0b00, description: "4 Seconds" }
+        S6: { value: 0b01, description: "6 Seconds" } # Default
+        S8: { value: 0b10, description: "8 Seconds" }
         S10: { value: 0b11, description: "10 Seconds" }
 
 DcDcOperatingFrequency: # REG37H
@@ -788,22 +802,22 @@ DcDcOperatingMode: # REG80H
     dcdc1_operating_mode:
       base: uint
       start: 3
-      end: 4   # 1 bit
+      end: 4 # 1 bit
       description: "DC-DC1 operating mode."
       conversion:
         name: DcDcModeSelection
         AutoPfmPwm: { value: 0, description: "Automatic PFM/PWM switching." } # Default
-        FixedPwm:   { value: 1, description: "Fixed PWM mode." }
+        FixedPwm: { value: 1, description: "Fixed PWM mode." }
     dcdc2_operating_mode:
       base: uint
       start: 2
-      end: 3   # 1 bit
+      end: 3 # 1 bit
       description: "DC-DC2 operating mode."
       conversion: "DcDcModeSelection"
     dcdc3_operating_mode:
       base: uint
       start: 1
-      end: 2   # 1 bit
+      end: 2 # 1 bit
       description: "DC-DC3 operating mode."
       conversion: "DcDcModeSelection"
     # Bit 0 is reserved.
@@ -894,8 +908,8 @@ AdcSampleRateTsPinControl: # REG84H
       description: "ADC sampling rate for enabled channels."
       conversion:
         name: AdcSampleRateValue
-        Hz25:  { value: 0b00, description: "25Hz sampling rate." } # Default
-        Hz50:  { value: 0b01, description: "50Hz sampling rate." }
+        Hz25: { value: 0b00, description: "25Hz sampling rate." } # Default
+        Hz50: { value: 0b01, description: "50Hz sampling rate." }
         Hz100: { value: 0b10, description: "100Hz sampling rate." }
         Hz200: { value: 0b11, description: "200Hz sampling rate." }
     ts_pin_output_current:
@@ -921,10 +935,22 @@ AdcSampleRateTsPinControl: # REG84H
       description: "Controls when current is output on the TS pin."
       conversion:
         name: TsPinOutputMode
-        Disabled:          { value: 0b00, description: "TS pin current output is disabled." }
-        DuringCharging:    { value: 0b01, description: "TS pin current output enabled during charging." }
-        DuringAdcSampling: { value: 0b10, description: "TS pin current output enabled only during ADC sampling (power saving)." } # Default
-        AlwaysEnabled:     { value: 0b11, description: "TS pin current output is always enabled." }
+        Disabled:
+          { value: 0b00, description: "TS pin current output is disabled." }
+        DuringCharging:
+          {
+            value: 0b01,
+            description: "TS pin current output enabled during charging.",
+          }
+        DuringAdcSampling: {
+            value: 0b10,
+            description: "TS pin current output enabled only during ADC sampling (power saving).",
+          } # Default
+        AlwaysEnabled:
+          {
+            value: 0b11,
+            description: "TS pin current output is always enabled.",
+          }
 
 GpioAdcInputRangeSetting: # REG85H
   type: register
@@ -938,28 +964,32 @@ GpioAdcInputRangeSetting: # REG85H
     gpio3_adc_input_range:
       base: uint # For enum conversion
       start: 3
-      end: 4   # 1 bit
+      end: 4 # 1 bit
       description: "ADC input voltage range for GPIO3."
       conversion:
         name: GpioAdcRange # Reusable enum
-        Range0_0_to_2_0475V: { value: 0, description: "0V to 2.0475V input range." } # Default for this bit
-        Range0_7_to_2_7475V: { value: 1, description: "0.7V to 2.7475V input range." }
+        Range0_0_to_2_0475V: {
+            value: 0,
+            description: "0V to 2.0475V input range.",
+          } # Default for this bit
+        Range0_7_to_2_7475V:
+          { value: 1, description: "0.7V to 2.7475V input range." }
     gpio2_adc_input_range:
       base: uint
       start: 2
-      end: 3   # 1 bit
+      end: 3 # 1 bit
       description: "ADC input voltage range for GPIO2."
       conversion: "GpioAdcRange" # Reuse enum
     gpio1_adc_input_range:
       base: uint
       start: 1
-      end: 2   # 1 bit
+      end: 2 # 1 bit
       description: "ADC input voltage range for GPIO1."
       conversion: "GpioAdcRange" # Reuse enum
     gpio0_adc_input_range:
       base: uint
       start: 0
-      end: 1   # 1 bit
+      end: 1 # 1 bit
       description: "ADC input voltage range for GPIO0."
       conversion: "GpioAdcRange" # Reuse enum
 
@@ -1085,14 +1115,17 @@ Gpio0Control: # REG90H
       description: "Selects the operating mode for the GPIO0 pin."
       conversion:
         name: Gpio0FunctionSelect
-        NmosOpenDrainOutput: { value: 0b000, description: "NMOS Open-Drain Output." }
-        UniversalInput:      { value: 0b001, description: "Universal Input." }
-        LowNoiseLdoOutput:   { value: 0b010, description: "Low Noise LDO (LDOIO0) Output." }
+        NmosOpenDrainOutput:
+          { value: 0b000, description: "NMOS Open-Drain Output." }
+        UniversalInput: { value: 0b001, description: "Universal Input." }
+        LowNoiseLdoOutput:
+          { value: 0b010, description: "Low Noise LDO (LDOIO0) Output." }
         # 0b011 is Reserved - will map to Floating
-        AdcInput:            { value: 0b100, description: "ADC Input." }
-        OutputLow:           { value: 0b101, description: "Output Driven Low." }
+        AdcInput: { value: 0b100, description: "ADC Input." }
+        OutputLow: { value: 0b101, description: "Output Driven Low." }
         # 0b110 and 0b111 are Floating
-        Floating:            { value: "default", description: "Floating (High-Impedance)." }
+        Floating:
+          { value: "default", description: "Floating (High-Impedance)." }
 
 Gpio0LdoVoltageSetting: # REG91H
   type: register
@@ -1125,14 +1158,16 @@ Gpio1Control: # REG92H
       description: "Selects the operating mode for the GPIO1 pin."
       conversion:
         name: Gpio1FunctionSelect
-        NmosOpenDrainOutput: { value: 0b000, description: "NMOS Open-Drain Output." }
-        UniversalInput:      { value: 0b001, description: "Universal Input." }
-        Pwm1Output:          { value: 0b010, description: "PWM1 Output." }
+        NmosOpenDrainOutput:
+          { value: 0b000, description: "NMOS Open-Drain Output." }
+        UniversalInput: { value: 0b001, description: "Universal Input." }
+        Pwm1Output: { value: 0b010, description: "PWM1 Output." }
         # 0b011 is Reserved - will map to Floating
-        AdcInput:            { value: 0b100, description: "ADC Input." }
-        OutputLow:           { value: 0b101, description: "Output Driven Low." }
+        AdcInput: { value: 0b100, description: "ADC Input." }
+        OutputLow: { value: 0b101, description: "Output Driven Low." }
         # 0b110 and 0b111 (POR default) are Floating
-        Floating:            { value: "default", description: "Floating (High-Impedance)." }
+        Floating:
+          { value: "default", description: "Floating (High-Impedance)." }
 
 Gpio2Control: # REG93H
   type: register
@@ -1150,14 +1185,16 @@ Gpio2Control: # REG93H
       description: "Selects the operating mode for the GPIO2 pin."
       conversion:
         name: Gpio2FunctionSelect
-        NmosOpenDrainOutput: { value: 0b000, description: "NMOS Open-Drain Output." }
-        UniversalInput:      { value: 0b001, description: "Universal Input." }
-        Pwm2Output:          { value: 0b010, description: "PWM2 Output." }
+        NmosOpenDrainOutput:
+          { value: 0b000, description: "NMOS Open-Drain Output." }
+        UniversalInput: { value: 0b001, description: "Universal Input." }
+        Pwm2Output: { value: 0b010, description: "PWM2 Output." }
         # 0b011 is Reserved - will map to Floating
-        AdcInput:            { value: 0b100, description: "ADC Input." }
-        OutputLow:           { value: 0b101, description: "Output Driven Low." }
+        AdcInput: { value: 0b100, description: "ADC Input." }
+        OutputLow: { value: 0b101, description: "Output Driven Low." }
         # 0b110 and 0b111 (POR default) are Floating
-        Floating:            { value: "default", description: "Floating (High-Impedance)." }
+        Floating:
+          { value: "default", description: "Floating (High-Impedance)." }
 
 Gpio0To2SignalStatusAndControl: # REG94H
   type: register
@@ -1222,9 +1259,13 @@ Gpio3And4FunctionControl: # REG95H
       description: "Selects function for GPIO4 when gpio3_and_4_mode_enable is true."
       try_conversion:
         name: Gpio4FunctionSetting
-        ExternalChargeControl: { value: 0b00, description: "External Charge Control." } # Default raw
-        NmosOpenDrainOutput:   { value: 0b01, description: "NMOS Open-Drain Output." }
-        UniversalInput:        { value: 0b10, description: "Universal Input." }
+        ExternalChargeControl: {
+            value: 0b00,
+            description: "External Charge Control.",
+          } # Default raw
+        NmosOpenDrainOutput:
+          { value: 0b01, description: "NMOS Open-Drain Output." }
+        UniversalInput: { value: 0b10, description: "Universal Input." }
     gpio3_function_select:
       base: uint
       start: 0
@@ -1232,10 +1273,14 @@ Gpio3And4FunctionControl: # REG95H
       description: "Selects function for GPIO3 when gpio3_and_4_mode_enable is true."
       conversion:
         name: Gpio3FunctionSetting
-        ExternalChargeControl: { value: 0b00, description: "External Charge Control." } # Default raw
-        NmosOpenDrainOutput:   { value: 0b01, description: "NMOS Open-Drain Output." }
-        UniversalInput:        { value: 0b10, description: "Universal Input." }
-        AdcInput:              { value: 0b11, description: "ADC Input." }
+        ExternalChargeControl: {
+            value: 0b00,
+            description: "External Charge Control.",
+          } # Default raw
+        NmosOpenDrainOutput:
+          { value: 0b01, description: "NMOS Open-Drain Output." }
+        UniversalInput: { value: 0b10, description: "Universal Input." }
+        AdcInput: { value: 0b11, description: "ADC Input." }
 
 Gpio3And4SignalStatusAndControl: # REG96H
   type: register
@@ -1390,8 +1435,12 @@ NrstoGpio5Control: # REG9EH
       description: "Selects the primary function of the N_RSTO/GPIO5 pin."
       conversion:
         name: NrstoPinFunction
-        NrstoLdo1Monitor: { value: 0, description: "Pin functions as N_RSTO (LDO1 status monitor)." } # Default
-        Gpio5:            { value: 1, description: "Pin functions as GPIO5 (universal I/O)." }
+        NrstoLdo1Monitor: {
+            value: 0,
+            description: "Pin functions as N_RSTO (LDO1 status monitor).",
+          } # Default
+        Gpio5:
+          { value: 1, description: "Pin functions as GPIO5 (universal I/O)." }
     gpio5_is_input: # Bit 6 - Effective if pin_is_gpio5 is Gpio5
       base: uint # For enum conversion
       start: 6
@@ -1399,8 +1448,13 @@ NrstoGpio5Control: # REG9EH
       description: "Sets GPIO5 direction when pin_is_gpio5 is Gpio5 (true: input, false: NMOS open-drain output)."
       conversion:
         name: Gpio5Direction
-        NmosOpenDrainOutput: { value: 0, description: "GPIO5 configured as NMOS Open-Drain Output." }
-        UniversalInput:      { value: 1, description: "GPIO5 configured as Universal Input." }
+        NmosOpenDrainOutput:
+          {
+            value: 0,
+            description: "GPIO5 configured as NMOS Open-Drain Output.",
+          }
+        UniversalInput:
+          { value: 1, description: "GPIO5 configured as Universal Input." }
     gpio5_output_set_floating: # Bit 5 - Effective if pin_is_gpio5 is Gpio5 AND gpio5_is_input is NmosOpenDrainOutput
       base: bool
       start: 5
