@@ -56,7 +56,7 @@
 #[macro_use]
 pub(crate) mod fmt;
 
-use bisync::suffix;
+use bisync_suffix_macro::suffix;
 use thiserror::Error;
 
 #[cfg(feature = "blocking")]

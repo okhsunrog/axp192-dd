@@ -37,6 +37,7 @@ name = "axp192-dd"
 version = "0.1.0"
 dependencies = [
  "bisync",
+ "bisync_suffix_macro",
  "defmt 1.0.1",
  "defmt-rtt",
  "device-driver",
@@ -62,7 +63,8 @@ dependencies = [
 [[package]]
 name = "bisync"
 version = "0.3.0"
-source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix-2#a44551ccecf98dc2840db9a0e9a048942154bc59"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5020822f6d6f23196ccaf55e228db36f9de1cf788052b37992e17cbc96ec41a7"
 dependencies = [
  "bisync_macros",
 ]
@@ -70,7 +72,13 @@ dependencies = [
 [[package]]
 name = "bisync_macros"
 version = "0.2.3"
-source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix-2#a44551ccecf98dc2840db9a0e9a048942154bc59"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d21f40d350a700f6aa107e45fb26448cf489d34794b2ba4522181dc9f1173af6"
+
+[[package]]
+name = "bisync_suffix_macro"
+version = "0.1.0"
+source = "git+https://github.com/okhsunrog/bisync_suffix_macro?branch=main#2fd661ff7b246d9c80c95b4f8ae94bec26d90b85"
 dependencies = [
  "proc-macro2",
  "quote",
