@@ -78,13 +78,13 @@ The `axp192-dd` driver offers:
 Examples for ESP32-C3 using [Rust on ESP](https://esp-rs.github.io/book/) and `esp-hal` are included. Setup is required (see [esp-hal docs](https://esp-rs.github.io/book/installation/)).
 
 - **Async Example:** [`examples/test_pmic_async.rs`](examples/test_pmic_async.rs)
-  %%%bash
+  ```bash
   cargo run --release --example test_pmic_async --features async,defmt
-  %%%
+  ```
 - **Blocking Example:** [`examples/test_pmic_blocking.rs`](examples/test_pmic_blocking.rs)
-  %%%bash
+  ```bash
   cargo run --release --example test_pmic_blocking --features blocking,defmt
-  %%%
+  ```
 
 ## Register Map
 
