@@ -56,6 +56,7 @@
 #[macro_use]
 pub(crate) mod fmt;
 
+use bisync::suffix;
 use thiserror::Error;
 
 #[cfg(feature = "blocking")]
@@ -274,45 +275,51 @@ where
     I2CImpl: CurrentAxpDriverInterface<I2CBusErr>,
     I2CBusErr: core::fmt::Debug,
 {
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let raw_fieldset = self.ll.battery_voltage_adc().read().await?;
+        let raw_fieldset = suffix!("_async", self.ll.battery_voltage_adc().read().await?);
         let adc_val = adc_12bit_from_raw_u16(raw_fieldset.raw());
         Ok(adc_val as f32 * 1.1)
     }
 
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn get_battery_charge_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let raw_fieldset = self.ll.battery_charge_current_adc().read().await?;
+        let raw_fieldset = suffix!("_async", self.ll.battery_charge_current_adc().read().await?);
         let adc_val = adc_13bit_from_raw_u16(raw_fieldset.raw());
         Ok(adc_val as f32 * 0.5)
     }
 
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn get_battery_instantaneous_power_uw(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let raw_fieldset = self.ll.battery_instantaneous_power_adc().read().await?;
+        let raw_fieldset = suffix!(
+            "_async",
+            self.ll.battery_instantaneous_power_adc().read().await?
+        );
         // device-driver for a 24-bit field "raw" will return a u32.
         let adc_val = adc_24bit_from_raw_u32(raw_fieldset.raw());
         Ok(adc_val as f32 * 0.55)
     }
 
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn set_dcdc_enable(
         &mut self,
         dc: DcId,
         enable: bool,
     ) -> Result<(), AxpError<I2CBusErr>> {
-        self.ll
-            .power_output_control()
-            .modify(|r| match dc {
-                DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
-                DcId::Dcdc2 => r.set_dcdc_2_output_enable(enable),
-                DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
-            })
-            .await
+        suffix!(
+            "_async",
+            self.ll
+                .power_output_control()
+                .modify(|r| match dc {
+                    DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
+                    DcId::Dcdc2 => r.set_dcdc_2_output_enable(enable),
+                    DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
+                })
+                .await
+        )
     }
 
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn set_dcdc_voltage(
         &mut self,
         dc: DcId,
@@ -325,27 +332,36 @@ where
 
         match dc {
             DcId::Dcdc1 => {
-                self.ll
-                    .dc_dc_1_voltage_setting()
-                    .modify(|r| r.set_voltage_setting(raw_setting))
-                    .await
+                suffix!(
+                    "_async",
+                    self.ll
+                        .dc_dc_1_voltage_setting()
+                        .modify(|r| r.set_voltage_setting(raw_setting))
+                        .await
+                )
             }
             DcId::Dcdc2 => {
-                self.ll
-                    .dc_dc_2_voltage_setting()
-                    .modify(|r| r.set_voltage_setting(raw_setting))
-                    .await
+                suffix!(
+                    "_async",
+                    self.ll
+                        .dc_dc_2_voltage_setting()
+                        .modify(|r| r.set_voltage_setting(raw_setting))
+                        .await
+                )
             }
             DcId::Dcdc3 => {
-                self.ll
-                    .dc_dc_3_voltage_setting()
-                    .modify(|r| r.set_voltage_setting(raw_setting))
-                    .await
+                suffix!(
+                    "_async",
+                    self.ll
+                        .dc_dc_3_voltage_setting()
+                        .modify(|r| r.set_voltage_setting(raw_setting))
+                        .await
+                )
             }
         }
     }
 
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn set_ldo_voltage_mv(
         &mut self,
         ldo: LdoId,
@@ -363,18 +379,21 @@ where
             return Err(AxpError::InvalidVoltage(voltage_mv)); // Should be caught by range check too
         }
 
-        self.ll
-            .ldo_2_and_3_voltage_setting() // REG28H
-            .modify(|r| match ldo {
-                LdoId::Ldo2 => r.set_ldo_2_voltage_setting(raw_setting),
-                LdoId::Ldo3 => r.set_ldo_3_voltage_setting(raw_setting),
-            })
-            .await
+        suffix!(
+            "_async",
+            self.ll
+                .ldo_2_and_3_voltage_setting() // REG28H
+                .modify(|r| match ldo {
+                    LdoId::Ldo2 => r.set_ldo_2_voltage_setting(raw_setting),
+                    LdoId::Ldo3 => r.set_ldo_3_voltage_setting(raw_setting),
+                })
+                .await
+        )
     }
 
     // Inside impl<I2CImpl, I2CBusErr> Axp192<I2CImpl, I2CBusErr>
 
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn set_gpio0_ldo_voltage_mv(
         &mut self,
         voltage_mv: u16,
@@ -391,19 +410,22 @@ where
             return Err(AxpError::InvalidVoltage(voltage_mv));
         }
 
-        self.ll
-            .gpio_0_ldo_voltage_setting() // REG91H
-            .write(|r| {
-                // Use write as we are setting the primary field of this register
-                r.set_voltage_setting_raw(raw_4bit_setting);
-            })
-            .await
+        suffix!(
+            "_async",
+            self.ll
+                .gpio_0_ldo_voltage_setting() // REG91H
+                .write(|r| {
+                    // Use write as we are setting the primary field of this register
+                    r.set_voltage_setting_raw(raw_4bit_setting);
+                })
+                .await
+        )
     }
 
     /// Sets the high-temperature threshold for battery charging, based on the NTC voltage.
     /// If the NTC voltage drops BELOW this value (indicating high temp), protection may activate.
     /// `threshold_mv`: The NTC voltage threshold in millivolts (0mV to 3264mV).
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn set_battery_charge_high_temp_threshold_mv(
         &mut self,
         threshold_mv: u16,
@@ -421,18 +443,21 @@ where
         // The result of division should be <= 255 (since 3264 * 10 / 128 = 255)
         let raw_setting = raw_setting_u16 as u8;
 
-        self.ll
-            .battery_charge_high_temp_threshold() // REG39H
-            .write(|r| {
-                r.set_threshold_setting_raw(raw_setting);
-            })
-            .await
+        suffix!(
+            "_async",
+            self.ll
+                .battery_charge_high_temp_threshold() // REG39H
+                .write(|r| {
+                    r.set_threshold_setting_raw(raw_setting);
+                })
+                .await
+        )
     }
 
     /// Sets the low-temperature threshold for battery charging, based on the NTC voltage.
     /// If the NTC voltage rises ABOVE this value (indicating low temp), protection may activate.
     /// `threshold_mv`: The NTC voltage threshold in millivolts (0mV to 3264mV).
-    #[bisync(async_suffix = "async")]
+    #[bisync]
     pub async fn set_battery_charge_low_temp_threshold_mv(
         &mut self,
         threshold_mv: u16,
@@ -444,12 +469,15 @@ where
         let raw_setting_u16 = (threshold_mv * 10 + 64) / 128;
         let raw_setting = raw_setting_u16 as u8;
 
-        self.ll
-            .battery_charge_low_temp_threshold() // REG38H
-            .write(|r| {
-                r.set_threshold_setting_raw(raw_setting);
-            })
-            .await
+        suffix!(
+            "_async",
+            self.ll
+                .battery_charge_low_temp_threshold() // REG38H
+                .write(|r| {
+                    r.set_threshold_setting_raw(raw_setting);
+                })
+                .await
+        )
     }
 }
 

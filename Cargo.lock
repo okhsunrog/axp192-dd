@@ -31,7 +31,6 @@ name = "axp192-dd"
 version = "0.1.0"
 dependencies = [
  "bisync",
- "bisync_macros",
  "defmt 1.0.1",
  "device-driver",
  "embedded-hal",
@@ -43,7 +42,7 @@ dependencies = [
 [[package]]
 name = "bisync"
 version = "0.3.0"
-source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix#f1e678d99f711466d41b554824373df3251f1593"
+source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix-2#a44551ccecf98dc2840db9a0e9a048942154bc59"
 dependencies = [
  "bisync_macros",
 ]
@@ -51,7 +50,7 @@ dependencies = [
 [[package]]
 name = "bisync_macros"
 version = "0.2.3"
-source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix#f1e678d99f711466d41b554824373df3251f1593"
+source = "git+https://github.com/okhsunrog/bisync.git?branch=feature%2Foptional-async-suffix-2#a44551ccecf98dc2840db9a0e9a048942154bc59"
 dependencies = [
  "proc-macro2",
  "quote",
