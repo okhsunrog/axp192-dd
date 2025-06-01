@@ -1,5 +1,7 @@
 # AXP192 Power Management IC Driver (axp192-dd)
 
+[![Crates.io](https://img.shields.io/crates/v/axp192-dd.svg)](https://crates.io/crates/axp192-dd)
+[![Docs.rs](https://docs.rs/axp192-dd/badge.svg)](https://docs.rs/axp192-dd)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/okhsunrog/axp192-dd/rust_ci.yml?logo=github)](https://github.com/okhsunrog/axp192-dd/actions/workflows/rust_ci.yml)
 
