@@ -46,12 +46,14 @@ impl<I2cErr> defmt::Format for AxpError<I2cErr> {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum DcId {
     Dcdc1,
+    Dcdc2,
     Dcdc3,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum LdoId {
+    // Ldo1 is not configurable, set to 1.3V in hardware.
     Ldo2,
     Ldo3,
 }
@@ -252,6 +254,7 @@ where
             .power_output_control()
             .modify(|r| match dc {
                 DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
+                DcId::Dcdc2 => r.set_dcdc_2_output_enable(enable),
                 DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
             })
             .await
@@ -272,6 +275,12 @@ where
             DcId::Dcdc1 => {
                 self.ll
                     .dc_dc_1_voltage_setting()
+                    .modify(|r| r.set_voltage_setting(raw_setting))
+                    .await
+            }
+            DcId::Dcdc2 => {
+                self.ll
+                    .dc_dc_2_voltage_setting()
                     .modify(|r| r.set_voltage_setting(raw_setting))
                     .await
             }
