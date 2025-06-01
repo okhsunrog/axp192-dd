@@ -1,7 +1,7 @@
 # AXP192 Power Management IC Driver (axp192-dd)
 
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/okhsunrog/axp192-dd/rust.yml?logo=github)](https://github.com/okhsunrog/axp192-dd/actions/workflows/rust.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/okhsunrog/axp192-dd/rust_ci.yml?logo=github)](https://github.com/okhsunrog/axp192-dd/actions/workflows/rust_ci.yml)
 
 This crate provides a `no_std` driver for the AXP192 power management IC, commonly used in M5Stack devices and other embedded systems. It leverages the [`device-driver`](https://crates.io/crates/device-driver) crate, with a declarative YAML manifest (`device.yaml`) for a robust, type-safe register map definition.
 
