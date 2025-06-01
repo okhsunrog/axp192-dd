@@ -292,6 +292,113 @@ where
             }
         }
     }
+
+    #[bisync(async_suffix = "async")]
+    pub async fn set_ldo_voltage_mv(
+        &mut self,
+        ldo: LdoId,
+        voltage_mv: u16,
+    ) -> Result<(), AxpError<I2CBusErr>> {
+        if !(1800..=3300).contains(&voltage_mv) {
+            // Range for LDO2, LDO3
+            return Err(AxpError::InvalidVoltage(voltage_mv));
+        }
+        // Formula: V_out = 1.8V + (setting * 100mV)
+        // Raw setting = (voltage_mv - 1800) / 100
+        let raw_setting = ((voltage_mv.saturating_sub(1800)) / 100) as u8;
+        if raw_setting > 0x0F {
+            // Max 4-bit value
+            return Err(AxpError::InvalidVoltage(voltage_mv)); // Should be caught by range check too
+        }
+
+        self.ll
+            .ldo_2_and_3_voltage_setting() // REG28H
+            .modify(|r| match ldo {
+                LdoId::Ldo2 => r.set_ldo_2_voltage_setting(raw_setting),
+                LdoId::Ldo3 => r.set_ldo_3_voltage_setting(raw_setting),
+            })
+            .await
+    }
+
+    // Inside impl<I2CImpl, I2CBusErr> Axp192<I2CImpl, I2CBusErr>
+
+    #[bisync(async_suffix = "async")]
+    pub async fn set_gpio0_ldo_voltage_mv(
+        &mut self,
+        voltage_mv: u16,
+    ) -> Result<(), AxpError<I2CBusErr>> {
+        if !(1800..=3300).contains(&voltage_mv) {
+            // Range for LDOIO0
+            return Err(AxpError::InvalidVoltage(voltage_mv));
+        }
+        // Formula: V_out = 1.8V + (setting * 100mV)
+        // Raw setting (4-bit for bits 7-4 of REG91H) = (voltage_mv - 1800) / 100
+        let raw_4bit_setting = ((voltage_mv.saturating_sub(1800)) / 100) as u8;
+        if raw_4bit_setting > 0x0F {
+            // Max 4-bit value
+            return Err(AxpError::InvalidVoltage(voltage_mv));
+        }
+
+        self.ll
+            .gpio_0_ldo_voltage_setting() // REG91H
+            .write(|r| {
+                // Use write as we are setting the primary field of this register
+                r.set_voltage_setting_raw(raw_4bit_setting);
+            })
+            .await
+    }
+
+    /// Sets the high-temperature threshold for battery charging, based on the NTC voltage.
+    /// If the NTC voltage drops BELOW this value (indicating high temp), protection may activate.
+    /// `threshold_mv`: The NTC voltage threshold in millivolts (0mV to 3264mV).
+    #[bisync(async_suffix = "async")]
+    pub async fn set_battery_charge_high_temp_threshold_mv(
+        &mut self,
+        threshold_mv: u16,
+    ) -> Result<(), AxpError<I2CBusErr>> {
+        if threshold_mv > 3264 {
+            // Max raw value 0xFF * 12.8mV/LSB = 3264mV
+            return Err(AxpError::InvalidVoltage(threshold_mv));
+        }
+        // Raw value = threshold_mv / 12.8  (which is threshold_mv * 10 / 128)
+        // Integer math with rounding: (numerator + denominator/2) / denominator
+        // (threshold_mv * 10 + 64) / 128
+        // Ensure intermediate calculations don't overflow u16 if threshold_mv is large.
+        // 3264 * 10 = 32640. This fits in u16. 32640 + 64 = 32704. Fits in u16.
+        let raw_setting_u16 = (threshold_mv * 10 + 64) / 128;
+        // The result of division should be <= 255 (since 3264 * 10 / 128 = 255)
+        let raw_setting = raw_setting_u16 as u8;
+
+        self.ll
+            .battery_charge_high_temp_threshold() // REG39H
+            .write(|r| {
+                r.set_threshold_setting_raw(raw_setting);
+            })
+            .await
+    }
+
+    /// Sets the low-temperature threshold for battery charging, based on the NTC voltage.
+    /// If the NTC voltage rises ABOVE this value (indicating low temp), protection may activate.
+    /// `threshold_mv`: The NTC voltage threshold in millivolts (0mV to 3264mV).
+    #[bisync(async_suffix = "async")]
+    pub async fn set_battery_charge_low_temp_threshold_mv(
+        &mut self,
+        threshold_mv: u16,
+    ) -> Result<(), AxpError<I2CBusErr>> {
+        if threshold_mv > 3264 {
+            return Err(AxpError::InvalidVoltage(threshold_mv));
+        }
+        // Raw value = threshold_mv / 12.8 (which is threshold_mv * 10 / 128)
+        let raw_setting_u16 = (threshold_mv * 10 + 64) / 128;
+        let raw_setting = raw_setting_u16 as u8;
+
+        self.ll
+            .battery_charge_low_temp_threshold() // REG38H
+            .write(|r| {
+                r.set_threshold_setting_raw(raw_setting);
+            })
+            .await
+    }
 }
 
 /// Helper to extract a 12-bit ADC value from a raw u16 read over two 8-bit registers.
