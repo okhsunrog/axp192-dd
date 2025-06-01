@@ -3,7 +3,7 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/License-MIT%20OR%20Apache--2.0-blue.svg)](https://opensource.org/licenses)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/okhsunrog/axp192-dd/rust_ci.yml?logo=github)](https://github.com/okhsunrog/axp192-dd/actions/workflows/rust_ci.yml)
 
-This crate provides a `no_std` driver for the AXP192 power management IC, commonly used in M5Stack devices and other embedded systems. It leverages the [`device-driver`](https://crates.io/crates/device-driver) crate, with a declarative YAML manifest (`device.yaml`) for a robust, type-safe register map definition.
+This crate provides a no_std driver for the AXP192 power management IC, commonly used in M5Stack devices and other embedded systems. The project aims to support the full functionality of the AXP192 PMIC, leveraging the device-driver crate with a declarative YAML manifest (device.yaml) for a robust, type-safe register map definition. The low-level API covers 100% of the AXP192's registers, with device.yaml providing a comprehensive and accurate description of all registers and their fields. While the low-level API is complete, some high-level convenience methods for easier access may still be added in the future.
 
 ## Overview
 
@@ -59,18 +59,30 @@ The `axp192-dd` driver offers:
    **Note:** Other dependencies required by `axp192-dd` are managed internally and do not need to be added manually.
 
 2. **Instantiate the driver with your I2C bus:**
-   ```rust,no_run
+
+   ```rust
    use axp192_dd::{Axp192, LdoId};
-   # #[cfg(feature = "blocking")] {
-   # use embedded_hal::i2c::I2c;
-   # pub struct MyI2cBus; #[derive(Debug)] pub struct MyI2cError;
-   # impl I2c for MyI2cBus { type Error = MyI2cError; fn transaction(&mut self, _a: u8, _o: &mut [embedded_hal::i2c::Operation<'_>]) -> Result<(), Self::Error> { todo!() } }
-   # let i2c_bus_impl = MyI2cBus;
+   #[cfg(feature = "blocking")] {
+   use embedded_hal::i2c::I2c;
+
+   pub struct MyI2cBus;
+
+   struct MyI2cError;
+
+   impl I2c for MyI2cBus {
+       type Error = MyI2cError;
+
+       fn transaction(&mut self, _a: u8, _o: &mut [embedded_hal::i2c::Operation<'_>]) -> Result<(), Self::Error> {
+         todo!() }
+   }
+
+   # initialize
+   let i2c_bus_impl = MyI2cBus;
    let mut axp = Axp192::new(i2c_bus_impl);
    axp.set_ldo_voltage_mv(LdoId::Ldo2, 3300)?;
-   # }
-   # Ok::<(), axp192_dd::AxpError<MyI2cError>>(())
+   # returns:  Ok::<(), axp192_dd::AxpError<MyI2cError>>(())
    ```
+
    Methods are `async fn` with the `async` feature, otherwise blocking.
 
 ## Examples
@@ -120,9 +132,14 @@ The AXP192 is used in devices including:
 - **`log`**: Enables `log` facade logging. Requires `log = { version = "0.4", optional = true }`.
 - **`defmt`**: Enables `defmt` logging. Requires `defmt = { version = "1.0", optional = true }`.
 
-## Contributing
+### Contributions are welcome! While the register map in device.yaml is complete, you can contribute by:
 
-Contributions are welcome! Submit issues, fork, and create pull requests.
+- Adding high-level convenience methods to simplify common operations (e.g., battery management, interrupt handling).
+- Enhancing documentation with additional examples or clarifications.
+- Reporting issues or suggesting improvements.
+- Suggest code refactoring.
+
+Please submit issues, fork the repository, and create pull requests.
 
 ## License
 
