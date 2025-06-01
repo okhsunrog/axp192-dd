@@ -1778,241 +1778,228 @@ IrqStatus5: # REG4DH
 AcinVoltageAdc: # REG56H & REG57H combined
   type: register
   address: 0x56 # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers (0x56 and 0x57)
+  size_bits: 16 # Read 2 bytes
   access: RO
   description: |
-    ACIN Voltage ADC Data. This is a 12-bit value.
-    The value is formed by (REG56H_byte << 4) | (REG57H_byte & 0x0F).
-    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+    Raw 16-bit data from REG56H (MSB) and REG57H (LSB) for ACIN Voltage ADC.
+    The actual 12-bit ADC value is (REG56H << 4) | (REG57H & 0x0F).
+    Use the driver's helper function to extract and convert: Voltage (mV) = adc_value * 1.7.
   fields:
-    # With default_byte_order: BE and default_bit_order: LSB0,
-    # the tool reads [byte_at_0x56, byte_at_0x57] into an internal buffer.
-    # byte_at_0x56 contains ADC bits 11 down to 4.
-    # byte_at_0x57 contains ADC bits 3 down to 0 (in its lower nibble).
-    # A 12-bit field from start:0, end:12 should correctly extract this.
-    value_raw:
+    raw:
       base: uint
-      start: 0  # Start at the LSB of the conceptual 12-bit value within the 16-bit window
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit ACIN voltage ADC reading. Multiply by 1.7 to get mV. Note: This field assumes REG57H[7:4] are zero or ignored for the 12-bit value composition."
+      start: 0
+      end: 16
+      description: "Raw 16-bit value from reading the two register bytes. Use driver helper for actual ADC value."
 
 AcinCurrentAdc: # REG58H & REG59H combined
   type: register
-  address: 0x58 # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x58
+  size_bits: 16
   access: RO
   description: |
-    ACIN Current ADC Data. This is a 12-bit value.
-    The value is formed by (REG58H_byte << 4) | (REG59H_byte & 0x0F).
-    Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.625.
+    Raw 16-bit data from REG58H (MSB) and REG59H (LSB) for ACIN Current ADC.
+    The actual 12-bit ADC value is (REG58H << 4) | (REG59H & 0x0F).
+    Use driver helper: Current (mA) = adc_value * 0.625.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit ACIN current ADC reading. Multiply by 0.625 to get mA. Assumes REG59H[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 VbusVoltageAdc: # REG5AH & REG5BH combined
   type: register
-  address: 0x5A # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x5A
+  size_bits: 16
   access: RO
   description: |
-    VBUS Voltage ADC Data. This is a 12-bit value.
-    The value is formed by (REG5AH_byte << 4) | (REG5BH_byte & 0x0F).
-    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.7.
+    Raw 16-bit data from REG5AH (MSB) and REG5BH (LSB) for VBUS Voltage ADC.
+    The actual 12-bit ADC value is (REG5AH << 4) | (REG5BH & 0x0F).
+    Use driver helper: Voltage (mV) = adc_value * 1.7.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit VBUS voltage ADC reading. Multiply by 1.7 to get mV. Assumes REG5BH[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 VbusCurrentAdc: # REG5CH & REG5DH combined
   type: register
-  address: 0x5C # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x5C
+  size_bits: 16
   access: RO
   description: |
-    VBUS Current ADC Data. This is a 12-bit value.
-    The value is formed by (REG5CH_byte << 4) | (REG5DH_byte & 0x0F).
-    Formula for conversion: Current (mA) = raw_12bit_adc_value * 0.375.
+    Raw 16-bit data from REG5CH (MSB) and REG5DH (LSB) for VBUS Current ADC.
+    The actual 12-bit ADC value is (REG5CH << 4) | (REG5DH & 0x0F).
+    Use driver helper: Current (mA) = adc_value * 0.375.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit VBUS current ADC reading. Multiply by 0.375 to get mA. Assumes REG5DH[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 InternalTemperatureAdc: # REG5EH & REG5FH combined
   type: register
-  address: 0x5E # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x5E
+  size_bits: 16
   access: RO
   description: |
-    AXP192 Internal Temperature ADC Data. This is a 12-bit value.
-    The value is formed by (REG5EH_byte << 4) | (REG5FH_byte & 0x0F).
-    Formula for conversion: Temperature (°C) = (raw_12bit_adc_value * 0.1) - 144.7.
+    Raw 16-bit data from REG5EH (MSB) and REG5FH (LSB) for Internal Temperature ADC.
+    The actual 12-bit ADC value is (REG5EH << 4) | (REG5FH & 0x0F).
+    Use driver helper: Temp (°C) = (adc_value * 0.1) - 144.7.
   fields:
-    value_raw:
-      base: uint # The raw ADC value is an unsigned integer
+    raw:
+      base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit internal temperature ADC reading. Use formula (RAW * 0.1) - 144.7 to get °C. Assumes REG5FH[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 TsPinAdc: # REG62H & REG63H combined
   type: register
-  address: 0x62 # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x62
+  size_bits: 16
   access: RO
   description: |
-    TS (Temperature Sense) Pin ADC Data. This is a 12-bit value representing the voltage at the TS pin.
-    The value is formed by (REG62H_byte << 4) | (REG63H_byte & 0x0F).
-    Formula for TS pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.8.
-    This voltage is typically from an NTC thermistor circuit for battery temperature monitoring.
+    Raw 16-bit data from REG62H (MSB) and REG63H (LSB) for TS Pin ADC.
+    The actual 12-bit ADC value is (REG62H << 4) | (REG63H & 0x0F).
+    Use driver helper: Voltage (mV) = adc_value * 0.8.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit TS pin ADC reading. Multiply by 0.8 to get mV. Assumes REG63H[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
-GpioVoltageAdc: # This will be the base name for the repeated access, REG64H-REG6BH
+GpioVoltageAdc: # REG64H-REG6BH
   type: register
-  address: 0x64 # Starting address for GPIO0 ADC
-  size_bits: 16 # Each logical ADC reading spans 2 physical bytes
+  address: 0x64
+  size_bits: 16
   access: RO
   repeat:
-    count: 4  # For GPIO0, GPIO1, GPIO2, GPIO3
-    stride: 2 # Each pair starts 2 bytes after the previous (0x64, 0x66, 0x68, 0x6A)
+    count: 4
+    stride: 2
   description: |
-    Reads the 12-bit ADC value for a GPIO pin (indexed 0-3 for GPIO0-GPIO3).
-    The value is formed by (MSB_byte_of_pair << 4) | (LSB_byte_of_pair & 0x0F).
-    Formula for pin voltage: Voltage (mV) = raw_12bit_adc_value * 0.5.
-    The measurable voltage input range for each GPIO ADC is set in REG85H.
+    Raw 16-bit data for GPIO Pin ADC (indexed 0-3).
+    The actual 12-bit ADC value is (MSB_byte << 4) | (LSB_byte & 0x0F).
+    Use driver helper: Voltage (mV) = adc_value * 0.5.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field within the 16-bit read window
-      description: "Raw 12-bit GPIO voltage ADC reading. Multiply by 0.5 to get mV."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 BatteryInstantaneousPowerAdc: # REG70H, REG71H, REG72H combined
   type: register
-  address: 0x70 # Starting address of the triplet
-  size_bits: 24 # Logical size to cover three hardware registers
+  address: 0x70
+  size_bits: 24
   access: RO
   description: |
-    Battery Instantaneous Power ADC Data. This is a 24-bit value.
-    The value is formed by (REG70H_byte << 16) | (REG71H_byte << 8) | (REG72H_byte).
-    Formula for conversion: Power (mW) = raw_24bit_adc_value * 1.1 * 0.5 / 1000.
-    This simplifies to: Power (mW) = raw_24bit_adc_value * 0.00055.
-    Or, Power (uW) = raw_24bit_adc_value * 0.55.
+    Raw 24-bit data from REG70H (MSB), REG71H, REG72H (LSB) for Battery Power ADC.
+    The value is (REG70H << 16) | (REG71H << 8) | REG72H.
+    Use driver helper: Power (uW) = adc_value * 0.55.
   fields:
-    # With default_byte_order: BE, the tool reads bytes in order 70, 71, 72.
-    # Byte from 0x70 is MSB, from 0x72 is LSB of the 24-bit value.
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 24 # Defines a 24-bit field
-      description: "Raw 24-bit battery instantaneous power ADC reading. See register description for conversion formula to mW or uW."
+      end: 24
+      description: "Raw 24-bit value. Use driver helper for actual power."
 
 BatteryVoltageAdc: # REG78H & REG79H combined
   type: register
-  address: 0x78 # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x78
+  size_bits: 16
   access: RO
   description: |
-    Battery Voltage ADC Data. This is a 12-bit value.
-    The value is formed by (REG78H_byte << 4) | (REG79H_byte & 0x0F).
-    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.1.
+    Raw 16-bit data from REG78H (MSB) and REG79H (LSB) for Battery Voltage ADC.
+    The actual 12-bit ADC value is (REG78H << 4) | (REG79H & 0x0F).
+    Use driver helper: Voltage (mV) = adc_value * 1.1.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit battery voltage ADC reading. Multiply by 1.1 to get mV. Assumes REG79H[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 BatteryChargeCurrentAdc: # REG7AH & REG7BH combined
   type: register
-  address: 0x7A # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x7A
+  size_bits: 16
   access: RO
   description: |
-    Battery Charge Current ADC Data. This is a 13-bit value.
-    The value is formed by (REG7AH_byte << 5) | (REG7BH_byte & 0x1F).
-    Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+    Raw 16-bit data from REG7AH (MSB) and REG7BH (LSB) for Battery Charge Current ADC.
+    The actual 13-bit ADC value is (REG7AH << 5) | (REG7BH & 0x1F).
+    Use driver helper: Current (mA) = adc_value * 0.5.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 13 # Defines a 13-bit field
-      description: "Raw 13-bit battery charge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7BH[7:5] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 BatteryDischargeCurrentAdc: # REG7CH & REG7DH combined
   type: register
-  address: 0x7C # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x7C
+  size_bits: 16
   access: RO
   description: |
-    Battery Discharge Current ADC Data. This is a 13-bit value.
-    The value is formed by (REG7CH_byte << 5) | (REG7DH_byte & 0x1F).
-    Formula for conversion: Current (mA) = raw_13bit_adc_value * 0.5.
+    Raw 16-bit data from REG7CH (MSB) and REG7DH (LSB) for Battery Discharge Current ADC.
+    The actual 13-bit ADC value is (REG7CH << 5) | (REG7DH & 0x1F).
+    Use driver helper: Current (mA) = adc_value * 0.5.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 13 # Defines a 13-bit field
-      description: "Raw 13-bit battery discharge current ADC reading. Multiply by 0.5 to get mA. Assumes REG7DH[7:5] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 ApsVoltageAdc: # REG7EH & REG7FH combined
   type: register
-  address: 0x7E # Starting address of the pair
-  size_bits: 16 # Logical size to cover both hardware registers
+  address: 0x7E
+  size_bits: 16
   access: RO
   description: |
-    APS (Average Power Source) Voltage ADC Data. This is a 12-bit value.
-    The value is formed by (REG7EH_byte << 4) | (REG7FH_byte & 0x0F).
-    Formula for conversion: Voltage (mV) = raw_12bit_adc_value * 1.4.
+    Raw 16-bit data from REG7EH (MSB) and REG7FH (LSB) for APS Voltage ADC.
+    The actual 12-bit ADC value is (REG7EH << 4) | (REG7FH & 0x0F).
+    Use driver helper: Voltage (mV) = adc_value * 1.4.
   fields:
-    value_raw:
+    raw:
       base: uint
       start: 0
-      end: 12 # Defines a 12-bit field
-      description: "Raw 12-bit APS voltage ADC reading. Multiply by 1.4 to get mV. Assumes REG7FH[7:4] are zero/ignored."
+      end: 16
+      description: "Raw 16-bit value. Use driver helper for actual ADC value."
 
 BatteryChargeCoulombCounter: # REGB0H - REGB3H combined
   type: register
-  address: 0xB0 # Starting address of the 4-byte set
-  size_bits: 32 # Logical size to cover four hardware registers
+  address: 0xB0
+  size_bits: 32
   access: RO
   description: |
     Raw 32-bit data for the battery charge coulomb counter.
-    Represents accumulated charge input. See datasheet for formula to convert to mAh
-    (requires discharge counter value and ADC sample rate).
+    The value is (REG_B0 << 24) | (REG_B1 << 16) | (REG_B2 << 8) | REG_B3.
+    Represents accumulated charge input.
   fields:
-    # With default_byte_order: BE, the tool reads bytes 0xB0 (MSB) through 0xB3 (LSB).
-    raw_count:
+    raw:
       base: uint
       start: 0
-      end: 32 # Defines a 32-bit field
+      end: 32
       description: "Raw 32-bit unsigned accumulated charge count."
 
 BatteryDischargeCoulombCounter: # REGB4H - REGB7H combined
   type: register
-  address: 0xB4 # Starting address of the 4-byte set
-  size_bits: 32 # Logical size to cover four hardware registers
+  address: 0xB4
+  size_bits: 32
   access: RO
   description: |
     Raw 32-bit data for the battery discharge coulomb counter.
-    Represents accumulated charge output. See datasheet for formula to convert to mAh
-    (requires charge counter value and ADC sample rate).
+    The value is (REG_B4 << 24) | (REG_B5 << 16) | (REG_B6 << 8) | REG_B7.
+    Represents accumulated charge output.
   fields:
-    # With default_byte_order: BE, the tool reads bytes 0xB4 (MSB) through 0xB7 (LSB).
-    raw_count:
+    raw:
       base: uint
       start: 0
-      end: 32 # Defines a 32-bit field
+      end: 32
       description: "Raw 32-bit unsigned accumulated discharge count."
 
 CoulombCounterControl: # REGB8H

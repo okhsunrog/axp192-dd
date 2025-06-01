@@ -222,15 +222,24 @@ where
 {
     #[bisync(async_suffix = "async")]
     pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let adc_data_fieldset = self.ll.battery_voltage_adc().read().await?;
-        Ok(adc_data_fieldset.value_raw() as f32 * 1.1)
+        let raw_fieldset = self.ll.battery_voltage_adc().read().await?;
+        let adc_val = adc_12bit_from_raw_u16(raw_fieldset.raw());
+        Ok(adc_val as f32 * 1.1)
     }
 
     #[bisync(async_suffix = "async")]
-    pub async fn is_charging(&mut self) -> Result<bool, AxpError<I2CBusErr>> {
-        let status_fieldset = self.ll.power_status().read().await?;
-        // Assuming the generated enum is directly accessible via AxpLowLevel
-        Ok(status_fieldset.battery_flow() == BatteryFlowDirection::Charging)
+    pub async fn get_battery_charge_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let raw_fieldset = self.ll.battery_charge_current_adc().read().await?;
+        let adc_val = adc_13bit_from_raw_u16(raw_fieldset.raw());
+        Ok(adc_val as f32 * 0.5)
+    }
+
+    #[bisync(async_suffix = "async")]
+    pub async fn get_battery_instantaneous_power_uw(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let raw_fieldset = self.ll.battery_instantaneous_power_adc().read().await?;
+        // device-driver for a 24-bit field "raw" will return a u32.
+        let adc_val = adc_24bit_from_raw_u32(raw_fieldset.raw());
+        Ok(adc_val as f32 * 0.55)
     }
 
     #[bisync(async_suffix = "async")]
