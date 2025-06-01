@@ -5,6 +5,8 @@
 
 This crate provides a no_std driver for the AXP192 power management IC, commonly used in M5Stack devices and other embedded systems. The project aims to support the full functionality of the AXP192 PMIC, leveraging the device-driver crate with a declarative YAML manifest (device.yaml) for a robust, type-safe register map definition. The low-level API covers 100% of the AXP192's registers, with device.yaml providing a comprehensive and accurate description of all registers and their fields. While the low-level API is complete, some high-level convenience methods for easier access may still be added in the future.
 
+### Attention: to use this crate make sure to enable either `async` or `blocking` feature flag.
+
 ## Overview
 
 The `axp192-dd` driver offers:
