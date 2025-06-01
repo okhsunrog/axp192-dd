@@ -26,7 +26,10 @@ jobs:
           - command: fmt
             args: --all -- --check
           - command: clippy
-            args: --all-features --workspace -- -D warnings
+            args: --features "async" -- -D warnings
+          - command: clippy
+            args: --features "blocking" -- -D warnings
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
