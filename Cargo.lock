@@ -31,7 +31,6 @@ name = "axp192-dd"
 version = "0.1.2"
 dependencies = [
  "bisync",
- "bisync_suffix_macro",
  "defmt 1.0.1",
  "defmt-rtt",
  "device-driver",
@@ -68,17 +67,6 @@ name = "bisync_macros"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d21f40d350a700f6aa107e45fb26448cf489d34794b2ba4522181dc9f1173af6"
-
-[[package]]
-name = "bisync_suffix_macro"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2510ca67e6d6ed443ec7e8dc89fe583c6e3315f27f743248d2d3d3e750a1130e"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
 
 [[package]]
 name = "bitfield"
