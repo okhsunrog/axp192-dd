@@ -2,6 +2,8 @@
 
 #[macro_use]
 pub(crate) mod fmt;
+mod helpers;
+
 use thiserror::Error;
 
 device_driver::create_device!(device_name: AxpLowLevel, manifest: "device.yaml");
