@@ -2,7 +2,7 @@
 
 #[macro_use]
 pub(crate) mod fmt;
-mod helpers;
+mod adc_helpers;
 
 use thiserror::Error;
 
