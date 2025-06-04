@@ -28,7 +28,7 @@ checksum = "7d902e3d592a523def97af8f317b08ce16b7ab854c1985a0c671e6f15cebc236"
 
 [[package]]
 name = "axp192-dd"
-version = "0.1.2"
+version = "0.2.0"
 dependencies = [
  "bisync",
  "defmt 1.0.1",
