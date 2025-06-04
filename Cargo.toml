@@ -23,13 +23,8 @@ bisync_suffix_macro = "0.1"
 [features]
 default = []
 std = ["thiserror/std"]
-async = []
-blocking = []
 log = ["dep:log"]
 defmt = ["dep:defmt", "device-driver/defmt-03"]
-
-[package.metadata.docs.rs]
-features = ["async"]
 
 [dev-dependencies]
 embassy-executor = { version = "0.7.0", features = [
@@ -46,11 +41,9 @@ defmt-rtt = "1.0"
 
 [[example]]
 name = "test_pmic_async"
-required-features = ["async"]
 
 [[example]]
 name = "test_pmic_blocking"
-required-features = ["blocking"]
 
 [lib]
 test = false
