@@ -1,31 +1,5 @@
 use super::{I2c, RegisterInterface, bisync};
-use thiserror::Error;
-
-device_driver::create_device!(device_name: AxpLowLevel, manifest: "device.yaml");
-const AXP192_I2C_ADDRESS: u8 = 0x34;
-
-// add optional defmt here later
-#[derive(Debug, Error)]
-pub enum AxpError<I2cErr> {
-    #[error("I2C error")]
-    I2c(I2cErr),
-    #[error("Invalid voltage: {0}mV for setting")]
-    InvalidVoltage(u16),
-    #[error("Invalid current: {0}mA for setting")]
-    InvalidCurrent(u16),
-    #[error("Feature or specific mode not supported/implemented: {0}")]
-    NotSupported(&'static str),
-}
-
-pub struct AxpInterface<I2CBus> {
-    i2c_bus: I2CBus,
-}
-
-impl<I2CBus> AxpInterface<I2CBus> {
-    pub fn new(i2c_bus: I2CBus) -> Self {
-        Self { i2c_bus }
-    }
-}
+use crate::{AXP192_I2C_ADDRESS, AxpError, AxpInterface, AxpLowLevel};
 
 #[bisync]
 impl<I2CBus, E> RegisterInterface for AxpInterface<I2CBus>
@@ -62,5 +36,28 @@ where
             .write(AXP192_I2C_ADDRESS, &buffer[..1 + data.len()])
             .await
             .map_err(AxpError::I2c)
+    }
+}
+
+#[bisync]
+pub struct Axp192<
+    I2CImpl: RegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>,
+    I2CBusErr: core::fmt::Debug = <I2CImpl as RegisterInterface>::Error,
+> {
+    pub ll: AxpLowLevel<I2CImpl>,
+    _marker: core::marker::PhantomData<I2CBusErr>,
+}
+
+#[bisync]
+impl<I2CBus, E> Axp192<AxpInterface<I2CBus>, E>
+where
+    I2CBus: I2c<Error = E>,
+    E: core::fmt::Debug,
+{
+    pub fn new(i2c: I2CBus) -> Self {
+        Self {
+            ll: AxpLowLevel::new(AxpInterface::new(i2c)),
+            _marker: core::marker::PhantomData,
+        }
     }
 }

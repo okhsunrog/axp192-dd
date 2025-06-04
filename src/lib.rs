@@ -2,6 +2,33 @@
 
 #[macro_use]
 pub(crate) mod fmt;
+use thiserror::Error;
+
+device_driver::create_device!(device_name: AxpLowLevel, manifest: "device.yaml");
+pub const AXP192_I2C_ADDRESS: u8 = 0x34;
+
+// add optional defmt here later
+#[derive(Debug, Error)]
+pub enum AxpError<I2cErr> {
+    #[error("I2C error")]
+    I2c(I2cErr),
+    #[error("Invalid voltage: {0}mV for setting")]
+    InvalidVoltage(u16),
+    #[error("Invalid current: {0}mA for setting")]
+    InvalidCurrent(u16),
+    #[error("Feature or specific mode not supported/implemented: {0}")]
+    NotSupported(&'static str),
+}
+
+pub struct AxpInterface<I2CBus> {
+    i2c_bus: I2CBus,
+}
+
+impl<I2CBus> AxpInterface<I2CBus> {
+    pub fn new(i2c_bus: I2CBus) -> Self {
+        Self { i2c_bus }
+    }
+}
 
 #[path = "."]
 mod asynchronous {
@@ -11,7 +38,7 @@ mod asynchronous {
     mod driver;
     pub use driver::*;
 }
-// pub use asynchronous::Apa102Writer as Apa102WriterAsync;
+pub use asynchronous::Axp192 as Axp192Async;
 
 #[path = "."]
 mod blocking {
@@ -22,4 +49,4 @@ mod blocking {
     mod driver;
     pub use driver::*;
 }
-// pub use blocking::Apa102Writer;
+pub use blocking::Axp192;
