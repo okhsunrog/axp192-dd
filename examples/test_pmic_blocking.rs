@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 
-use axp192_dd::{Axp192, AxpError, ChargeCurrentValue, Gpio0FunctionSelect};
+use axp192_dd::{Axp192, AxpError, ChargeCurrentValue, Gpio0FunctionSelect, LdoId};
 use defmt::info;
 use defmt_rtt as _;
 use esp_hal::Blocking;
@@ -39,7 +39,7 @@ fn main() -> ! {
 #[rustfmt::skip]
 fn init_pmic(i2c: I2c<'_, Blocking>) -> Result<(), AxpError<I2cError>> {
     let mut axp = Axp192::new(i2c);
-    //axp.set_ldo_voltage_mv(LdoId::Ldo2, 3300)?;
+    axp.set_ldo_voltage_mv(LdoId::Ldo2, 3300)?;
     axp.ll.adc_enable_1().write(|r| {
         r.set_battery_current_adc_enable(true);
         r.set_acin_voltage_adc_enable(true);
@@ -49,7 +49,7 @@ fn init_pmic(i2c: I2c<'_, Blocking>) -> Result<(), AxpError<I2cError>> {
         r.set_aps_voltage_adc_enable(true);
     })?;
     axp.ll.charge_control_1().write(|r| r.set_charge_current(ChargeCurrentValue::Ma100))?;
-    //axp.set_gpio0_ldo_voltage_mv(3300)?;
+    axp.set_gpio0_ldo_voltage_mv(3300)?;
     axp.ll.gpio_0_control().write(|r| {
         r.set_function_select(Gpio0FunctionSelect::LowNoiseLdoOutput);
     })?;
@@ -61,12 +61,12 @@ fn init_pmic(i2c: I2c<'_, Blocking>) -> Result<(), AxpError<I2cError>> {
         r.set_dcdc_2_output_enable(false);
         r.set_exten_output_enable(true);
     })?;
-    //axp.set_battery_charge_high_temp_threshold_mv(3226)?;
+    axp.set_battery_charge_high_temp_threshold_mv(3226)?;
     axp.ll.backup_battery_charge_control().write(|r| {
         r.set_backup_charge_enable(true);
     })?;
 
-    // info!("Battery voltage: {} mV", axp.get_battery_voltage_mv()?);
-    // info!("Charge current: {} mA", axp.get_battery_charge_current_ma()?);
+    info!("Battery voltage: {} mV", axp.get_battery_voltage_mv()?);
+    info!("Charge current: {} mA", axp.get_battery_charge_current_ma()?);
     Ok(())
 }
