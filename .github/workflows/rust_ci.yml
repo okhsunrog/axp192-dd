@@ -17,16 +17,14 @@ jobs:
       matrix:
         action:
           - command: build
-            args: --release --example test_pmic_async --features async,defmt
+            args: --release --example test_pmic_async --features defmt
           - command: build
-            args: --release --example test_pmic_blocking --features blocking,defmt
+            args: --release --example test_pmic_blocking --features defmt
 
           - command: fmt
             args: --all -- --check
           - command: clippy
-            args: --features "async" -- -D warnings
-          - command: clippy
-            args: --features "blocking" -- -D warnings
+            args: -- -D warnings
 
     steps:
       - name: Checkout repository
