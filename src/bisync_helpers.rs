@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 #[only_sync]
 fn read_internal<'a, Interface, Register, Access>(
     op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>
@@ -10,6 +11,7 @@ where
     op.read()
 }
 
+#[allow(dead_code)]
 #[only_async]
 async fn read_internal<'a, Interface, Register, Access>(
     op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>
@@ -22,6 +24,7 @@ where
     op.read_async().await
 }
 
+#[allow(dead_code)]
 #[only_sync]
 fn write_internal<'a, Interface, Register, Access, R>(
     op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
@@ -35,6 +38,7 @@ where
     op.write(f)
 }
 
+#[allow(dead_code)]
 #[only_async]
 async fn write_internal<'a, Interface, Register, Access, R>(
     op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
@@ -48,6 +52,7 @@ where
     op.write_async(f).await
 }
 
+#[allow(dead_code)]
 #[only_sync]
 fn modify_internal<'a, Interface, Register, Access, R>(
     op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
@@ -61,6 +66,7 @@ where
     op.modify(f)
 }
 
+#[allow(dead_code)]
 #[only_async]
 async fn modify_internal<'a, Interface, Register, Access, R>(
     op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
