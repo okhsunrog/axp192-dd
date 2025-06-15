@@ -76,6 +76,7 @@ device_driver::create_device!(device_name: AxpLowLevel, manifest: "device.yaml")
 pub const AXP192_I2C_ADDRESS: u8 = 0x34;
 
 #[derive(Debug, Error)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum AxpError<I2cErr> {
     #[error("I2C error")]
     I2c(I2cErr),
@@ -85,18 +86,6 @@ pub enum AxpError<I2cErr> {
     InvalidCurrent(u16),
     #[error("Feature or specific mode not supported/implemented: {0}")]
     NotSupported(&'static str),
-}
-
-#[cfg(feature = "defmt")]
-impl<I2cErr> defmt::Format for AxpError<I2cErr> {
-    fn format(&self, f: defmt::Formatter) {
-        match self {
-            AxpError::I2c(_) => defmt::write!(f, "E:I2C"),
-            AxpError::InvalidVoltage(v) => defmt::write!(f, "E:V_set({}mV)", v),
-            AxpError::InvalidCurrent(c) => defmt::write!(f, "E:I_set({}mA)", c),
-            AxpError::NotSupported(s) => defmt::write!(f, "E:NoSupp({=str})", s),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
