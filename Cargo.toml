@@ -1,6 +1,6 @@
 [package]
 name = "axp192-dd"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2024"
 description = "A driver for the AXP192 power management IC (uses device-driver crate)"
 authors = ["Danila Gornushko <me@okhsunrog.dev>"]
@@ -14,7 +14,7 @@ documentation = "https://docs.rs/axp192-dd"
 bisync = "0.3"
 defmt = { version = "1.0", optional = true }
 log = { version = "0.4", optional = true }
-device-driver = { version = "1.0.5", default-features = false, features = ["yaml"] }
+device-driver = { version = "1.0.6", default-features = false, features = ["yaml"] }
 embedded-hal = "1.0.0"
 embedded-hal-async =  "1.0.0"
 thiserror = { version = "2.0.12", default-features = false }

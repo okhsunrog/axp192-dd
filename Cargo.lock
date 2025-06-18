@@ -71,7 +71,7 @@ checksum = "ace50bade8e6234aa140d9a2f552bbee1db4d353f69b8217bc503490fc1a9f26"
 
 [[package]]
 name = "axp192-dd"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "bisync",
  "defmt 1.0.1",
@@ -306,9 +306,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efd45e0b0e34124b750ef93fe21ae2835ac5aeb71442c2e9d598f65729b9378b"
+checksum = "1298272ea07037196af2fe8d1eb50792206f45476d79eefa435432b9323cf488"
 dependencies = [
  "defmt 0.3.100",
  "device-driver-macros",
@@ -318,9 +318,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-generation"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a64e9c0d0d0c455720e20d984f462d472b277b802c65b20bac9636b5659d732"
+checksum = "f86a17ed060a6119daeb05ad5596ac3bd945f7ab2213cc6260bf6a7623e73da1"
 dependencies = [
  "anyhow",
  "askama",
@@ -336,9 +336,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-macros"
-version = "1.0.5"
+version = "1.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2e848c4b2653317c3cf273d312e476a773fe95d98bbda7aa2ee3f3af5b14d65"
+checksum = "e1c29238099c66bf44098efaa772cae6f47d632aebb7ade8d3087bd565e8fae0"
 dependencies = [
  "device-driver-generation",
  "proc-macro2",
