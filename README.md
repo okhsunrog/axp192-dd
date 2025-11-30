@@ -214,7 +214,8 @@ The AXP192 is used in devices including:
 
 ## Datasheet
 
-- [AXP192 Datasheet v1.1 (English Draft)](https://github.com/m5stack/M5-Schematic/blob/master/Core/AXP192%20Datasheet_v1.1_en_draft_2211.pdf)
+- [AXP192 Datasheet v1.1 (English Draft) - PDF](docs/AXP192%20Datasheet_v1.1_en_draft_2211.pdf)
+- [AXP192 Datasheet v1.1 - Markdown](docs/AXP192_datasheet.md) (OCR-converted for easier reference)
 
 ## Feature Flags
 
