@@ -83,9 +83,107 @@ The `axp192-dd` driver offers:
      axp.set_ldo_voltage_mv(LdoId::Ldo2, 3300).await?;
      ```
 
+## Low-Level API Usage
+
+The driver provides direct access to all AXP192 registers through the low-level API via `axp.ll`. This API is automatically generated from [`device.yaml`](device.yaml) and provides type-safe access to all register fields.
+
+### Reading Registers
+
+Use `.read()` to read a register and access its fields:
+
+```rust
+// Read power status
+let status = axp.ll.power_status().read()?;
+let acin_present = status.acin_present();
+let vbus_present = status.vbus_present();
+
+// Read battery gauge data
+let gauge = axp.ll.battery_gauge_data().read()?;
+let percentage = gauge.percentage();
+
+// Read chip ID and access individual fields
+let chip_id = axp.ll.chip_id().read()?;
+let id_value = chip_id.chip_id();
+```
+
+### Writing Registers
+
+Use `.write()` with a closure to modify register fields. The closure receives a mutable reference to the register structure:
+
+```rust
+// Enable ADC channels
+axp.ll.adc_enable_1().write(|w| {
+    w.set_battery_current_adc_enable(true);
+    w.set_vbus_voltage_adc_enable(true);
+    w.set_vbus_current_adc_enable(true);
+})?;
+
+// Configure GPIO0 control
+axp.ll.gpio_0_control().write(|w| {
+    w.set_function_select(Gpio0FunctionSelect::LowNoiseLdoOutput);
+})?;
+
+// Configure charge current
+axp.ll.charge_control_1().write(|w| {
+    w.set_charge_current(ChargeCurrentValue::Ma100);
+})?;
+```
+
+### Modifying Registers
+
+Use `.modify()` to read-modify-write, preserving other fields:
+
+```rust
+// Enable specific power outputs without affecting others
+// modify() reads the register, applies your changes, then writes it back
+axp.ll.power_output_control().modify(|w| {
+    w.set_dcdc_1_output_enable(true);
+    w.set_ldo_2_output_enable(true);
+    // Other fields remain unchanged
+})?;
+```
+
+### Async Low-Level API
+
+The low-level API has async versions for use with `Axp192Async`. Simply append `_async` to the method name:
+
+```rust
+// Async read
+let status = axp.ll.power_status().read_async().await?;
+let gauge = axp.ll.battery_gauge_data().read_async().await?;
+
+// Async write
+axp.ll.adc_enable_1().write_async(|w| {
+    w.set_battery_current_adc_enable(true);
+    w.set_vbus_voltage_adc_enable(true);
+}).await?;
+
+// Async modify
+axp.ll.power_output_control().modify_async(|w| {
+    w.set_dcdc_1_output_enable(true);
+    w.set_ldo_2_output_enable(true);
+}).await?;
+```
+
+### Field Naming Convention
+
+Register and field names in the LL API follow snake_case and are derived from the names in [`device.yaml`](device.yaml):
+
+- Register: `PowerOutputControl` → `power_output_control()`
+- Field: `dcdc_1_output_enable` → `set_dcdc_1_output_enable()` / `dcdc_1_output_enable()`
+- Register: `AdcEnable1` → `adc_enable_1()`
+- Field: `battery_current_adc_enable` → `set_battery_current_adc_enable()` / `battery_current_adc_enable()`
+
+### Finding Register/Field Names
+
+1. **Check [`device.yaml`](device.yaml)** - All registers and fields are documented there
+2. **Use IDE autocomplete** - Type `axp.ll.` to see all available registers
+3. **Read a register** - Use `.read()` then autocomplete to see available field getters
+4. **Write a register** - The closure parameter has autocomplete for all setters
+
 ## Examples
 
-Examples for ESP32-C3 using `esp-hal` are included. Setup is required (see [esp-hal docs](https://esp-rs.github.io/book/installation/)).
+Examples for ESP32-C3 using `esp-hal` are included. Setup is required (see [esp-hal docs](https://esp-rs.github.io/book/installation/)). Both examples demonstrate high-level convenience methods and low-level register API usage.
 
 - **Async Example:** [`examples/test_pmic_async.rs`](examples/test_pmic_async.rs)
   ```bash
@@ -104,8 +202,6 @@ The AXP192 register map is defined in [`device.yaml`](device.yaml), which `devic
 - Field names, bit positions, and access modes (Read-Only, Read-Write, Write-1-Clear).
 - Enumerations for field values (e.g., charging currents, voltage settings).
 - Reset values and descriptions based on the datasheet.
-
-Access the low-level API via `axp.ll` (e.g., `axp.ll.power_status().read()`). High-level methods provide convenient access to common features.
 
 ## Supported Devices
 
