@@ -105,7 +105,7 @@ use axp192_dd::{GpioAdcRange, GpioId};
 let mv = axp.get_gpio_voltage_mv(GpioId::Gpio0)?;
 
 // One transaction; `range` must match REG85H or the result is off by 700mV.
-let mv = axp.get_gpio_voltage_mv_with_range(GpioId::Gpio0, GpioAdcRange::Range00To20475V)?;
+let mv = axp.get_gpio_voltage_mv_with_range(GpioId::Gpio0, GpioAdcRange::Mv0To2047)?;
 ```
 
 If you read an ADC register through the low-level API instead, note that the two halves are exposed separately as `value_high()` and `value_low()` and must be combined — `(value_high << 4) | value_low` for 12-bit channels, `<< 5` for the 13-bit battery current ones. Channels that are already contiguous (battery power, the coulomb counters) expose a single `value()` that needs no post-processing.

@@ -189,8 +189,8 @@ where
             GpioId::Gpio3 => read_internal(self.ll.gpio_3_voltage_adc()).await,
         }?;
         let offset = match range {
-            GpioAdcRange::Range00To20475V => 0.0,
-            GpioAdcRange::Range07To27475V => 700.0,
+            GpioAdcRange::Mv0To2047 => 0.0,
+            GpioAdcRange::Mv700To2747 => 700.0,
         };
         Ok(offset + adc_12bit(fs.value_high(), fs.value_low()) as f32 * 0.5)
     }

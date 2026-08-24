@@ -173,9 +173,9 @@ device AxpLowLevel {
             /// DC-DC2 VRC voltage rise slope.
             field vrc_rise_slope 0 -> _ as enum VrcRiseSlope {
                 /// 1.6mV/us slope.
-                Slope1_6mV_us: 0,
+                Uv1600PerUs: 0,
                 /// 0.8mV/us slope.
-                Slope0_8mV_us: 1,
+                Uv800PerUs: 1,
             },
         },
     },
@@ -228,21 +228,21 @@ device AxpLowLevel {
             /// VHOLD voltage setting when vhold_limit_enabled is true.
             field vhold_voltage 5:3 -> _ as enum VholdVoltageValue {
                 /// 4.0V
-                V4_0: 0b000,
+                Mv4000: 0b000,
                 /// 4.1V
-                V4_1: 0b001,
+                Mv4100: 0b001,
                 /// 4.2V
-                V4_2: 0b010,
+                Mv4200: 0b010,
                 /// 4.3V
-                V4_3: 0b011,
+                Mv4300: 0b011,
                 /// 4.4V
-                V4_4: 0b100,
+                Mv4400: 0b100,
                 /// 4.5V
-                V4_5: 0b101,
+                Mv4500: 0b101,
                 /// 4.6V
-                V4_6: 0b110,
+                Mv4600: 0b110,
                 /// 4.7V
-                V4_7: 0b111,
+                Mv4700: 0b111,
             },
             /// VBUS current limit control (true: enabled, false: disabled).
             field vbus_current_limit_enabled 1,
@@ -267,21 +267,21 @@ device AxpLowLevel {
             /// VOFF (shutdown) voltage threshold.
             field voff_voltage 2:0 -> _ as enum VoffVoltageValue {
                 /// 2.6V
-                V2_6: 0b000,
+                Mv2600: 0b000,
                 /// 2.7V
-                V2_7: 0b001,
+                Mv2700: 0b001,
                 /// 2.8V
-                V2_8: 0b010,
+                Mv2800: 0b010,
                 /// 2.9V
-                V2_9: 0b011,
+                Mv2900: 0b011,
                 /// 3.0V
-                V3_0: 0b100,
+                Mv3000: 0b100,
                 /// 3.1V
-                V3_1: 0b101,
+                Mv3100: 0b101,
                 /// 3.2V
-                V3_2: 0b110,
+                Mv3200: 0b110,
                 /// 3.3V
-                V3_3: 0b111,
+                Mv3300: 0b111,
             },
         },
     },
@@ -339,13 +339,13 @@ device AxpLowLevel {
             /// Charging target voltage setting.
             field target_voltage 6:5 -> _ as enum ChargeTargetVoltageValue {
                 /// 4.10V
-                V4_10: 0b00,
+                Mv4100: 0b00,
                 /// 4.15V
-                V4_15: 0b01,
+                Mv4150: 0b01,
                 /// 4.20V
-                V4_20: 0b10,
+                Mv4200: 0b10,
                 /// 4.36V
-                V4_36: 0b11,
+                Mv4360: 0b11,
             },
             /// Charge termination current threshold.
             field end_current_threshold 4 -> _ as enum ChargeEndCurrentThresholdValue {
@@ -456,13 +456,13 @@ device AxpLowLevel {
             /// Target voltage for backup battery charging.
             field backup_target_voltage 6:5 -> _ as enum BackupTargetVoltageValue {
                 /// 3.1V target.
-                V3_1: 0b00,
+                Mv3100: 0b00,
                 /// 3.0V target.
-                V3_0: 0b01,
+                Mv3000: 0b01,
                 /// 3.0V target (alternative?).
-                V3_0_Alt: 0b10,
+                Mv3000Alt: 0b10,
                 /// 2.5V target.
-                V2_5: 0b11,
+                Mv2500: 0b11,
             },
             /// Charging current for backup battery.
             field backup_charge_current 1:0 -> _ as enum BackupChargeCurrentValue {
@@ -498,13 +498,13 @@ device AxpLowLevel {
             /// PEK long press detection time.
             field long_press_time 5:4 -> _ as enum PekLongPressTime {
                 /// 1.0 Second
-                S1_0: 0b00,
+                Ms1000: 0b00,
                 /// 1.5 Seconds
-                S1_5: 0b01,
+                Ms1500: 0b01,
                 /// 2.0 Seconds
-                S2_0: 0b10,
+                Ms2000: 0b10,
                 /// 2.5 Seconds
-                S2_5: 0b11,
+                Ms2500: 0b11,
             },
             /// Auto-shutdown if PEK is held longer than the configured shutdown time (true: enabled, false: disabled).
             field auto_shutdown_if_pek_held_longer_than_shutdown_time 3,
@@ -745,9 +745,9 @@ device AxpLowLevel {
             /// ADC input voltage range for GPIO3.
             field gpio3_adc_input_range 3 -> _ as enum GpioAdcRange {
                 /// 0V to 2.0475V input range.
-                Range0_0_to_2_0475V: 0,
+                Mv0To2047: 0,
                 /// 0.7V to 2.7475V input range.
-                Range0_7_to_2_7475V: 1,
+                Mv700To2747: 1,
             },
             /// ADC input voltage range for GPIO2.
             field gpio2_adc_input_range 2 -> _ as GpioAdcRange,
@@ -808,13 +808,13 @@ device AxpLowLevel {
             /// Threshold voltage for considering VBUS as valid.
             field vbus_valid_threshold 5:4 -> _ as enum VbusValidThresholdValue {
                 /// 4.00V threshold.
-                V4_00: 0b00,
+                Mv4000: 0b00,
                 /// 4.15V threshold.
-                V4_15: 0b01,
+                Mv4150: 0b01,
                 /// 4.45V threshold.
-                V4_45: 0b10,
+                Mv4450: 0b10,
                 /// 4.55V threshold.
-                V4_55: 0b11,
+                Mv4550: 0b11,
             },
             /// VBUS Valid detection function (true: enabled, false: disabled).
             field vbus_valid_detection_enable 3,
