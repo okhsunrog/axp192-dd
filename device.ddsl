@@ -7,7 +7,7 @@ device AxpLowLevel {
     /// Indicates the input power source status (ACIN, VBUS), battery current direction,
     /// and other power-related conditions.
     register PowerStatus {
-        address: 0,
+        address: 0x00,
         access: RO,
         fields: fieldset _ {
             size-bytes: 1,
@@ -36,7 +36,7 @@ device AxpLowLevel {
     /// Indicates various operational modes and charging statuses, including AXP192 temperature,
     /// battery presence, and charging progress.
     register ChargeStatus {
-        address: 1,
+        address: 0x01,
         access: RO,
         fields: fieldset _ {
             size-bytes: 1,
@@ -62,7 +62,7 @@ device AxpLowLevel {
     },
     /// Indicates the status of VBUS when operating in USB OTG (On-The-Go) mode.
     register OtgVbusStatus {
-        address: 4,
+        address: 0x04,
         access: RO,
         fields: fieldset _ {
             size-bytes: 1,
@@ -78,8 +78,8 @@ device AxpLowLevel {
     /// General purpose data buffer for system data storage.
     /// Note: Retained as long as any AXP192 power source is present (not affected by host on/off).
     register DataBuffer0 {
-        address: 6,
-        reset: 240,
+        address: 0x06,
+        reset: 0xF0,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -88,34 +88,34 @@ device AxpLowLevel {
         },
     },
     register DataBuffer1 {
-        address: 7,
-        reset: 15,
+        address: 0x07,
+        reset: 0x0F,
         fields: DataBuffer0,
     },
     register DataBuffer2 {
-        address: 8,
-        reset: 0,
+        address: 0x08,
+        reset: 0x00,
         fields: DataBuffer0,
     },
     register DataBuffer3 {
-        address: 9,
-        reset: 255,
+        address: 0x09,
+        reset: 0xFF,
         fields: DataBuffer0,
     },
     register DataBuffer4 {
-        address: 10,
-        reset: 0,
+        address: 0x0A,
+        reset: 0x00,
         fields: DataBuffer0,
     },
     register DataBuffer5 {
-        address: 11,
-        reset: 0,
+        address: 0x0B,
+        reset: 0x00,
         fields: DataBuffer0,
     },
     /// Controls the output enable state for the EXTEN pin and the DC-DC2 converter.
     register ExtenDcDc2Control {
-        address: 16,
-        reset: 5,
+        address: 0x10,
+        reset: 0x05,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -131,8 +131,8 @@ device AxpLowLevel {
     ///             REG12H bit 4 (dcdc2_output_enable) is linked to REG10H bit 0.
     ///             These pairs control the same underlying hardware function.
     register PowerOutputControl {
-        address: 18,
-        reset: 95,
+        address: 0x12,
+        reset: 0x5F,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -153,8 +153,8 @@ device AxpLowLevel {
     /// Sets the output voltage for the DC-DC2 converter.
     /// Formula: Output Voltage (V) = 0.7 + (value * 0.025). Range: 0.7V to 2.275V (raw 0-63).
     register DcDc2VoltageSetting {
-        address: 35,
-        reset: 22,
+        address: 0x23,
+        reset: 0x16,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -163,8 +163,8 @@ device AxpLowLevel {
     },
     /// Configures DC-DC2 Dynamic Voltage Scaling / Voltage Ramp Control (VRC).
     register DcDc2VrcParameter {
-        address: 37,
-        reset: 0,
+        address: 0x25,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -182,8 +182,8 @@ device AxpLowLevel {
     /// Sets the output voltage for a DC-DC converter.
     /// Formula: V_out = 0.7V + (value * 25mV). Range 0.7V-3.5V (raw 0-112).
     register DcDc1VoltageSetting {
-        address: 38,
-        reset: 104,
+        address: 0x26,
+        reset: 0x68,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -191,15 +191,15 @@ device AxpLowLevel {
         },
     },
     register DcDc3VoltageSetting {
-        address: 39,
-        reset: 72,
+        address: 0x27,
+        reset: 0x48,
         fields: DcDc1VoltageSetting,
     },
     /// Sets the output voltage for both LDO2 and LDO3.
     /// LDO2 (bits 7-4) & LDO3 (bits 3-0): V_out = 1.8V + (setting * 100mV). Range: 1.8V-3.3V.
     register Ldo2And3VoltageSetting {
-        address: 40,
-        reset: 207,
+        address: 0x28,
+        reset: 0xCF,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -211,7 +211,7 @@ device AxpLowLevel {
     },
     /// Manages VBUS to IPSOUT path, VHOLD voltage limiting, and VBUS current limiting.
     register VbusIpsoutPathManagement {
-        address: 48,
+        address: 0x30,
         reset: 128,
         fields: fieldset _ {
             size-bytes: 1,
@@ -228,21 +228,21 @@ device AxpLowLevel {
             /// VHOLD voltage setting when vhold_limit_enabled is true.
             field vhold_voltage 5:3 -> _ as enum VholdVoltageValue {
                 /// 4.0V
-                V4_0: 0,
+                V4_0: 0b000,
                 /// 4.1V
-                V4_1: 1,
+                V4_1: 0b001,
                 /// 4.2V
-                V4_2: 2,
+                V4_2: 0b010,
                 /// 4.3V
-                V4_3: 3,
+                V4_3: 0b011,
                 /// 4.4V
-                V4_4: 4,
+                V4_4: 0b100,
                 /// 4.5V
-                V4_5: 5,
+                V4_5: 0b101,
                 /// 4.6V
-                V4_6: 6,
+                V4_6: 0b110,
                 /// 4.7V
-                V4_7: 7,
+                V4_7: 0b111,
             },
             /// VBUS current limit control (true: enabled, false: disabled).
             field vbus_current_limit_enabled 1,
@@ -257,8 +257,8 @@ device AxpLowLevel {
     },
     /// Sets VOFF (shutdown) voltage and PWRON short-press wakeup from sleep.
     register ShutdownVoltageSetting {
-        address: 49,
-        reset: 3,
+        address: 0x31,
+        reset: 0x03,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -267,28 +267,28 @@ device AxpLowLevel {
             /// VOFF (shutdown) voltage threshold.
             field voff_voltage 2:0 -> _ as enum VoffVoltageValue {
                 /// 2.6V
-                V2_6: 0,
+                V2_6: 0b000,
                 /// 2.7V
-                V2_7: 1,
+                V2_7: 0b001,
                 /// 2.8V
-                V2_8: 2,
+                V2_8: 0b010,
                 /// 2.9V
-                V2_9: 3,
+                V2_9: 0b011,
                 /// 3.0V
-                V3_0: 4,
+                V3_0: 0b100,
                 /// 3.1V
-                V3_1: 5,
+                V3_1: 0b101,
                 /// 3.2V
-                V3_2: 6,
+                V3_2: 0b110,
                 /// 3.3V
-                V3_3: 7,
+                V3_3: 0b111,
             },
         },
     },
     /// Controls shutdown, battery detection, CHGLED pin, and N_OE shutdown delay.
     register ShutdownBatChgLedControl {
-        address: 50,
-        reset: 70,
+        address: 0x32,
+        reset: 0x46,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -299,13 +299,13 @@ device AxpLowLevel {
             /// CHGLED pin function when chgled_control_source is ByRegister.
             field chgled_function 5:4 -> _ as enum ChgLedFunctionSetting {
                 /// High Impedance.
-                HighZ: 0,
+                HighZ: 0b00,
                 /// 1Hz blink (25% duty).
-                Blink1Hz: 1,
+                Blink1Hz: 0b01,
                 /// 4Hz blink (25% duty).
-                Blink4Hz: 2,
+                Blink4Hz: 0b10,
                 /// Output Low.
-                OutputLow: 3,
+                OutputLow: 0b11,
             },
             /// CHGLED pin control source.
             field chgled_control_source 3 -> _ as enum ChgLedControlSourceSelect {
@@ -317,20 +317,20 @@ device AxpLowLevel {
             /// Shutdown delay after N_OE pin transitions from low to high.
             field n_oe_shutdown_delay 1:0 -> _ as enum NoeShutdownDelayValue {
                 /// 0.5S delay.
-                Ms500: 0,
+                Ms500: 0b00,
                 /// 1S delay.
-                S1: 1,
+                S1: 0b01,
                 /// 2S delay.
-                S2: 2,
+                S2: 0b10,
                 /// 3S delay.
-                S3: 3,
+                S3: 0b11,
             },
         },
     },
     /// Controls primary charging parameters.
     register ChargeControl1 {
-        address: 51,
-        reset: 200,
+        address: 0x33,
+        reset: 0xC8,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -339,13 +339,13 @@ device AxpLowLevel {
             /// Charging target voltage setting.
             field target_voltage 6:5 -> _ as enum ChargeTargetVoltageValue {
                 /// 4.10V
-                V4_10: 0,
+                V4_10: 0b00,
                 /// 4.15V
-                V4_15: 1,
+                V4_15: 0b01,
                 /// 4.20V
-                V4_20: 2,
+                V4_20: 0b10,
                 /// 4.36V
-                V4_36: 3,
+                V4_36: 0b11,
             },
             /// Charge termination current threshold.
             field end_current_threshold 4 -> _ as enum ChargeEndCurrentThresholdValue {
@@ -357,97 +357,97 @@ device AxpLowLevel {
             /// Internal path charging current setting.
             field charge_current 3:0 -> _ as enum ChargeCurrentValue {
                 /// 100mA
-                MA100: 0,
+                MA100: 0b0000,
                 /// 190mA
-                MA190: 1,
+                MA190: 0b0001,
                 /// 280mA
-                MA280: 2,
+                MA280: 0b0010,
                 /// 360mA
-                MA360: 3,
+                MA360: 0b0011,
                 /// 450mA
-                MA450: 4,
+                MA450: 0b0100,
                 /// 550mA
-                MA550: 5,
+                MA550: 0b0101,
                 /// 630mA
-                MA630: 6,
+                MA630: 0b0110,
                 /// 700mA
-                MA700: 7,
+                MA700: 0b0111,
                 /// 780mA
-                MA780: 8,
+                MA780: 0b1000,
                 /// 880mA
-                MA880: 9,
+                MA880: 0b1001,
                 /// 960mA
-                MA960: 10,
+                MA960: 0b1010,
                 /// 1000mA
-                MA1000: 11,
+                MA1000: 0b1011,
                 /// 1080mA
-                MA1080: 12,
+                MA1080: 0b1100,
                 /// 1160mA
-                MA1160: 13,
+                MA1160: 0b1101,
                 /// 1240mA
-                MA1240: 14,
+                MA1240: 0b1110,
                 /// 1320mA
-                MA1320: 15,
+                MA1320: 0b1111,
             },
         },
     },
     /// Controls secondary charging parameters including pre-charge timeout,
     /// external path charge current and enable state, and constant current mode timeout.
     register ChargeControl2 {
-        address: 52,
-        reset: 65,
+        address: 0x34,
+        reset: 0x41,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// Pre-charge phase timeout duration.
             field precharge_timeout 7:6 -> _ as enum PrechargeTimeoutValue {
                 /// 30 minutes timeout.
-                Min30: 0,
+                Min30: 0b00,
                 /// 40 minutes timeout.
-                Min40: 1,
+                Min40: 0b01,
                 /// 50 minutes timeout.
-                Min50: 2,
+                Min50: 0b10,
                 /// 60 minutes timeout.
-                Min60: 3,
+                Min60: 0b11,
             },
             /// External path charging current setting (300mA to 1000mA, 100mA/step).
             field external_path_charge_current 5:3 -> _ as enum ExternalPathChargeCurrentValue {
                 /// 300mA
-                MA300: 0,
+                MA300: 0b000,
                 /// 400mA
-                MA400: 1,
+                MA400: 0b001,
                 /// 500mA
-                MA500: 2,
+                MA500: 0b010,
                 /// 600mA
-                MA600: 3,
+                MA600: 0b011,
                 /// 700mA
-                MA700: 4,
+                MA700: 0b100,
                 /// 800mA
-                MA800: 5,
+                MA800: 0b101,
                 /// 900mA
-                MA900: 6,
+                MA900: 0b110,
                 /// 1000mA
-                MA1000: 7,
+                MA1000: 0b111,
             },
             /// External path charging enable (true: enabled, false: disabled).
             field external_path_charge_enable 2,
             /// Constant Current (CC) charging mode timeout duration.
             field constant_current_timeout 1:0 -> _ as enum ConstantCurrentTimeoutValue {
                 /// 7 hours timeout.
-                Hours7: 0,
+                Hours7: 0b00,
                 /// 8 hours timeout.
-                Hours8: 1,
+                Hours8: 0b01,
                 /// 9 hours timeout.
-                Hours9: 2,
+                Hours9: 0b10,
                 /// 10 hours timeout.
-                Hours10: 3,
+                Hours10: 0b11,
             },
         },
     },
     /// Controls the charging parameters for the backup battery (RTC battery).
     register BackupBatteryChargeControl {
-        address: 53,
-        reset: 34,
+        address: 0x35,
+        reset: 0x22,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -456,55 +456,55 @@ device AxpLowLevel {
             /// Target voltage for backup battery charging.
             field backup_target_voltage 6:5 -> _ as enum BackupTargetVoltageValue {
                 /// 3.1V target.
-                V3_1: 0,
+                V3_1: 0b00,
                 /// 3.0V target.
-                V3_0: 1,
+                V3_0: 0b01,
                 /// 3.0V target (alternative?).
-                V3_0_Alt: 2,
+                V3_0_Alt: 0b10,
                 /// 2.5V target.
-                V2_5: 3,
+                V2_5: 0b11,
             },
             /// Charging current for backup battery.
             field backup_charge_current 1:0 -> _ as enum BackupChargeCurrentValue {
                 /// 50uA charge current.
-                UA50: 0,
+                UA50: 0b00,
                 /// 100uA charge current.
-                UA100: 1,
+                UA100: 0b01,
                 /// 200uA charge current.
-                UA200: 2,
+                UA200: 0b10,
                 /// 400uA charge current.
-                UA400: 3,
+                UA400: 0b11,
             },
         },
     },
     /// Configures parameters related to the PEK (Power Enable Key/Button) operations.
     register PekKeyParameters {
-        address: 54,
-        reset: 93,
+        address: 0x36,
+        reset: 0x5D,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// PEK press duration required for power-on.
             field power_on_time 7:6 -> _ as enum PekPowerOnTime {
                 /// 128ms
-                Ms128: 0,
+                Ms128: 0b00,
                 /// 512ms
-                Ms512: 1,
+                Ms512: 0b01,
                 /// 1 Second
-                S1: 2,
+                S1: 0b10,
                 /// 2 Seconds
-                S2: 3,
+                S2: 0b11,
             },
             /// PEK long press detection time.
             field long_press_time 5:4 -> _ as enum PekLongPressTime {
                 /// 1.0 Second
-                S1_0: 0,
+                S1_0: 0b00,
                 /// 1.5 Seconds
-                S1_5: 1,
+                S1_5: 0b01,
                 /// 2.0 Seconds
-                S2_0: 2,
+                S2_0: 0b10,
                 /// 2.5 Seconds
-                S2_5: 3,
+                S2_5: 0b11,
             },
             /// Auto-shutdown if PEK is held longer than the configured shutdown time (true: enabled, false: disabled).
             field auto_shutdown_if_pek_held_longer_than_shutdown_time 3,
@@ -518,13 +518,13 @@ device AxpLowLevel {
             /// PEK press duration required for shutdown.
             field shutdown_time 1:0 -> _ as enum PekShutdownTime {
                 /// 4 Seconds
-                S4: 0,
+                S4: 0b00,
                 /// 6 Seconds
-                S6: 1,
+                S6: 0b01,
                 /// 8 Seconds
-                S8: 2,
+                S8: 0b10,
                 /// 10 Seconds
-                S10: 3,
+                S10: 0b11,
             },
         },
     },
@@ -534,8 +534,8 @@ device AxpLowLevel {
     /// Each step away from this default value changes the frequency by approximately 5% of 1.5MHz (75kHz).
     /// Range approx 0.9MHz (raw 0) to 2.025MHz (raw 15).
     register DcDcOperatingFrequency {
-        address: 55,
-        reset: 8,
+        address: 0x37,
+        reset: 0x08,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -548,8 +548,8 @@ device AxpLowLevel {
     /// Formula: Threshold Voltage (V) = raw_value * 0.0128.
     /// Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
     register BatteryChargeLowTempThreshold {
-        address: 56,
-        reset: 165,
+        address: 0x38,
+        reset: 0xA5,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -562,8 +562,8 @@ device AxpLowLevel {
     /// Formula: Threshold Voltage (V) = raw_value * 0.0128.
     /// Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
     register BatteryChargeHighTempThreshold {
-        address: 57,
-        reset: 31,
+        address: 0x39,
+        reset: 0x1F,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -576,8 +576,8 @@ device AxpLowLevel {
     /// Formula: V_WARNING1 (V) = 2.8672 + (raw_value * 0.0014 * 4).
     /// The raw_value is the 8-bit content of this register.
     register ApsLowPowerLevel1Setting {
-        address: 58,
-        reset: 104,
+        address: 0x3A,
+        reset: 0x68,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -590,8 +590,8 @@ device AxpLowLevel {
     /// Formula: V_WARNING2 (V) = 2.8672 + (raw_value * 0.0014 * 4).
     /// The raw_value is the 8-bit content of this register.
     register ApsLowPowerLevel2Setting {
-        address: 59,
-        reset: 95,
+        address: 0x3B,
+        reset: 0x5F,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -604,8 +604,8 @@ device AxpLowLevel {
     /// Formula: Threshold Voltage (V) = raw_value * 0.0128.
     /// Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
     register BatteryDischargeLowTempThreshold {
-        address: 60,
-        reset: 252,
+        address: 0x3C,
+        reset: 0xFC,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -618,8 +618,8 @@ device AxpLowLevel {
     /// Formula: Threshold Voltage (V) = raw_value * 0.0128.
     /// Range: 0V (raw 0x00) to 3.264V (raw 0xFF).
     register BatteryDischargeHighTempThreshold {
-        address: 61,
-        reset: 22,
+        address: 0x3D,
+        reset: 0x16,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -629,8 +629,8 @@ device AxpLowLevel {
     },
     /// Selects the operating mode (PFM/PWM Auto or Fixed PWM) for DC-DC1, DC-DC2, and DC-DC3.
     register DcDcOperatingMode {
-        address: 128,
-        reset: 224,
+        address: 0x80,
+        reset: 0xE0,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -649,8 +649,8 @@ device AxpLowLevel {
     },
     /// Controls the enable state for various ADC channels (Set 1).
     register AdcEnable1 {
-        address: 130,
-        reset: 131,
+        address: 0x82,
+        reset: 0x83,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -674,8 +674,8 @@ device AxpLowLevel {
     },
     /// Controls the enable state for internal temperature ADC and GPIO ADCs (Set 2).
     register AdcEnable2 {
-        address: 131,
-        reset: 128,
+        address: 0x83,
+        reset: 0x80,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -693,39 +693,39 @@ device AxpLowLevel {
     },
     /// Configures ADC sample rate and TS (Temperature Sense) pin functionality, current, and output mode.
     register AdcSampleRateTsPinControl {
-        address: 132,
-        reset: 50,
+        address: 0x84,
+        reset: 0x32,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// ADC sampling rate for enabled channels.
             field adc_sample_rate 7:6 -> _ as enum AdcSampleRateValue {
                 /// 25Hz sampling rate.
-                Hz25: 0,
+                Hz25: 0b00,
                 /// 50Hz sampling rate.
-                Hz50: 1,
+                Hz50: 0b01,
                 /// 100Hz sampling rate.
-                Hz100: 2,
+                Hz100: 0b10,
                 /// 200Hz sampling rate.
-                Hz200: 3,
+                Hz200: 0b11,
             },
             /// Output current for the TS pin (typically for NTC biasing).
             field ts_pin_output_current 5:4 -> _ as enum TsPinCurrentValue {
                 /// 20uA output current.
-                Ua20: 0,
+                Ua20: 0b00,
                 /// 40uA output current.
-                Ua40: 1,
+                Ua40: 0b01,
                 /// 60uA output current.
-                Ua60: 2,
+                Ua60: 0b10,
                 /// 80uA output current.
-                Ua80: 3,
+                Ua80: 0b11,
             },
             /// TS pin function (true: External ADC input, false: Battery Temperature Monitor).
             field ts_pin_function_is_external_adc 2,
             /// Controls when current is output on the TS pin.
             field ts_pin_current_output_mode 1:0 -> _ as enum TsPinOutputMode {
                 /// TS pin current output is disabled.
-                Disabled: 0,
+                Disabled: 0b00,
                 /// TS pin current output enabled during charging.
                 DuringCharging: 1,
                 /// TS pin current output enabled only during ADC sampling (power saving).
@@ -737,8 +737,8 @@ device AxpLowLevel {
     },
     /// Sets the ADC input voltage range for GPIO0, GPIO1, GPIO2, and GPIO3.
     register GpioAdcInputRangeSetting {
-        address: 133,
-        reset: 0,
+        address: 0x85,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -762,8 +762,8 @@ device AxpLowLevel {
     /// Formula: Threshold Voltage (V) = raw_value * 0.008.
     /// Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
     register Gpio1AdcIrqRisingThreshold {
-        address: 134,
-        reset: 255,
+        address: 0x86,
+        reset: 0xFF,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -776,8 +776,8 @@ device AxpLowLevel {
     /// Formula: Threshold Voltage (V) = raw_value * 0.008.
     /// Range: 0V (raw 0x00) to 2.04V (raw 0xFF).
     register Gpio1AdcIrqFallingThreshold {
-        address: 135,
-        reset: 0,
+        address: 0x87,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -787,8 +787,8 @@ device AxpLowLevel {
     },
     /// Controls an internal timer, sets its duration, and indicates timeout status.
     register TimerControl {
-        address: 138,
-        reset: 0,
+        address: 0x8A,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -800,21 +800,21 @@ device AxpLowLevel {
     },
     /// Controls VBUS pin monitoring for Session Request Protocol (SRP) related functions, including valid voltage threshold and SRP feature enables.
     register VbusSrpControl {
-        address: 139,
-        reset: 0,
+        address: 0x8B,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// Threshold voltage for considering VBUS as valid.
             field vbus_valid_threshold 5:4 -> _ as enum VbusValidThresholdValue {
                 /// 4.00V threshold.
-                V4_00: 0,
+                V4_00: 0b00,
                 /// 4.15V threshold.
-                V4_15: 1,
+                V4_15: 0b01,
                 /// 4.45V threshold.
-                V4_45: 2,
+                V4_45: 0b10,
                 /// 4.55V threshold.
-                V4_55: 3,
+                V4_55: 0b11,
             },
             /// VBUS Valid detection function (true: enabled, false: disabled).
             field vbus_valid_detection_enable 3,
@@ -828,8 +828,8 @@ device AxpLowLevel {
     },
     /// Controls the AXP192 internal over-temperature shutdown function. Other bits are reserved.
     register OverTempShutdownControl {
-        address: 143,
-        reset: 1,
+        address: 0x8F,
+        reset: 0x01,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -839,23 +839,23 @@ device AxpLowLevel {
     },
     /// Configures the function of the GPIO0 pin.
     register Gpio0Control {
-        address: 144,
-        reset: 7,
+        address: 0x90,
+        reset: 0x07,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// Selects the operating mode for the GPIO0 pin.
             field function_select 2:0 -> _ as enum Gpio0FunctionSelect {
                 /// NMOS Open-Drain Output.
-                NmosOpenDrainOutput: 0,
+                NmosOpenDrainOutput: 0b000,
                 /// Universal Input.
-                UniversalInput: 1,
+                UniversalInput: 0b001,
                 /// Low Noise LDO (LDOIO0) Output.
-                LowNoiseLdoOutput: 2,
+                LowNoiseLdoOutput: 0b010,
                 /// ADC Input.
-                AdcInput: 4,
+                AdcInput: 0b100,
                 /// Output Driven Low.
-                OutputLow: 5,
+                OutputLow: 0b101,
                 /// Floating (High-Impedance).
                 Floating: default _,
             },
@@ -863,8 +863,8 @@ device AxpLowLevel {
     },
     /// Sets the output voltage for GPIO0 when it is configured in Low Noise LDO (LDOIO0) mode (via REG90H).
     register Gpio0LdoVoltageSetting {
-        address: 145,
-        reset: 160,
+        address: 0x91,
+        reset: 0xA0,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -874,23 +874,23 @@ device AxpLowLevel {
     },
     /// Configures the function of the GPIO1 pin.
     register Gpio1Control {
-        address: 146,
-        reset: 7,
+        address: 0x92,
+        reset: 0x07,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// Selects the operating mode for the GPIO1 pin.
             field function_select 2:0 -> _ as enum Gpio1FunctionSelect {
                 /// NMOS Open-Drain Output.
-                NmosOpenDrainOutput: 0,
+                NmosOpenDrainOutput: 0b000,
                 /// Universal Input.
-                UniversalInput: 1,
+                UniversalInput: 0b001,
                 /// PWM1 Output.
-                Pwm1Output: 2,
+                Pwm1Output: 0b010,
                 /// ADC Input.
-                AdcInput: 4,
+                AdcInput: 0b100,
                 /// Output Driven Low.
-                OutputLow: 5,
+                OutputLow: 0b101,
                 /// Floating (High-Impedance).
                 Floating: default _,
             },
@@ -898,23 +898,23 @@ device AxpLowLevel {
     },
     /// Configures the function of the GPIO2 pin.
     register Gpio2Control {
-        address: 147,
-        reset: 7,
+        address: 0x93,
+        reset: 0x07,
         fields: fieldset _ {
             size-bytes: 1,
         
             /// Selects the operating mode for the GPIO2 pin.
             field function_select 2:0 -> _ as enum Gpio2FunctionSelect {
                 /// NMOS Open-Drain Output.
-                NmosOpenDrainOutput: 0,
+                NmosOpenDrainOutput: 0b000,
                 /// Universal Input.
-                UniversalInput: 1,
+                UniversalInput: 0b001,
                 /// PWM2 Output.
-                Pwm2Output: 2,
+                Pwm2Output: 0b010,
                 /// ADC Input.
-                AdcInput: 4,
+                AdcInput: 0b100,
                 /// Output Driven Low.
-                OutputLow: 5,
+                OutputLow: 0b101,
                 /// Floating (High-Impedance).
                 Floating: default _,
             },
@@ -923,8 +923,8 @@ device AxpLowLevel {
     /// Monitors input status for GPIO0-GPIO2 and controls their output levels
     /// when configured as NMOS open-drain or output low.
     register Gpio0To2SignalStatusAndControl {
-        address: 148,
-        reset: 0,
+        address: 0x94,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -944,8 +944,8 @@ device AxpLowLevel {
     },
     /// Configures the function for GPIO3 and GPIO4 pins, and enables their GPIO mode.
     register Gpio3And4FunctionControl {
-        address: 149,
-        reset: 0,
+        address: 0x95,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -956,28 +956,28 @@ device AxpLowLevel {
                 /// External Charge Control.
                 ExternalChargeControl: 0,
                 /// NMOS Open-Drain Output.
-                NmosOpenDrainOutput: 1,
+                NmosOpenDrainOutput: 0b01,
                 /// Universal Input.
-                UniversalInput: 2,
+                UniversalInput: 0b10,
             },
             /// Selects function for GPIO3 when gpio3_and_4_mode_enable is true.
             field gpio3_function_select 1:0 -> _ as enum Gpio3FunctionSetting {
                 /// External Charge Control.
                 ExternalChargeControl: 0,
                 /// NMOS Open-Drain Output.
-                NmosOpenDrainOutput: 1,
+                NmosOpenDrainOutput: 0b01,
                 /// Universal Input.
-                UniversalInput: 2,
+                UniversalInput: 0b10,
                 /// ADC Input.
-                AdcInput: 3,
+                AdcInput: 0b11,
             },
         },
     },
     /// Monitors input status for GPIO3-GPIO4 and controls their output levels
     /// when configured as NMOS open-drain or output low.
     register Gpio3And4SignalStatusAndControl {
-        address: 150,
-        reset: 0,
+        address: 0x96,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -993,8 +993,8 @@ device AxpLowLevel {
     },
     /// Controls internal pull-down resistors for GPIO0, GPIO1, and GPIO2 when they are configured as inputs.
     register Gpio0To2PulldownControl {
-        address: 151,
-        reset: 0,
+        address: 0x97,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1009,8 +1009,8 @@ device AxpLowLevel {
     /// Sets the 'X' parameter for PWM1 output frequency calculation.
     /// Formula: F_pwm1 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG99H).
     register Pwm1FrequencySetting {
-        address: 152,
-        reset: 0,
+        address: 0x98,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1022,8 +1022,8 @@ device AxpLowLevel {
     /// Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
     /// Y1 should not be set to 0.
     register Pwm1DutyCycleSettingY1 {
-        address: 153,
-        reset: 22,
+        address: 0x99,
+        reset: 0x16,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1034,8 +1034,8 @@ device AxpLowLevel {
     /// Sets the 'Y2' parameter (numerator) for PWM1 duty cycle calculation (Duty = Y2/Y1).
     /// Only upper 5 bits (bits 7-3) are used for Y2.
     register Pwm1DutyCycleSettingY2 {
-        address: 154,
-        reset: 11,
+        address: 0x9A,
+        reset: 0x0B,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1046,30 +1046,30 @@ device AxpLowLevel {
     /// Sets the 'X' parameter for PWM2 output frequency calculation.
     /// Formula: F_pwm2 = 2.25MHz / (X_value + 1) / Y1_value (where Y1 is from REG9CH).
     register Pwm2FrequencySetting {
-        address: 155,
-        reset: 0,
+        address: 0x9B,
+        reset: 0x00,
         fields: Pwm1FrequencySetting,
     },
     /// Sets the 'Y1' parameter for PWM2 duty cycle and frequency calculations.
     /// Y1 is the denominator for duty cycle (Duty = Y2/Y1) and also affects frequency.
     /// Y1 should not be set to 0.
     register Pwm2DutyCycleSettingY1 {
-        address: 156,
-        reset: 22,
+        address: 0x9C,
+        reset: 0x16,
         fields: Pwm1DutyCycleSettingY1,
     },
     /// Sets the 'Y2' parameter (numerator) for PWM2 duty cycle calculation (Duty = Y2/Y1).
     /// Only upper 5 bits (bits 7-3) are used for Y2.
     register Pwm2DutyCycleSettingY2 {
-        address: 157,
-        reset: 11,
+        address: 0x9D,
+        reset: 0x0B,
         fields: Pwm1DutyCycleSettingY2,
     },
     /// Configures the N_RSTO/GPIO5 pin function. It can operate as N_RSTO (LDO1 status monitor)
     /// or as a general-purpose I/O pin (GPIO5) with configurable direction and output state.
     register NrstoGpio5Control {
-        address: 158,
-        reset: 32,
+        address: 0x9E,
+        reset: 0x20,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1095,8 +1095,8 @@ device AxpLowLevel {
     },
     /// Interrupt Enable Control Register 1 (ACIN and VBUS related IRQs).
     register IrqEnableControl1 {
-        address: 64,
-        reset: 216,
+        address: 0x40,
+        reset: 0xD8,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1118,8 +1118,8 @@ device AxpLowLevel {
     },
     /// Interrupt Enable Control Register 2 (Battery and Charge related IRQs).
     register IrqEnableControl2 {
-        address: 65,
-        reset: 255,
+        address: 0x41,
+        reset: 0xFF,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1143,8 +1143,8 @@ device AxpLowLevel {
     },
     /// Interrupt Enable Control Register 3 (IC Temp, Charge Current, DCDC VLow, PEK IRQs).
     register IrqEnableControl3 {
-        address: 66,
-        reset: 59,
+        address: 0x42,
+        reset: 0x3B,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1166,8 +1166,8 @@ device AxpLowLevel {
     },
     /// Interrupt Enable Control Register 4 (N_OE and VBUS session/status related IRQs, APS Low Voltage).
     register IrqEnableControl4 {
-        address: 67,
-        reset: 193,
+        address: 0x43,
+        reset: 0xC1,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1189,8 +1189,8 @@ device AxpLowLevel {
     },
     /// Interrupt Enable Control Register 5 (Timer and GPIO Input Edge Trigger IRQs).
     register IrqEnableControl5 {
-        address: 74,
-        reset: 0,
+        address: 0x4A,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1206,8 +1206,8 @@ device AxpLowLevel {
     },
     /// Interrupt Status Register 1. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
     register IrqStatus1 {
-        address: 68,
-        reset: 0,
+        address: 0x44,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1229,8 +1229,8 @@ device AxpLowLevel {
     },
     /// Interrupt Status Register 2. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
     register IrqStatus2 {
-        address: 69,
-        reset: 0,
+        address: 0x45,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1254,8 +1254,8 @@ device AxpLowLevel {
     },
     /// Interrupt Status Register 3. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
     register IrqStatus3 {
-        address: 70,
-        reset: 0,
+        address: 0x46,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1277,8 +1277,8 @@ device AxpLowLevel {
     },
     /// Interrupt Status Register 4. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
     register IrqStatus4 {
-        address: 71,
-        reset: 0,
+        address: 0x47,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1300,8 +1300,8 @@ device AxpLowLevel {
     },
     /// Interrupt Status Register 5. Bits are set when corresponding IRQ occurs. Write 1 to a bit to clear it.
     register IrqStatus5 {
-        address: 77,
-        reset: 0,
+        address: 0x4D,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
@@ -1319,7 +1319,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG56H << 4) | (REG57H & 0x0F).
     /// Use the driver's helper function to extract and convert: Voltage (mV) = adc_value * 1.7.
     register AcinVoltageAdc {
-        address: 86,
+        address: 0x56,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1332,7 +1332,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG58H << 4) | (REG59H & 0x0F).
     /// Use driver helper: Current (mA) = adc_value * 0.625.
     register AcinCurrentAdc {
-        address: 88,
+        address: 0x58,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1345,7 +1345,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG5AH << 4) | (REG5BH & 0x0F).
     /// Use driver helper: Voltage (mV) = adc_value * 1.7.
     register VbusVoltageAdc {
-        address: 90,
+        address: 0x5A,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1358,7 +1358,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG5CH << 4) | (REG5DH & 0x0F).
     /// Use driver helper: Current (mA) = adc_value * 0.375.
     register VbusCurrentAdc {
-        address: 92,
+        address: 0x5C,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1371,7 +1371,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG5EH << 4) | (REG5FH & 0x0F).
     /// Use driver helper: Temp (°C) = (adc_value * 0.1) - 144.7.
     register InternalTemperatureAdc {
-        address: 94,
+        address: 0x5E,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1384,7 +1384,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG62H << 4) | (REG63H & 0x0F).
     /// Use driver helper: Voltage (mV) = adc_value * 0.8.
     register TsPinAdc {
-        address: 98,
+        address: 0x62,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1397,7 +1397,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (MSB_byte << 4) | (LSB_byte & 0x0F).
     /// Use driver helper: Voltage (mV) = adc_value * 0.5.
     register GpioVoltageAdc[4 stride 2] {
-        address: 100,
+        address: 0x64,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1410,7 +1410,7 @@ device AxpLowLevel {
     /// The value is (REG70H << 16) | (REG71H << 8) | REG72H.
     /// Use driver helper: Power (uW) = adc_value * 0.55.
     register BatteryInstantaneousPowerAdc {
-        address: 112,
+        address: 0x70,
         access: RO,
         fields: fieldset _ {
             size-bytes: 3,
@@ -1423,7 +1423,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG78H << 4) | (REG79H & 0x0F).
     /// Use driver helper: Voltage (mV) = adc_value * 1.1.
     register BatteryVoltageAdc {
-        address: 120,
+        address: 0x78,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1436,7 +1436,7 @@ device AxpLowLevel {
     /// The actual 13-bit ADC value is (REG7AH << 5) | (REG7BH & 0x1F).
     /// Use driver helper: Current (mA) = adc_value * 0.5.
     register BatteryChargeCurrentAdc {
-        address: 122,
+        address: 0x7A,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1449,7 +1449,7 @@ device AxpLowLevel {
     /// The actual 13-bit ADC value is (REG7CH << 5) | (REG7DH & 0x1F).
     /// Use driver helper: Current (mA) = adc_value * 0.5.
     register BatteryDischargeCurrentAdc {
-        address: 124,
+        address: 0x7C,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1462,7 +1462,7 @@ device AxpLowLevel {
     /// The actual 12-bit ADC value is (REG7EH << 4) | (REG7FH & 0x0F).
     /// Use driver helper: Voltage (mV) = adc_value * 1.4.
     register ApsVoltageAdc {
-        address: 126,
+        address: 0x7E,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
@@ -1475,7 +1475,7 @@ device AxpLowLevel {
     /// The value is (REG_B0 << 24) | (REG_B1 << 16) | (REG_B2 << 8) | REG_B3.
     /// Represents accumulated charge input.
     register BatteryChargeCoulombCounter {
-        address: 176,
+        address: 0xB0,
         access: RO,
         fields: fieldset _ {
             size-bytes: 4,
@@ -1488,7 +1488,7 @@ device AxpLowLevel {
     /// The value is (REG_B4 << 24) | (REG_B5 << 16) | (REG_B6 << 8) | REG_B7.
     /// Represents accumulated charge output.
     register BatteryDischargeCoulombCounter {
-        address: 180,
+        address: 0xB4,
         access: RO,
         fields: fieldset _ {
             size-bytes: 4,
@@ -1500,8 +1500,8 @@ device AxpLowLevel {
     /// Controls the operation of the fuel gauge / coulomb counter, including enabling,
     /// pausing, and clearing its value.
     register CoulombCounterControl {
-        address: 184,
-        reset: 0,
+        address: 0xB8,
+        reset: 0x00,
         fields: fieldset _ {
             size-bytes: 1,
         
