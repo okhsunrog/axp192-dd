@@ -1,5 +1,8 @@
 use super::{I2c, RegisterInterface, bisync, only_async, only_sync};
-use crate::{AXP192_I2C_ADDRESS, AxpError, AxpInterface, AxpLowLevel, DcId, LdoId, adc_helpers::*};
+use crate::{
+    AXP192_I2C_ADDRESS, AxpError, AxpInterface, AxpLowLevel, DcId, GpioAdcRange, GpioId, LdoId,
+    adc_helpers::*,
+};
 use device_driver::{FieldsetMetadata, RegisterInterfaceBase};
 
 #[bisync]
@@ -78,28 +81,118 @@ where
     I2CImpl: CurrentAxpDriverInterface<I2CBusErr>,
     I2CBusErr: core::fmt::Debug,
 {
+    // ADC readings. The scale factors come from the channel table in datasheet
+    // section 9.7; every channel is 12-bit except the two battery current ones,
+    // which are 13-bit (REG7BH/REG7DH hold five low bits, not four).
+
     #[bisync]
     pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let op = self.ll.battery_voltage_adc();
-        let raw_fieldset = read_internal(op).await?;
-        let adc_val = adc_12bit_from_raw_u16(raw_fieldset.raw());
-        Ok(adc_val as f32 * 1.1)
+        let fs = read_internal(self.ll.battery_voltage_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 1.1)
     }
 
     #[bisync]
     pub async fn get_battery_charge_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let op = self.ll.battery_charge_current_adc();
-        let raw_fieldset = read_internal(op).await?;
-        let adc_val = adc_13bit_from_raw_u16(raw_fieldset.raw());
-        Ok(adc_val as f32 * 0.5)
+        let fs = read_internal(self.ll.battery_charge_current_adc()).await?;
+        Ok(adc_13bit(fs.value_high(), fs.value_low()) as f32 * 0.5)
+    }
+
+    #[bisync]
+    pub async fn get_battery_discharge_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.battery_discharge_current_adc()).await?;
+        Ok(adc_13bit(fs.value_high(), fs.value_low()) as f32 * 0.5)
     }
 
     #[bisync]
     pub async fn get_battery_instantaneous_power_uw(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let op = self.ll.battery_instantaneous_power_adc();
-        let raw_fieldset = read_internal(op).await?;
-        let adc_val = adc_24bit_from_raw_u32(raw_fieldset.raw());
-        Ok(adc_val as f32 * 0.55)
+        let fs = read_internal(self.ll.battery_instantaneous_power_adc()).await?;
+        Ok(fs.value() as f32 * 0.55)
+    }
+
+    #[bisync]
+    pub async fn get_acin_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.acin_voltage_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 1.7)
+    }
+
+    #[bisync]
+    pub async fn get_acin_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.acin_current_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 0.625)
+    }
+
+    #[bisync]
+    pub async fn get_vbus_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.vbus_voltage_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 1.7)
+    }
+
+    #[bisync]
+    pub async fn get_vbus_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.vbus_current_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 0.375)
+    }
+
+    #[bisync]
+    pub async fn get_aps_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.aps_voltage_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 1.4)
+    }
+
+    /// Voltage on the TS pin, which monitors battery temperature by default.
+    #[bisync]
+    pub async fn get_ts_pin_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.ts_pin_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 0.8)
+    }
+
+    /// Temperature of the AXP192 die itself, not the battery.
+    #[bisync]
+    pub async fn get_internal_temperature_c(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = read_internal(self.ll.internal_temperature_adc()).await?;
+        Ok(adc_12bit(fs.value_high(), fs.value_low()) as f32 * 0.1 - 144.7)
+    }
+
+    /// Voltage on a GPIO pin configured as an ADC input.
+    ///
+    /// The conversion depends on the input range configured in REG85H, so this
+    /// reads that register first and therefore costs two I2C transactions. In a
+    /// polling loop where the range is known and fixed, call
+    /// [`Self::get_gpio_voltage_mv_with_range`] instead to halve the traffic.
+    #[bisync]
+    pub async fn get_gpio_voltage_mv(&mut self, gpio: GpioId) -> Result<f32, AxpError<I2CBusErr>> {
+        let ranges = read_internal(self.ll.gpio_adc_input_range_setting()).await?;
+        let range = match gpio {
+            GpioId::Gpio0 => ranges.gpio_0_adc_input_range(),
+            GpioId::Gpio1 => ranges.gpio_1_adc_input_range(),
+            GpioId::Gpio2 => ranges.gpio_2_adc_input_range(),
+            GpioId::Gpio3 => ranges.gpio_3_adc_input_range(),
+        };
+        self.get_gpio_voltage_mv_with_range(gpio, range).await
+    }
+
+    /// Voltage on a GPIO pin configured as an ADC input, skipping the REG85H read.
+    ///
+    /// `range` must match what REG85H is actually set to for this pin. Passing
+    /// the wrong one silently shifts the result by 700mV, so prefer
+    /// [`Self::get_gpio_voltage_mv`] unless the extra transaction matters.
+    #[bisync]
+    pub async fn get_gpio_voltage_mv_with_range(
+        &mut self,
+        gpio: GpioId,
+        range: GpioAdcRange,
+    ) -> Result<f32, AxpError<I2CBusErr>> {
+        let fs = match gpio {
+            GpioId::Gpio0 => read_internal(self.ll.gpio_0_voltage_adc()).await,
+            GpioId::Gpio1 => read_internal(self.ll.gpio_1_voltage_adc()).await,
+            GpioId::Gpio2 => read_internal(self.ll.gpio_2_voltage_adc()).await,
+            GpioId::Gpio3 => read_internal(self.ll.gpio_3_voltage_adc()).await,
+        }?;
+        let offset = match range {
+            GpioAdcRange::Range00To20475V => 0.0,
+            GpioAdcRange::Range07To27475V => 700.0,
+        };
+        Ok(offset + adc_12bit(fs.value_high(), fs.value_low()) as f32 * 0.5)
     }
 
     #[bisync]

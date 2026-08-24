@@ -108,6 +108,16 @@ pub enum LdoId {
     Ldo3,
 }
 
+/// The GPIO pins that can be used as ADC inputs (REG64H..REG6BH).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub enum GpioId {
+    Gpio0,
+    Gpio1,
+    Gpio2,
+    Gpio3,
+}
+
 pub struct AxpInterface<I2CBus> {
     i2c_bus: I2CBus,
 }

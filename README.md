@@ -83,6 +83,33 @@ The `axp192-dd` driver offers:
      axp.set_ldo_voltage_mv(LdoId::Ldo2, 3300).await?;
      ```
 
+## ADC Readings
+
+Each ADC channel is stored across two registers — a "high 8 bit" one and a "low 4 bit" (or "low 5 bit") one, per datasheet section 9.11.4 — so a reading has to be recombined and then scaled. The driver does both for you:
+
+```rust
+let batt_mv   = axp.get_battery_voltage_mv()?;
+let charge_ma = axp.get_battery_charge_current_ma()?;
+let vbus_mv   = axp.get_vbus_voltage_mv()?;
+let die_temp  = axp.get_internal_temperature_c()?;
+```
+
+The full set is `get_battery_voltage_mv`, `get_battery_charge_current_ma`, `get_battery_discharge_current_ma`, `get_battery_instantaneous_power_uw`, `get_acin_voltage_mv`, `get_acin_current_ma`, `get_vbus_voltage_mv`, `get_vbus_current_ma`, `get_aps_voltage_mv`, `get_ts_pin_voltage_mv`, `get_internal_temperature_c` and `get_gpio_voltage_mv`.
+
+GPIO channels are a special case: the conversion depends on the input range selected in REG85H, so the default method reads that register first and costs two I2C transactions. When the range is known and fixed, skip that read:
+
+```rust
+use axp192_dd::{GpioAdcRange, GpioId};
+
+// Correct regardless of configuration, two transactions.
+let mv = axp.get_gpio_voltage_mv(GpioId::Gpio0)?;
+
+// One transaction; `range` must match REG85H or the result is off by 700mV.
+let mv = axp.get_gpio_voltage_mv_with_range(GpioId::Gpio0, GpioAdcRange::Range00To20475V)?;
+```
+
+If you read an ADC register through the low-level API instead, note that the two halves are exposed separately as `value_high()` and `value_low()` and must be combined — `(value_high << 4) | value_low` for 12-bit channels, `<< 5` for the 13-bit battery current ones. Channels that are already contiguous (battery power, the coulomb counters) expose a single `value()` that needs no post-processing.
+
 ## Low-Level API Usage
 
 The driver provides direct access to all AXP192 registers through the low-level API via `axp.ll`. This API is automatically generated from [`device.ddsl`](device.ddsl) and provides type-safe access to all register fields.

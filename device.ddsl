@@ -1315,96 +1315,146 @@ device AxpLowLevel {
             field gpio0_input_edge_trigger_status_flag 0,
         },
     },
-    /// Raw 16-bit data from REG56H (MSB) and REG57H (LSB) for ACIN Voltage ADC.
-    /// The actual 12-bit ADC value is (REG56H << 4) | (REG57H & 0x0F).
-    /// Use the driver's helper function to extract and convert: Voltage (mV) = adc_value * 1.7.
+    /// ACIN voltage ADC: 12-bit, split across REG56H (high 8 bits)
+    /// and REG57H (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 1.7 mV per count.
+    /// Prefer the driver's `get_acin_voltage_mv()`, which combines and scales it.
     register AcinVoltageAdc {
         address: 0x56,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value from reading the two register bytes. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG56H byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG57H[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data from REG58H (MSB) and REG59H (LSB) for ACIN Current ADC.
-    /// The actual 12-bit ADC value is (REG58H << 4) | (REG59H & 0x0F).
-    /// Use driver helper: Current (mA) = adc_value * 0.625.
+    /// ACIN current ADC: 12-bit, split across REG58H (high 8 bits)
+    /// and REG59H (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 0.625 mA per count.
+    /// Prefer the driver's `get_acin_current_ma()`, which combines and scales it.
     register AcinCurrentAdc {
         address: 0x58,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG58H byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG59H[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data from REG5AH (MSB) and REG5BH (LSB) for VBUS Voltage ADC.
-    /// The actual 12-bit ADC value is (REG5AH << 4) | (REG5BH & 0x0F).
-    /// Use driver helper: Voltage (mV) = adc_value * 1.7.
+    /// VBUS voltage ADC: 12-bit, split across REG5AH (high 8 bits)
+    /// and REG5BH (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 1.7 mV per count.
+    /// Prefer the driver's `get_vbus_voltage_mv()`, which combines and scales it.
     register VbusVoltageAdc {
         address: 0x5A,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG5AH byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG5BH[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data from REG5CH (MSB) and REG5DH (LSB) for VBUS Current ADC.
-    /// The actual 12-bit ADC value is (REG5CH << 4) | (REG5DH & 0x0F).
-    /// Use driver helper: Current (mA) = adc_value * 0.375.
+    /// VBUS current ADC: 12-bit, split across REG5CH (high 8 bits)
+    /// and REG5DH (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 0.375 mA per count.
+    /// Prefer the driver's `get_vbus_current_ma()`, which combines and scales it.
     register VbusCurrentAdc {
         address: 0x5C,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG5CH byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG5DH[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data from REG5EH (MSB) and REG5FH (LSB) for Internal Temperature ADC.
-    /// The actual 12-bit ADC value is (REG5EH << 4) | (REG5FH & 0x0F).
-    /// Use driver helper: Temp (°C) = (adc_value * 0.1) - 144.7.
+    /// Internal temperature ADC: 12-bit, split across REG5EH (high 8 bits)
+    /// and REG5FH (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 0.1 °C with a -144.7 °C offset per count.
+    /// Prefer the driver's `get_internal_temperature_c()`, which combines and scales it.
     register InternalTemperatureAdc {
         address: 0x5E,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG5EH byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG5FH[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data from REG62H (MSB) and REG63H (LSB) for TS Pin ADC.
-    /// The actual 12-bit ADC value is (REG62H << 4) | (REG63H & 0x0F).
-    /// Use driver helper: Voltage (mV) = adc_value * 0.8.
+    /// TS pin input ADC: 12-bit, split across REG62H (high 8 bits)
+    /// and REG63H (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 0.8 mV per count.
+    /// Prefer the driver's `get_ts_pin_voltage_mv()`, which combines and scales it.
     register TsPinAdc {
         address: 0x62,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG62H byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG63H[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data for GPIO Pin ADC (indexed 0-3).
-    /// The actual 12-bit ADC value is (MSB_byte << 4) | (LSB_byte & 0x0F).
-    /// Use driver helper: Voltage (mV) = adc_value * 0.5.
-    register GpioVoltageAdc[4 stride 2] {
+    /// GPIO0 voltage ADC: 12-bit, split across REG64H (high 8 bits)
+    /// and REG65H (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low` at 0.5 mV per count, then
+    /// offset by whichever input range REG85H selects for this pin.
+    /// Prefer the driver's `get_gpio_voltage_mv()`, which handles both.
+    register Gpio0VoltageAdc {
         address: 0x64,
         access: RO,
-        fields: fieldset _ {
+        fields: fieldset GpioVoltageAdc {
             size-bytes: 2,
-        
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+
+            /// ADC[11:4] — the high byte.
+            field value_high 15:8,
+            /// ADC[3:0] — the low byte's bits 3:0.
+            field value_low 3:0,
         },
+    },
+    /// GPIO1 voltage ADC: 12-bit, split across REG66H and REG67H.
+    /// See [`Gpio0VoltageAdc`] for the conversion.
+    register Gpio1VoltageAdc {
+        address: 0x66,
+        access: RO,
+        fields: GpioVoltageAdc,
+    },
+    /// GPIO2 voltage ADC: 12-bit, split across REG68H and REG69H.
+    /// See [`Gpio0VoltageAdc`] for the conversion.
+    register Gpio2VoltageAdc {
+        address: 0x68,
+        access: RO,
+        fields: GpioVoltageAdc,
+    },
+    /// GPIO3 voltage ADC: 12-bit, split across REG6AH and REG6BH.
+    /// See [`Gpio0VoltageAdc`] for the conversion.
+    register Gpio3VoltageAdc {
+        address: 0x6A,
+        access: RO,
+        fields: GpioVoltageAdc,
     },
     /// Raw 24-bit data from REG70H (MSB), REG71H, REG72H (LSB) for Battery Power ADC.
     /// The value is (REG70H << 16) | (REG71H << 8) | REG72H.
@@ -1415,60 +1465,76 @@ device AxpLowLevel {
         fields: fieldset _ {
             size-bytes: 3,
         
-            /// Raw 24-bit value. Use driver helper for actual power.
-            field raw 23:0,
+            /// The full 24-bit value; no recombination needed.
+            field value 23:0,
         },
     },
-    /// Raw 16-bit data from REG78H (MSB) and REG79H (LSB) for Battery Voltage ADC.
-    /// The actual 12-bit ADC value is (REG78H << 4) | (REG79H & 0x0F).
-    /// Use driver helper: Voltage (mV) = adc_value * 1.1.
+    /// Battery voltage ADC: 12-bit, split across REG78H (high 8 bits)
+    /// and REG79H (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 1.1 mV per count.
+    /// Prefer the driver's `get_battery_voltage_mv()`, which combines and scales it.
     register BatteryVoltageAdc {
         address: 0x78,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG78H byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG79H[3:0].
+            field value_low 3:0,
         },
     },
-    /// Raw 16-bit data from REG7AH (MSB) and REG7BH (LSB) for Battery Charge Current ADC.
-    /// The actual 13-bit ADC value is (REG7AH << 5) | (REG7BH & 0x1F).
-    /// Use driver helper: Current (mA) = adc_value * 0.5.
+    /// Battery charge current ADC: 13-bit, split across REG7AH (high 8 bits)
+    /// and REG7BH (low 5 bits).
+    ///
+    /// The reading is `(value_high << 5) | value_low`, 0.5 mA per count.
+    /// Prefer the driver's `get_battery_charge_current_ma()`, which combines and scales it.
     register BatteryChargeCurrentAdc {
         address: 0x7A,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[12:5] — the REG7AH byte.
+            field value_high 15:8,
+            /// ADC[4:0] — REG7BH[4:0].
+            field value_low 4:0,
         },
     },
-    /// Raw 16-bit data from REG7CH (MSB) and REG7DH (LSB) for Battery Discharge Current ADC.
-    /// The actual 13-bit ADC value is (REG7CH << 5) | (REG7DH & 0x1F).
-    /// Use driver helper: Current (mA) = adc_value * 0.5.
+    /// Battery discharge current ADC: 13-bit, split across REG7CH (high 8 bits)
+    /// and REG7DH (low 5 bits).
+    ///
+    /// The reading is `(value_high << 5) | value_low`, 0.5 mA per count.
+    /// Prefer the driver's `get_battery_discharge_current_ma()`, which combines and scales it.
     register BatteryDischargeCurrentAdc {
         address: 0x7C,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[12:5] — the REG7CH byte.
+            field value_high 15:8,
+            /// ADC[4:0] — REG7DH[4:0].
+            field value_low 4:0,
         },
     },
-    /// Raw 16-bit data from REG7EH (MSB) and REG7FH (LSB) for APS Voltage ADC.
-    /// The actual 12-bit ADC value is (REG7EH << 4) | (REG7FH & 0x0F).
-    /// Use driver helper: Voltage (mV) = adc_value * 1.4.
+    /// APS voltage ADC: 12-bit, split across REG7EH (high 8 bits)
+    /// and REG7FH (low 4 bits).
+    ///
+    /// The reading is `(value_high << 4) | value_low`, 1.4 mV per count.
+    /// Prefer the driver's `get_aps_voltage_mv()`, which combines and scales it.
     register ApsVoltageAdc {
         address: 0x7E,
         access: RO,
         fields: fieldset _ {
             size-bytes: 2,
         
-            /// Raw 16-bit value. Use driver helper for actual ADC value.
-            field raw 15:0,
+            /// ADC[11:4] — the REG7EH byte.
+            field value_high 15:8,
+            /// ADC[3:0] — REG7FH[3:0].
+            field value_low 3:0,
         },
     },
     /// Raw 32-bit data for the battery charge coulomb counter.
@@ -1480,8 +1546,8 @@ device AxpLowLevel {
         fields: fieldset _ {
             size-bytes: 4,
         
-            /// Raw 32-bit unsigned accumulated charge count.
-            field raw 31:0,
+            /// The full 32-bit value; no recombination needed.
+            field value 31:0,
         },
     },
     /// Raw 32-bit data for the battery discharge coulomb counter.
@@ -1493,8 +1559,8 @@ device AxpLowLevel {
         fields: fieldset _ {
             size-bytes: 4,
         
-            /// Raw 32-bit unsigned accumulated discharge count.
-            field raw 31:0,
+            /// The full 32-bit value; no recombination needed.
+            field value 31:0,
         },
     },
     /// Controls the operation of the fuel gauge / coulomb counter, including enabling,
