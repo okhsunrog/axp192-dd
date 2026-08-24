@@ -1,11 +1,15 @@
+// Included twice (once per `bisync` module). The generated code exposes both
+// `read`/`read_async` etc., so these thin wrappers pick the right one per flavour.
+
 #[allow(dead_code)]
 #[only_sync]
-fn read_internal<'a, Interface, Register, Access>(
-    op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>
-) -> Result<Register, Interface::Error>
+fn read_internal<'b, Block, Register, Access>(
+    op: device_driver::RegisterOperation<'b, Block, Register, u8, Access, ()>,
+) -> Result<Register, <Block::Interface as RegisterInterfaceBase>::Error>
 where
-    Interface: RegisterInterface<AddressType = u8>,
-    Register: device_driver::FieldSet,
+    Block: device_driver::Block,
+    Block::Interface: RegisterInterface<AddressType = u8>,
+    Register: device_driver::Fieldset,
     Access: device_driver::ReadCapability,
 {
     op.read()
@@ -13,12 +17,13 @@ where
 
 #[allow(dead_code)]
 #[only_async]
-async fn read_internal<'a, Interface, Register, Access>(
-    op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>
-) -> Result<Register, Interface::Error>
+async fn read_internal<'b, Block, Register, Access>(
+    op: device_driver::RegisterOperation<'b, Block, Register, u8, Access, ()>,
+) -> Result<Register, <Block::Interface as RegisterInterfaceBase>::Error>
 where
-    Interface: RegisterInterface<AddressType = u8>,
-    Register: device_driver::FieldSet,
+    Block: device_driver::Block,
+    Block::Interface: RegisterInterface<AddressType = u8>,
+    Register: device_driver::Fieldset,
     Access: device_driver::ReadCapability,
 {
     op.read_async().await
@@ -26,13 +31,14 @@ where
 
 #[allow(dead_code)]
 #[only_sync]
-fn write_internal<'a, Interface, Register, Access, R>(
-    op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
-    f: impl FnOnce(&mut Register) -> R,
-) -> Result<R, Interface::Error>
+fn write_internal<'b, Block, Register, Access>(
+    op: device_driver::RegisterOperation<'b, Block, Register, u8, Access, ()>,
+    f: impl FnOnce(&mut Register),
+) -> Result<(), <Block::Interface as RegisterInterfaceBase>::Error>
 where
-    Interface: RegisterInterface<AddressType = u8>,
-    Register: device_driver::FieldSet,
+    Block: device_driver::Block,
+    Block::Interface: RegisterInterface<AddressType = u8>,
+    Register: device_driver::Fieldset,
     Access: device_driver::WriteCapability,
 {
     op.write(f)
@@ -40,13 +46,14 @@ where
 
 #[allow(dead_code)]
 #[only_async]
-async fn write_internal<'a, Interface, Register, Access, R>(
-    op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
-    f: impl FnOnce(&mut Register) -> R,
-) -> Result<R, Interface::Error>
+async fn write_internal<'b, Block, Register, Access>(
+    op: device_driver::RegisterOperation<'b, Block, Register, u8, Access, ()>,
+    f: impl FnOnce(&mut Register),
+) -> Result<(), <Block::Interface as RegisterInterfaceBase>::Error>
 where
-    Interface: RegisterInterface<AddressType = u8>,
-    Register: device_driver::FieldSet,
+    Block: device_driver::Block,
+    Block::Interface: RegisterInterface<AddressType = u8>,
+    Register: device_driver::Fieldset,
     Access: device_driver::WriteCapability,
 {
     op.write_async(f).await
@@ -54,13 +61,14 @@ where
 
 #[allow(dead_code)]
 #[only_sync]
-fn modify_internal<'a, Interface, Register, Access, R>(
-    op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
-    f: impl FnOnce(&mut Register) -> R,
-) -> Result<R, Interface::Error>
+fn modify_internal<'b, Block, Register, Access>(
+    op: device_driver::RegisterOperation<'b, Block, Register, u8, Access, ()>,
+    f: impl FnOnce(&mut Register),
+) -> Result<(), <Block::Interface as RegisterInterfaceBase>::Error>
 where
-    Interface: RegisterInterface<AddressType = u8>,
-    Register: device_driver::FieldSet,
+    Block: device_driver::Block,
+    Block::Interface: RegisterInterface<AddressType = u8>,
+    Register: device_driver::Fieldset,
     Access: device_driver::ReadCapability + device_driver::WriteCapability,
 {
     op.modify(f)
@@ -68,13 +76,14 @@ where
 
 #[allow(dead_code)]
 #[only_async]
-async fn modify_internal<'a, Interface, Register, Access, R>(
-    op: &mut device_driver::RegisterOperation<'a, Interface, u8, Register, Access>,
-    f: impl FnOnce(&mut Register) -> R,
-) -> Result<R, Interface::Error>
+async fn modify_internal<'b, Block, Register, Access>(
+    op: device_driver::RegisterOperation<'b, Block, Register, u8, Access, ()>,
+    f: impl FnOnce(&mut Register),
+) -> Result<(), <Block::Interface as RegisterInterfaceBase>::Error>
 where
-    Interface: RegisterInterface<AddressType = u8>,
-    Register: device_driver::FieldSet,
+    Block: device_driver::Block,
+    Block::Interface: RegisterInterface<AddressType = u8>,
+    Register: device_driver::Fieldset,
     Access: device_driver::ReadCapability + device_driver::WriteCapability,
 {
     op.modify_async(f).await

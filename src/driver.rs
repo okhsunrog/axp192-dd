@@ -1,5 +1,6 @@
 use super::{I2c, RegisterInterface, bisync, only_async, only_sync};
 use crate::{AXP192_I2C_ADDRESS, AxpError, AxpInterface, AxpLowLevel, DcId, LdoId, adc_helpers::*};
+use device_driver::{FieldsetMetadata, RegisterInterfaceBase};
 
 #[bisync]
 impl<I2CBus, E> RegisterInterface for AxpInterface<I2CBus>
@@ -7,13 +8,11 @@ where
     I2CBus: I2c<Error = E>,
     E: core::fmt::Debug,
 {
-    type AddressType = u8;
-    type Error = AxpError<E>;
     async fn read_register(
         &mut self,
         address: u8,
-        _size_bits: u32,
         data: &mut [u8],
+        _metadata: &FieldsetMetadata,
     ) -> Result<(), Self::Error> {
         self.i2c_bus
             .write_read(AXP192_I2C_ADDRESS, &[address], data)
@@ -23,8 +22,8 @@ where
     async fn write_register(
         &mut self,
         address: u8,
-        _size_bits: u32,
-        data: &[u8],
+        data: &mut [u8],
+        _metadata: &FieldsetMetadata,
     ) -> Result<(), Self::Error> {
         let mut buffer = [0u8; 5];
         if (1 + data.len()) > buffer.len() {
@@ -40,7 +39,7 @@ where
 }
 
 pub struct Axp192<
-    I2CImpl: RegisterInterface<AddressType = u8, Error = AxpError<I2CBusErr>>,
+    I2CImpl: RegisterInterfaceBase<AddressType = u8, Error = AxpError<I2CBusErr>>,
     I2CBusErr: core::fmt::Debug,
 > {
     pub ll: AxpLowLevel<I2CImpl>,
@@ -81,24 +80,24 @@ where
 {
     #[bisync]
     pub async fn get_battery_voltage_mv(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let mut op = self.ll.battery_voltage_adc();
-        let raw_fieldset = read_internal(&mut op).await?;
+        let op = self.ll.battery_voltage_adc();
+        let raw_fieldset = read_internal(op).await?;
         let adc_val = adc_12bit_from_raw_u16(raw_fieldset.raw());
         Ok(adc_val as f32 * 1.1)
     }
 
     #[bisync]
     pub async fn get_battery_charge_current_ma(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let mut op = self.ll.battery_charge_current_adc();
-        let raw_fieldset = read_internal(&mut op).await?;
+        let op = self.ll.battery_charge_current_adc();
+        let raw_fieldset = read_internal(op).await?;
         let adc_val = adc_13bit_from_raw_u16(raw_fieldset.raw());
         Ok(adc_val as f32 * 0.5)
     }
 
     #[bisync]
     pub async fn get_battery_instantaneous_power_uw(&mut self) -> Result<f32, AxpError<I2CBusErr>> {
-        let mut op = self.ll.battery_instantaneous_power_adc();
-        let raw_fieldset = read_internal(&mut op).await?;
+        let op = self.ll.battery_instantaneous_power_adc();
+        let raw_fieldset = read_internal(op).await?;
         let adc_val = adc_24bit_from_raw_u32(raw_fieldset.raw());
         Ok(adc_val as f32 * 0.55)
     }
@@ -109,8 +108,8 @@ where
         dc: DcId,
         enable: bool,
     ) -> Result<(), AxpError<I2CBusErr>> {
-        let mut op = self.ll.power_output_control();
-        modify_internal(&mut op, |r| match dc {
+        let op = self.ll.power_output_control();
+        modify_internal(op, |r| match dc {
             DcId::Dcdc1 => r.set_dcdc_1_output_enable(enable),
             DcId::Dcdc2 => r.set_dcdc_2_output_enable(enable),
             DcId::Dcdc3 => r.set_dcdc_3_output_enable(enable),
@@ -131,16 +130,16 @@ where
 
         match dc {
             DcId::Dcdc1 => {
-                let mut op = self.ll.dc_dc_1_voltage_setting();
-                modify_internal(&mut op, |r| r.set_voltage_setting(raw_setting)).await
+                let op = self.ll.dc_dc_1_voltage_setting();
+                modify_internal(op, |r| r.set_voltage_setting(raw_setting)).await
             }
             DcId::Dcdc2 => {
-                let mut op = self.ll.dc_dc_2_voltage_setting();
-                modify_internal(&mut op, |r| r.set_voltage_setting(raw_setting)).await
+                let op = self.ll.dc_dc_2_voltage_setting();
+                modify_internal(op, |r| r.set_voltage_setting(raw_setting)).await
             }
             DcId::Dcdc3 => {
-                let mut op = self.ll.dc_dc_3_voltage_setting();
-                modify_internal(&mut op, |r| r.set_voltage_setting(raw_setting)).await
+                let op = self.ll.dc_dc_3_voltage_setting();
+                modify_internal(op, |r| r.set_voltage_setting(raw_setting)).await
             }
         }
     }
@@ -159,8 +158,8 @@ where
             return Err(AxpError::InvalidVoltage(voltage_mv));
         }
 
-        let mut op = self.ll.ldo_2_and_3_voltage_setting();
-        modify_internal(&mut op, |r| match ldo {
+        let op = self.ll.ldo_2_and_3_voltage_setting();
+        modify_internal(op, |r| match ldo {
             LdoId::Ldo2 => r.set_ldo_2_voltage_setting(raw_setting),
             LdoId::Ldo3 => r.set_ldo_3_voltage_setting(raw_setting),
         })
@@ -180,8 +179,8 @@ where
             return Err(AxpError::InvalidVoltage(voltage_mv));
         }
 
-        let mut op = self.ll.gpio_0_ldo_voltage_setting();
-        write_internal(&mut op, |r| {
+        let op = self.ll.gpio_0_ldo_voltage_setting();
+        write_internal(op, |r| {
             r.set_voltage_setting_raw(raw_4bit_setting);
         })
         .await
@@ -198,8 +197,8 @@ where
         let raw_setting_u16 = (threshold_mv * 10 + 64) / 128;
         let raw_setting = raw_setting_u16 as u8;
 
-        let mut op = self.ll.battery_charge_high_temp_threshold();
-        write_internal(&mut op, |r| {
+        let op = self.ll.battery_charge_high_temp_threshold();
+        write_internal(op, |r| {
             r.set_threshold_setting_raw(raw_setting);
         })
         .await
@@ -216,8 +215,8 @@ where
         let raw_setting_u16 = (threshold_mv * 10 + 64) / 128;
         let raw_setting = raw_setting_u16 as u8;
 
-        let mut op = self.ll.battery_charge_low_temp_threshold();
-        write_internal(&mut op, |r| {
+        let op = self.ll.battery_charge_low_temp_threshold();
+        write_internal(op, |r| {
             r.set_threshold_setting_raw(raw_setting);
         })
         .await
