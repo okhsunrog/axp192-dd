@@ -124,13 +124,10 @@ let status = axp.ll.power_status().read()?;
 let acin_present = status.acin_present();
 let vbus_present = status.vbus_present();
 
-// Read battery gauge data
-let gauge = axp.ll.battery_gauge_data().read()?;
-let percentage = gauge.percentage();
-
-// Read chip ID and access individual fields
-let chip_id = axp.ll.chip_id().read()?;
-let id_value = chip_id.chip_id();
+// Read charge status
+let charge = axp.ll.charge_status().read()?;
+let charging = charge.charging_in_progress();
+let battery_connected = charge.battery_connected();
 ```
 
 ### Writing Registers
@@ -177,7 +174,7 @@ The low-level API has async versions for use with `Axp192Async`. Simply append `
 ```rust
 // Async read
 let status = axp.ll.power_status().read_async().await?;
-let gauge = axp.ll.battery_gauge_data().read_async().await?;
+let charge = axp.ll.charge_status().read_async().await?;
 
 // Async write
 axp.ll.adc_enable_1().write_async(|w| {
