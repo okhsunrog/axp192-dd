@@ -287,9 +287,9 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "convert_case"
-version = "0.11.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "affbf0190ed2caf063e3def54ff444b449371d55c58e513a95ab98eca50adb49"
+checksum = "1af709f1f33454bf52eadfc8c78b3b9ef9cb26fb54d16dc9cd9a7299f899fd1b"
 dependencies = [
  "unicode-segmentation",
 ]
@@ -398,9 +398,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2503fa8477e63231b485f927f7e578cf05de86ab8a883f6d7b401d8adcd169c4"
+checksum = "c38a909a99943e2348df3f1ec63c9bf4ad84aa2f38484db17be88ec067d7344b"
 dependencies = [
  "defmt 1.1.1",
  "device-driver-macros",
@@ -410,9 +410,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-codegen"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2e34fe207199432a7cc91353f3b7092eeb245590e6f8aecd34717fb7d4f9d1dc"
+checksum = "666b1ac2cb71eafdb8f33c8c8183cf023ec2d5dc33db0a36e2dbdcbd8eecd7d5"
 dependencies = [
  "askama",
  "clap",
@@ -424,9 +424,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-common"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56861f388519f62e63f12c1b4047070c874aa982f08b7f04f4a5cd85aa0b4d05"
+checksum = "8bed2b0b880c86f1341a860a48eb4aea5adaac23fb900b83ea328b0b5a55e8c9"
 dependencies = [
  "chumsky",
  "convert_case",
@@ -436,9 +436,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-core"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b229ef2f525305e5d13c4d2fef33ca449e3574a67a4171c53dcecaef9963f53b"
+checksum = "d6905ef34a1265f660ed1e354ea56250c96640c7dd86a5a88cd1145603f75638"
 dependencies = [
  "annotate-snippets",
  "clap",
@@ -456,9 +456,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-diagnostics"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b745bd291a60f6f4855a283e58cc306680d4062bec5c2105c22021855b43a34"
+checksum = "08525355a366141aa3f20bdea1cefb1a592b7fdc521fe25c81f8ae24f0f1ad69"
 dependencies = [
  "annotate-snippets",
  "convert_case",
@@ -468,9 +468,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-lexer"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6e62bd3011b65675d3659875999e147d03aec7b8da4b024164766d0c2396cd1a"
+checksum = "2acdde4fd2c605b5ba77269231176263580987952665715296b30fe7e0fc6dcb"
 dependencies = [
  "device-driver-common",
  "logos",
@@ -478,9 +478,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-lir"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28674ea41bac6e02978cb4cadf42c86ba546dc778d255824376ae2baeba78e48"
+checksum = "9731acf9f497d9fa81eee9bb946038ada62f645b0a365032c2d329e97d694b44"
 dependencies = [
  "convert_case",
  "device-driver-common",
@@ -490,9 +490,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-macros"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0b79f0cc6b925d09179f6fe8e11ae2235a93a267a83c7f6347ba2cebfc89480"
+checksum = "d1b6d6c0072a66688ad5aeaa8a8e53c7c26fc69ea80080f25f7ac484281b4f0d"
 dependencies = [
  "clap",
  "device-driver-core",
@@ -503,9 +503,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-mir"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c17f28625c0ec32c68133690df48ff9b5c97c504b2539bdedd9f566cb61eabc"
+checksum = "d93e01596066fb38454524309c2690667460b21fca3c1bd0b9039a1f95ce7138"
 dependencies = [
  "clap",
  "convert_case",
@@ -518,9 +518,9 @@ dependencies = [
 
 [[package]]
 name = "device-driver-parser"
-version = "2.1.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab1f68314b8fc8d24a820739f9fdc660609ddda6e4f263c05ec70d9d12a97e84"
+checksum = "91858779d8f60c99e4c3d4590b3c6f301b5c0601df46b88e87cce880d935382f"
 dependencies = [
  "chumsky",
  "device-driver-common",
