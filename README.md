@@ -198,6 +198,8 @@ Register and field names in the LL API follow snake_case and are derived from th
 - Register: `AdcEnable1` → `adc_enable_1()`
 - Field: `battery_current_adc_enable` → `set_battery_current_adc_enable()` / `battery_current_adc_enable()`
 
+Since 0.4.0 the enum variants for voltages, currents, times and ranges are named in whole units, so the decimal point survives as an identifier: `Mv4000` instead of `V40`, `Ms1000` instead of `S10`, `Uv1600PerUs` for a slew rate of 1.6 mV/µs. The register values behind them are unchanged.
+
 ### Finding Register/Field Names
 
 1. **Check [`device.ddsl`](device.ddsl)** - All registers and fields are documented there
