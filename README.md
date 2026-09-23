@@ -12,7 +12,7 @@ This crate provides a no_std driver for the AXP192 power management IC, commonly
 The `axp192-dd` driver offers:
 
 - **Declarative Configuration:** The AXP192 register map is defined in [`device.ddsl`](device.ddsl), enabling `device-driver` to generate a type-safe, low-level register access API. This approach enhances maintainability and extensibility.
-- **Unified Async/Blocking API:** Uses the [`bisync`](https://github.com/JM4ier/bisync) crate to provide both asynchronous (`Axp192Async`) and blocking (`Axp192`) drivers from the same codebase, with no feature flags required.
+- **Unified Async/Blocking API:** Uses the [`bisync2`](https://github.com/de-vri-es/bisync2-rs) crate to provide both asynchronous (`Axp192Async`) and blocking (`Axp192`) drivers from the same codebase, with no feature flags required.
 - **High-Level and Low-Level APIs:**
   - High-level methods simplify tasks like setting DC-DC/LDO voltages, reading ADC voltages.
   - Low-level API (via the `ll` field of the `Axp192`/`Axp192Async` struct) offers direct, type-safe access to all registers defined in `device.ddsl` via raw values or enums.
